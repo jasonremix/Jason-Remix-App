@@ -28,37 +28,41 @@ export default function NotificationSettings() {
   const showToast = useUiStore((state) => state.showToast);
 
   const [permission, setPermission] = useState<PushPermission>('undetermined');
-  const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
+  /**
+   * Set only while a toggle is in flight, so the switch responds immediately without
+   * the server value being mirrored into local state — once the refetch lands, the
+   * server's answer is what shows.
+   */
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
+
+  const enabled = optimistic ?? Boolean(me.data?.profile?.pushEnabled);
 
   useEffect(() => {
     void notificationsService.getPermission().then(setPermission);
   }, []);
 
-  useEffect(() => {
-    setEnabled(Boolean(me.data?.profile?.pushEnabled));
-  }, [me.data?.profile?.pushEnabled]);
-
   const toggle = useCallback(
     async (next: boolean) => {
       setBusy(true);
+      setOptimistic(next);
       try {
         if (next) {
           const result = await notificationsService.enable();
           setPermission(result);
-          setEnabled(result === 'granted');
+          setOptimistic(result === 'granted');
           if (result !== 'granted') {
             showToast('NOTIFICATIONS ARE BLOCKED IN SYSTEM SETTINGS', 'neutral');
           }
         } else {
           await notificationsService.disable();
-          setEnabled(false);
         }
-        void me.refetch();
+        await me.refetch();
       } catch (error) {
         showToast(toAppError(error).message, 'negative');
-        setEnabled(false);
       } finally {
+        // Hand control back to the server value now that it has been refetched.
+        setOptimistic(null);
         setBusy(false);
       }
     },

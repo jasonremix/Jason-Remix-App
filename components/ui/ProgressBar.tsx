@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { alpha, gradients, motion, palette, radius } from '@/constants/theme';
+import { alpha, gradients, motion, palette } from '@/constants/theme';
 
 /**
  * A thin machined track with a chrome fill. Used for level progress and Spotify
@@ -23,19 +24,15 @@ export function ProgressBar({
   accessibilityLabel?: string;
 }) {
   const clamped = Math.min(1, Math.max(0, Number.isFinite(progress) ? progress : 0));
-  const value = useRef(new Animated.Value(clamped)).current;
+  const value = useSharedValue(clamped);
 
   useEffect(() => {
-    if (!animated) {
-      value.setValue(clamped);
-      return;
-    }
-    Animated.timing(value, {
-      toValue: clamped,
-      duration: motion.slow,
-      useNativeDriver: false,
-    }).start();
+    // Playback position updates every few seconds and should not ease, or the bar would
+    // always be animating towards a figure that has already moved on.
+    value.value = animated ? withTiming(clamped, { duration: motion.slow }) : clamped;
   }, [animated, clamped, value]);
+
+  const fillStyle = useAnimatedStyle(() => ({ width: `${value.value * 100}%` }));
 
   return (
     <View
@@ -44,14 +41,7 @@ export function ProgressBar({
       accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
       style={[styles.track, { height, borderRadius: height }, style]}
     >
-      <Animated.View
-        style={{
-          height: '100%',
-          borderRadius: height,
-          overflow: 'hidden',
-          width: value.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
-        }}
-      >
+      <Animated.View style={[{ height: '100%', borderRadius: height, overflow: 'hidden' }, fillStyle]}>
         <LinearGradient
           colors={[...gradients.chrome.colors]}
           locations={[...gradients.chrome.locations]}

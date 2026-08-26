@@ -1,7 +1,8 @@
 import type { BottomTabBarProps } from 'expo-router/build/layouts/Tabs';
 import { BlurView } from 'expo-blur';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -35,23 +36,21 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { tap } = useHaptics();
   const [barWidth, setBarWidth] = useState(0);
-  const indicator = useRef(new Animated.Value(0)).current;
+  const indicator = useSharedValue(0);
 
   const count = state.routes.length;
   const slotWidth = barWidth / Math.max(1, count);
 
   useEffect(() => {
     const target = state.index * slotWidth;
-    if (slotWidth === 0) {
-      indicator.setValue(target);
-      return;
-    }
-    Animated.timing(indicator, {
-      toValue: target,
-      duration: motion.base,
-      useNativeDriver: true,
-    }).start();
+    // Before the bar has been measured there is nothing to animate towards; jumping
+    // avoids a marker that slides in from the left on first paint.
+    indicator.value = slotWidth === 0 ? target : withTiming(target, { duration: motion.base });
   }, [indicator, slotWidth, state.index]);
+
+  const indicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: indicator.value }],
+  }));
 
   return (
     <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
@@ -70,10 +69,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         {slotWidth > 0 && (
           <Animated.View
             pointerEvents="none"
-            style={[
-              styles.indicatorSlot,
-              { width: slotWidth, transform: [{ translateX: indicator }] },
-            ]}
+            style={[styles.indicatorSlot, { width: slotWidth }, indicatorStyle]}
           >
             <View style={styles.indicator} />
           </Animated.View>

@@ -1,11 +1,21 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { alpha, palette, radius, spacing } from '@/constants/theme';
 
 /**
  * Loading placeholder — a slow luminance breathe rather than a sliding shimmer, which
  * would be too showy for this interface. Never an empty screen, never a spinner.
+ *
+ * Driven by Reanimated so the loop runs on the UI thread and keeps its rhythm even while
+ * the first data payload is being parsed.
  */
 export function Skeleton({
   width,
@@ -18,28 +28,17 @@ export function Skeleton({
   rounded?: keyof typeof radius;
   style?: StyleProp<ViewStyle>;
 }) {
-  const pulse = useRef(new Animated.Value(0)).current;
+  const pulse = useSharedValue(0.45);
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulse, {
-          toValue: 0,
-          duration: 900,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ]),
+    pulse.value = withRepeat(
+      withTiming(0.85, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+      -1,
+      true,
     );
-    animation.start();
-    return () => animation.stop();
   }, [pulse]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: pulse.value }));
 
   return (
     <Animated.View
@@ -51,8 +50,8 @@ export function Skeleton({
           backgroundColor: palette.gunmetal,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: alpha.hairline,
-          opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0.85] }),
         },
+        animatedStyle,
         style,
       ]}
     />

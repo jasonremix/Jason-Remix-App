@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, {
+  FadeOut,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { alpha, layout, motion, palette, radius, spacing } from '@/constants/theme';
@@ -17,7 +23,10 @@ export function ToastHost() {
   if (toasts.length === 0) return null;
 
   return (
-    <View style={[styles.host, { bottom: insets.bottom + layout.tabBarHeight + spacing.base }]} pointerEvents="box-none">
+    <View
+      style={[styles.host, { bottom: insets.bottom + layout.tabBarHeight + spacing.base }]}
+      pointerEvents="box-none"
+    >
       {toasts.map((toast) => (
         <ToastRow key={toast.id} toast={toast} />
       ))}
@@ -27,26 +36,28 @@ export function ToastHost() {
 
 function ToastRow({ toast }: { toast: Toast }) {
   const dismiss = useUiStore((state) => state.dismissToast);
-  const opacity = new Animated.Value(0);
-  const translate = new Animated.Value(8);
+  const progress = useSharedValue(0);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: motion.base, useNativeDriver: true }),
-      Animated.timing(translate, { toValue: 0, duration: motion.base, useNativeDriver: true }),
-    ]).start();
-
+    progress.value = withTiming(1, { duration: motion.base });
     const timer = setTimeout(() => dismiss(toast.id), VISIBLE_MS);
     return () => clearTimeout(timer);
-    // The animated values are created per mount; re-running would restart the entrance.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toast.id]);
+  }, [dismiss, progress, toast.id]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ translateY: (1 - progress.value) * 8 }],
+  }));
 
   const accent =
-    toast.tone === 'positive' ? palette.chrome : toast.tone === 'negative' ? palette.danger : palette.titanium;
+    toast.tone === 'positive'
+      ? palette.chrome
+      : toast.tone === 'negative'
+        ? palette.danger
+        : palette.titanium;
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY: translate }] }}>
+    <Animated.View style={animatedStyle} exiting={FadeOut.duration(motion.fast)}>
       <Pressable onPress={() => dismiss(toast.id)} accessibilityRole="button" style={styles.toast}>
         <View style={[styles.accent, { backgroundColor: accent }]} />
         <Text variant="bodySmall" tone="secondary" numberOfLines={2} style={styles.message}>

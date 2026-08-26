@@ -4,8 +4,15 @@
     "strict": true,
     "noUncheckedIndexedAccess": false,
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ]
+    },
+    "types": [
+      "jest",
+      "node",
+      "expo"
+    ]
   },
   "include": [
     "**/*.ts",
@@ -14,5 +21,10 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts"
   ],
-  "exclude": ["node_modules", "server", "dist", ".expo"]
+  "exclude": [
+    "node_modules",
+    "server",
+    "dist",
+    ".expo"
+  ]
 }

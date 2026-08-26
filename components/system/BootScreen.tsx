@@ -1,5 +1,14 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { Monogram } from '@/components/brand/Monogram';
 import { Wordmark } from '@/components/brand/Wordmark';
@@ -18,66 +27,52 @@ const MINIMUM_VISIBLE_MS = 900;
 const EXIT_MS = 380;
 
 export function BootScreen({ ready, onFinished }: { ready: boolean; onFinished: () => void }) {
-  const mark = useRef(new Animated.Value(0)).current;
-  const word = useRef(new Animated.Value(0)).current;
-  const cover = useRef(new Animated.Value(1)).current;
-  const mountedAt = useRef(Date.now());
+  const mark = useSharedValue(0);
+  const word = useSharedValue(0);
+  const cover = useSharedValue(1);
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.timing(mark, {
-        toValue: 1,
-        duration: ENTRY_MS,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(word, {
-        toValue: 1,
-        duration: ENTRY_MS,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
+    const easing = Easing.out(Easing.cubic);
+    mark.value = withTiming(1, { duration: ENTRY_MS, easing });
+    word.value = withDelay(ENTRY_MS, withTiming(1, { duration: ENTRY_MS, easing }));
   }, [mark, word]);
 
   useEffect(() => {
     if (!ready) return;
 
-    const elapsed = Date.now() - mountedAt.current;
-    const delay = Math.max(0, MINIMUM_VISIBLE_MS - elapsed);
-
+    // The delay is measured from mount rather than from `ready`, so a session restored
+    // in 40 ms still gets the full beat instead of a flash.
     const timer = setTimeout(() => {
-      Animated.timing(cover, {
-        toValue: 0,
-        duration: EXIT_MS,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) onFinished();
-      });
-    }, delay);
+      cover.value = withTiming(
+        0,
+        { duration: EXIT_MS, easing: Easing.inOut(Easing.quad) },
+        (finished) => {
+          if (finished) runOnJS(onFinished)();
+        },
+      );
+    }, MINIMUM_VISIBLE_MS);
 
     return () => clearTimeout(timer);
   }, [cover, onFinished, ready]);
 
+  const coverStyle = useAnimatedStyle(() => ({ opacity: cover.value }));
+  const markStyle = useAnimatedStyle(() => ({
+    opacity: mark.value,
+    transform: [{ scale: interpolate(mark.value, [0, 1], [0.9, 1]) }],
+  }));
+  const wordStyle = useAnimatedStyle(() => ({
+    opacity: word.value,
+    transform: [{ translateY: interpolate(word.value, [0, 1], [8, 0]) }],
+  }));
+
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, styles.root, { opacity: cover }]} pointerEvents="none">
+    <Animated.View style={[StyleSheet.absoluteFill, styles.root, coverStyle]} pointerEvents="none">
       <View style={styles.stack}>
-        <Animated.View
-          style={{
-            opacity: mark,
-            transform: [{ scale: mark.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }],
-          }}
-        >
+        <Animated.View style={markStyle}>
           <Monogram size={56} />
         </Animated.View>
 
-        <Animated.View
-          style={{
-            opacity: word,
-            transform: [{ translateY: word.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
-          }}
-        >
+        <Animated.View style={wordStyle}>
           <Wordmark size="lg" tagline align="center" />
         </Animated.View>
       </View>

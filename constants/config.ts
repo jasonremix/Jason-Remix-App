@@ -8,19 +8,32 @@ import Constants from 'expo-constants';
  * app's behalf (see server/src/services/spotify.service.ts).
  */
 
-function readEnv(key: string): string | undefined {
-  // `process.env.EXPO_PUBLIC_*` is inlined at build time; the extra lookup in
-  // `expoConfig.extra` lets the same build be re-pointed from app.json.
-  const fromProcess = process.env[key];
-  if (fromProcess && fromProcess.length > 0) return fromProcess;
+/**
+ * `EXPO_PUBLIC_*` variables are substituted into the bundle at build time, and that
+ * substitution is a *static* text replacement: `process.env[key]` is never rewritten and
+ * would always read as undefined in a release build. Each variable therefore has to be
+ * named literally here.
+ *
+ * `expoConfig.extra` is consulted as a fallback so one built binary can be re-pointed
+ * from app.json without a rebuild.
+ */
+function fromExtra(key: string): string | undefined {
   const extra = Constants.expoConfig?.extra as Record<string, unknown> | undefined;
-  const fromExtra = extra?.[key];
-  return typeof fromExtra === 'string' && fromExtra.length > 0 ? fromExtra : undefined;
+  const value = extra?.[key];
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
-const apiBaseUrl = readEnv('EXPO_PUBLIC_API_BASE_URL');
-const spotifyClientId = readEnv('EXPO_PUBLIC_SPOTIFY_CLIENT_ID');
-const forceDemo = readEnv('EXPO_PUBLIC_FORCE_DEMO_MODE') === 'true';
+function pick(inlined: string | undefined, key: string): string | undefined {
+  return inlined && inlined.length > 0 ? inlined : fromExtra(key);
+}
+
+const apiBaseUrl = pick(process.env.EXPO_PUBLIC_API_BASE_URL, 'EXPO_PUBLIC_API_BASE_URL');
+const spotifyClientId = pick(
+  process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID,
+  'EXPO_PUBLIC_SPOTIFY_CLIENT_ID',
+);
+const forceDemo =
+  pick(process.env.EXPO_PUBLIC_FORCE_DEMO_MODE, 'EXPO_PUBLIC_FORCE_DEMO_MODE') === 'true';
 
 export const config = {
   apiBaseUrl,

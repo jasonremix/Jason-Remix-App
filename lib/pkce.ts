@@ -19,13 +19,20 @@ export function base64UrlEncode(base64: string): string {
 }
 
 /**
- * Draws `length` characters from a cryptographically secure source, rejecting bytes
- * that would bias the distribution across the 64-character alphabet.
+ * Maps random bytes onto the unreserved alphabet, one character per byte.
+ *
+ * Throws rather than truncating when there are too few bytes: silently returning a
+ * shorter value than the caller asked for would weaken a verifier or a state without
+ * anything failing visibly.
  */
 export function randomStringFromBytes(bytes: Uint8Array, length: number): string {
+  if (bytes.length < length) {
+    throw new Error(`need at least ${length} random bytes, received ${bytes.length}`);
+  }
+
   let out = '';
-  for (let i = 0; i < bytes.length && out.length < length; i += 1) {
-    // 64 divides 256 evenly, so a plain mask is unbiased here.
+  for (let i = 0; i < length; i += 1) {
+    // 64 divides 256 evenly, so masking to six bits is unbiased across the alphabet.
     out += VERIFIER_ALPHABET[bytes[i] & 0x3f];
   }
   return out;
@@ -47,10 +54,13 @@ export async function createCodeChallenge(verifier: string): Promise<string> {
   return base64UrlEncode(digest);
 }
 
+/** Length of the opaque `state` value, in characters. */
+const STATE_LENGTH = 32;
+
 /** Opaque value echoed back by the authorization server to defend against CSRF. */
 export async function createState(): Promise<string> {
-  const bytes = await Crypto.getRandomBytesAsync(24);
-  return randomStringFromBytes(bytes, 32);
+  const bytes = await Crypto.getRandomBytesAsync(STATE_LENGTH);
+  return randomStringFromBytes(bytes, STATE_LENGTH);
 }
 
 export type PkcePair = {

@@ -1,14 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Animated,
   Pressable,
   StyleSheet,
   View,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { useHaptics } from '@/hooks/useHaptics';
 import { alpha, gradients, motion, palette, radius, spacing } from '@/constants/theme';
@@ -57,19 +57,20 @@ export function Button({
   accessibilityHint,
 }: ButtonProps) {
   const { tap } = useHaptics();
-  const sheen = useRef(new Animated.Value(0)).current;
+  const [pressed, setPressed] = useState(false);
+  const sheen = useSharedValue(0);
   const isDisabled = disabled || loading;
 
-  const animate = useCallback(
-    (toValue: number) => {
-      Animated.timing(sheen, {
-        toValue,
-        duration: toValue === 1 ? motion.instant : motion.fast,
-        useNativeDriver: true,
-      }).start();
-    },
-    [sheen],
-  );
+  // Press state drives the sheen through an effect rather than being written from the
+  // handlers directly: the animation stays declarative and the sheen always settles,
+  // even if a press-out is swallowed by a gesture being cancelled.
+  useEffect(() => {
+    sheen.value = withTiming(pressed ? 1 : 0, {
+      duration: pressed ? motion.instant : motion.fast,
+    });
+  }, [pressed, sheen]);
+
+  const sheenStyle = useAnimatedStyle(() => ({ opacity: sheen.value }));
 
   const handlePress = useCallback(() => {
     if (isDisabled) return;
@@ -87,8 +88,8 @@ export function Button({
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       onPress={handlePress}
-      onPressIn={() => animate(1)}
-      onPressOut={() => animate(0)}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
       disabled={isDisabled}
       style={[
         styles.base,
@@ -113,10 +114,8 @@ export function Button({
         pointerEvents="none"
         style={[
           StyleSheet.absoluteFill,
-          {
-            backgroundColor: variant === 'primary' ? 'rgba(255,255,255,0.35)' : alpha.press,
-            opacity: sheen,
-          },
+          { backgroundColor: variant === 'primary' ? 'rgba(255,255,255,0.35)' : alpha.press },
+          sheenStyle,
         ]}
       />
 
@@ -125,7 +124,9 @@ export function Button({
           <ActivityIndicator size="small" color={contentColor} />
         ) : (
           <>
-            {icon && !iconTrailing && <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />}
+            {icon && !iconTrailing && (
+              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />
+            )}
             <Text
               variant="label"
               style={{ color: contentColor }}
@@ -135,7 +136,9 @@ export function Button({
             >
               {label}
             </Text>
-            {icon && iconTrailing && <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />}
+            {icon && iconTrailing && (
+              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />
+            )}
           </>
         )}
       </View>
@@ -159,7 +162,11 @@ function resolveContentColor(variant: ButtonVariant, disabled: boolean): string 
 
 function variantStyle(variant: ButtonVariant, disabled: boolean): ViewStyle {
   if (disabled) {
-    return { backgroundColor: palette.gunmetal, borderColor: alpha.hairline, borderWidth: StyleSheet.hairlineWidth };
+    return {
+      backgroundColor: palette.gunmetal,
+      borderColor: alpha.hairline,
+      borderWidth: StyleSheet.hairlineWidth,
+    };
   }
   switch (variant) {
     case 'primary':
