@@ -199,8 +199,14 @@ every table, voids open giveaway entries, and revokes all sessions. The export
 deliberately excludes credential material.
 
 Legal texts (Impressum, Datenschutzerklärung, Nutzungsbedingungen, Gewinnspiel­bedingungen,
-Spotify notice) live under `app/legal/` in German. **Placeholders for the operator's real
-details are marked in-app and must be completed before release.**
+Spotify notice) live under `app/legal/` in German.
+
+**The operator's details go in one file: `constants/operator.ts`.** Until the required
+fields are filled in, every legal screen shows a warning naming exactly what is missing
+and renders the gaps as visible `[placeholders]`. The warning is derived from that
+config rather than hard-coded, so it switches itself off once the details are supplied —
+there is nothing to remember to remove, and an incomplete Impressum cannot ship
+unnoticed.
 
 ---
 
@@ -258,12 +264,15 @@ or a message.
 | `npm test` | Client logic tests |
 | `npm run server` | API server in watch mode |
 | `npm run server:seed` | Schema + reference data + first admin |
+| `npm --prefix server run import:catalog` | Import the real discography from `server/catalog.json` |
+| `npm --prefix server run backup` | Online SQLite snapshot |
+| `docker compose up --build` | Run the API locally in a container |
 | `npm run server:test` | API test suite |
 
 ## Tests
 
 ```bash
-npm test              # 61 client tests
+npm test              # 67 client tests
 npm run server:test   # 94 API tests
 ```
 

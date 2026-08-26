@@ -1,0 +1,57 @@
+{
+  "_comment": [
+    "Copy this to catalog.json, replace it with the real discography, then run:",
+    "    npm run import:catalog",
+    "",
+    "The import is idempotent and keyed on `id`: running it again updates existing",
+    "entries rather than duplicating them, so this file can stay the source of truth",
+    "and be re-imported after every edit.",
+    "",
+    "Leave `coverUrl` null to use the generated sleeve — the app derives a facet",
+    "composition from the title, so a release without artwork still looks intentional."
+  ],
+
+  "albums": [
+    {
+      "id": "alb-zeitgeist",
+      "title": "Zeitgeist",
+      "releaseDate": "2026-07-29",
+      "coverUrl": null
+    }
+  ],
+
+  "tracks": [
+    {
+      "id": "trk-zeitgeist",
+      "title": "Zeitgeist",
+      "artist": "Jason Remix",
+      "albumId": "alb-zeitgeist",
+      "releaseDate": "2026-07-29",
+      "genre": "Electronic",
+      "durationSeconds": 214,
+      "isrc": null,
+      "coverUrl": null,
+      "featured": true,
+      "links": {
+        "spotify": "https://open.spotify.com/track/…",
+        "youtube": "https://www.youtube.com/watch?v=…",
+        "appleMusic": "https://music.apple.com/…",
+        "amazonMusic": null,
+        "deezer": null,
+        "tidal": null,
+        "soundcloud": null
+      }
+    }
+  ],
+
+  "news": [
+    {
+      "id": "news-zeitgeist",
+      "category": "RELEASE",
+      "title": "ZEITGEIST is out now",
+      "body": "The new single is available on every major platform.",
+      "imageUrl": null,
+      "linkUrl": null
+    }
+  ]
+}

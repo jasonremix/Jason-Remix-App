@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Jason Remix API — accounts, credit ledger, missions, rewards, giveaways and the Spotify token exchange.",
+  "description": "Jason Remix API \u2014 accounts, credit ledger, missions, rewards, giveaways and the Spotify token exchange.",
   "engines": {
     "node": ">=20"
   },
@@ -15,7 +15,9 @@
     "migrate": "tsx src/db/migrate.ts",
     "seed": "tsx src/db/seed.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "backup": "tsx src/db/backup.ts",
+    "import:catalog": "tsx src/db/import-catalog.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

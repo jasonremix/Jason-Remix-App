@@ -50,6 +50,10 @@ server/.env.*
 
 # server
 server/node_modules/
+server/backups/
+# The real discography, imported into the database. `catalog.example.json` is the
+# tracked template.
+server/catalog.json
 server/data/
 server/dist/
 *.sqlite

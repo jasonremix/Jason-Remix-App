@@ -1,4 +1,5 @@
 import { LegalDocument } from '@/components/legal/LegalDocument';
+import { postalAddress } from '@/constants/operator';
 
 /**
  * Teilnahmebedingungen for the giveaways.
@@ -10,13 +11,13 @@ export default function GiveawayTerms() {
   return (
     <LegalDocument
       title="GEWINNSPIEL­BEDINGUNGEN"
-      placeholderNotice="Veranstalterangaben, Altersgrenze und Teilnahmegebiet je Gewinnspiel prüfen; bei Gewinnspielen mit Reise- oder Veranstaltungsbezug gesonderte Bedingungen ergänzen."
+      notice="Altersgrenze und Teilnahmegebiet je Gewinnspiel prüfen; bei Reise- oder Veranstaltungsbezug gesonderte Bedingungen ergänzen."
       intro="Diese Bedingungen gelten für alle in der App durchgeführten Gewinnspiele. Bei einzelnen Gewinnspielen können ergänzende Bedingungen angegeben sein; diese gehen im Zweifel vor."
       updatedAt="—"
       sections={[
         {
           heading: '1 · VERANSTALTER',
-          paragraphs: ['[Name und Anschrift des Veranstalters]'],
+          paragraphs: [postalAddress()],
         },
         {
           heading: '2 · TEILNAHMEBERECHTIGUNG',

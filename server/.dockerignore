@@ -1,0 +1,14 @@
+node_modules
+data
+dist
+tests
+vitest.config.ts
+tsconfig.json
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-*
+README.md
+Dockerfile
+.dockerignore
