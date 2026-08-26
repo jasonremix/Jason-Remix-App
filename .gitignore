@@ -31,7 +31,15 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+#
+# `.env` and `server/.env` hold real credentials — server/.env carries the Spotify
+# client secret. Only the `.env.example` templates are ever tracked.
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
 
 # typescript
 *.tsbuildinfo
@@ -42,6 +50,10 @@ yarn-error.*
 
 # server
 server/node_modules/
+server/backups/
+# The real discography, imported into the database. `catalog.example.json` is the
+# tracked template.
+server/catalog.json
 server/data/
 server/dist/
 *.sqlite

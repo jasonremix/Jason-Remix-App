@@ -1,5 +1,6 @@
 import { LegalDocument } from '@/components/legal/LegalDocument';
 import { brand } from '@/constants/brand';
+import { postalAddress } from '@/constants/operator';
 
 /**
  * Datenschutzerklärung.
@@ -12,15 +13,13 @@ export default function Privacy() {
   return (
     <LegalDocument
       title="DATENSCHUTZ"
-      placeholderNotice="Verantwortliche Stelle, Kontaktdaten, ggf. Datenschutzbeauftragte:r sowie Auftragsverarbeiter (Hosting, Push-Dienst) ergänzen und die Angaben mit der tatsächlichen Serverkonfiguration abgleichen."
+      notice="Auftragsverarbeiter (Hosting, Push-Dienst) sind zu ergänzen und die Angaben mit der tatsächlichen Serverkonfiguration abzugleichen, sobald die API deployt ist."
       intro="Diese Erklärung beschreibt, welche personenbezogenen Daten die Jason-Remix-App verarbeitet, zu welchem Zweck und auf welcher Rechtsgrundlage. Grundlage ist die Datenschutz-Grundverordnung (DSGVO)."
       updatedAt="—"
       sections={[
         {
           heading: '1 · VERANTWORTLICHE STELLE',
-          paragraphs: [
-            `[Name des Betreibers]\n[Anschrift]\n14770 Brandenburg an der Havel\n\nE-Mail: ${brand.privacyEmail}`,
-          ],
+          paragraphs: [`${postalAddress()}\n\nE-Mail: ${brand.privacyEmail}`],
         },
         {
           heading: '2 · GRUNDSATZ DER DATENMINIMIERUNG',

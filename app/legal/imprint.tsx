@@ -1,45 +1,58 @@
 import { LegalDocument } from '@/components/legal/LegalDocument';
 import { brand } from '@/constants/brand';
+import { operator, orPlaceholder, postalAddress } from '@/constants/operator';
 
 /**
- * Impressum — required under § 5 DDG (formerly § 5 TMG) for a commercially operated
- * German app. The operator's real details must be filled in before release; placeholders
- * are marked so they cannot be shipped unnoticed.
+ * Impressum — required under § 5 DDG for a commercially operated German app.
+ *
+ * Every value comes from `constants/operator.ts`. Anything not filled in there is
+ * rendered as a visible `[placeholder]` and triggers the warning banner, so an
+ * incomplete Impressum cannot ship unnoticed.
  */
 export default function Imprint() {
   return (
     <LegalDocument
       title="IMPRESSUM"
-      placeholderNotice="Vollständigen Namen, Anschrift, Kontaktdaten und ggf. USt-IdNr. des Betreibers eintragen, bevor die App veröffentlicht wird. Ein unvollständiges Impressum ist abmahnfähig."
       intro="Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)."
-      updatedAt="—"
       sections={[
         {
           heading: 'DIENSTEANBIETER',
-          paragraphs: [
-            '[Vollständiger Name bzw. Firmierung]\n[Straße und Hausnummer]\n14770 Brandenburg an der Havel\nDeutschland',
-          ],
+          paragraphs: [postalAddress()],
         },
         {
           heading: 'KONTAKT',
           paragraphs: [
-            `E-Mail: ${brand.supportEmail}\nTelefon: [Telefonnummer]\nWeb: ${brand.website}`,
+            `E-Mail: ${brand.supportEmail}\nTelefon: ${orPlaceholder(operator.phone, 'Telefonnummer')}\nWeb: ${brand.website}`,
           ],
         },
-        {
-          heading: 'VERTRETUNGSBERECHTIGT',
-          paragraphs: ['[Name der vertretungsberechtigten Person]'],
-        },
-        {
-          heading: 'UMSATZSTEUER',
-          paragraphs: [
-            'Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz: [USt-IdNr., falls vorhanden]',
-          ],
-        },
+        ...(operator.representative
+          ? [
+              {
+                heading: 'VERTRETUNGSBERECHTIGT',
+                paragraphs: [operator.representative],
+              },
+            ]
+          : []),
+        ...(operator.vatId
+          ? [
+              {
+                heading: 'UMSATZSTEUER',
+                paragraphs: [
+                  `Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:\n${operator.vatId}`,
+                ],
+              },
+            ]
+          : []),
         {
           heading: 'VERANTWORTLICH FÜR DEN INHALT',
           paragraphs: [
-            'Verantwortlich im Sinne des § 18 Abs. 2 Medienstaatsvertrag (MStV):\n[Name]\n[Anschrift]',
+            `Verantwortlich im Sinne des § 18 Abs. 2 Medienstaatsvertrag (MStV):\n${orPlaceholder(
+              operator.contentResponsibleName || operator.legalName,
+              'Name',
+            )}\n${orPlaceholder(
+              operator.contentResponsibleAddress || operator.street,
+              'Anschrift',
+            )}`,
           ],
         },
         {

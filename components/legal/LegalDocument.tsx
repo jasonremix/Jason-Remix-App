@@ -5,6 +5,7 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Hairline, Surface } from '@/components/ui/Surface';
 import { Icon } from '@/components/ui/Icon';
 import { Text } from '@/components/ui/Text';
+import { missingOperatorFields, operatorDetailsComplete } from '@/constants/operator';
 import { palette, spacing } from '@/constants/theme';
 
 export type LegalSection = {
@@ -26,28 +27,46 @@ export function LegalDocument({
   intro,
   updatedAt,
   sections,
-  placeholderNotice,
+  notice,
 }: {
   title: string;
   intro?: string;
   updatedAt?: string;
   sections: LegalSection[];
-  /** Shown when the operator still has to supply real details before release. */
-  placeholderNotice?: string;
+  /** A document-specific note, shown in addition to the operator warning. */
+  notice?: string;
 }) {
+  /**
+   * The warning is derived from `constants/operator.ts` rather than hard-coded, so it
+   * disappears by itself once the details are filled in — there is nothing to remember
+   * to switch off, and it cannot be left on after release by accident.
+   */
+  const showOperatorWarning = !operatorDetailsComplete;
+
   return (
     <Screen header={<ScreenHeader title={title} />} contentStyle={styles.content}>
-      {placeholderNotice && (
+      {showOperatorWarning && (
         <Surface elevation="inset" style={styles.notice}>
           <Icon name="alert" size={15} color={palette.warning} />
           <View style={styles.noticeText}>
             <Text variant="label" tone="secondary" uppercase>
-              TO BE COMPLETED BEFORE RELEASE
+              VOR VERÖFFENTLICHUNG AUSFÜLLEN
             </Text>
             <Text variant="caption" tone="muted">
-              {placeholderNotice}
+              Betreiberangaben fehlen in constants/operator.ts:{' '}
+              {missingOperatorFields.join(', ')}. Ein unvollständiges Impressum ist
+              abmahnfähig.
             </Text>
           </View>
+        </Surface>
+      )}
+
+      {notice && (
+        <Surface elevation="inset" style={styles.notice}>
+          <Icon name="info" size={15} color={palette.titanium} />
+          <Text variant="caption" tone="muted" style={styles.noticeText}>
+            {notice}
+          </Text>
         </Surface>
       )}
 

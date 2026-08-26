@@ -1,0 +1,26 @@
+# Local run of the API against a persistent SQLite volume.
+#
+#   cp server/.env.example server/.env    # fill in the two secrets
+#   docker compose up --build
+#
+# The app then points at http://localhost:4000 (or your LAN address from a device).
+
+services:
+  api:
+    build:
+      context: ./server
+    ports:
+      - '4000:4000'
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: /data/jason-remix.sqlite
+    volumes:
+      # Named volume, not a bind mount: the database must survive `docker compose down`
+      # and must not be affected by host file permissions.
+      - jason-remix-data:/data
+    restart: unless-stopped
+
+volumes:
+  jason-remix-data:

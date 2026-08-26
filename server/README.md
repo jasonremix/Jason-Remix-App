@@ -26,6 +26,71 @@ better-sqlite3 is synchronous, which is exactly what a credit ledger wants: a
 transaction really is atomic with no interleaving `await` points inside it. The schema
 is ordinary SQL and ports to Postgres without redesign when scale requires it.
 
+## Deploying
+
+Node strips the TypeScript annotations natively, so there is no build step — the image
+runs the files that are in the repository.
+
+```bash
+docker compose up --build          # local, with a persistent volume
+```
+
+For Fly.io, `fly.toml` is committed with the volume mount and health check already
+configured:
+
+```bash
+fly launch --no-deploy --name jason-remix-api
+fly volumes create jason_remix_data --size 1 --region fra
+fly secrets set JWT_SECRET=… TOKEN_ENCRYPTION_KEY=… SPOTIFY_CLIENT_ID=… SPOTIFY_CLIENT_SECRET=…
+fly deploy
+```
+
+Two constraints matter whatever the host:
+
+- **The database is a single file on a single volume, so exactly one instance may
+  write to it.** Autoscaling this service horizontally would corrupt the ledger.
+  `auto_stop_machines` is off and `min_machines_running` is 1 for that reason.
+- **`/data` must be a real volume.** A container filesystem is discarded on redeploy,
+  and with it every member's balance.
+
+Shutdown is graceful: `tini` forwards `SIGTERM`, and the server finishes in-flight
+requests before exiting, so a deploy cannot cut a credit transaction in half.
+
+### Backups
+
+```bash
+npm run backup                 # ./backups/jason-remix-<timestamp>.sqlite
+npm run backup -- /mnt/backups
+```
+
+This uses SQLite's own online backup API rather than copying the file: a copy of a live
+database can capture a half-written page, and with WAL enabled it would also miss
+everything still in the write-ahead log. The most recent 14 snapshots are kept
+(`BACKUP_RETAIN`).
+
+Run it from cron or a scheduled platform job. The ledger is the one thing here that
+cannot be reconstructed from anywhere else.
+
+## Importing the real discography
+
+```bash
+cp catalog.example.json catalog.json     # then edit it
+npm run import:catalog
+```
+
+The file is validated before anything is written and the whole import runs in one
+transaction, so a file with one bad row changes nothing rather than leaving the
+catalogue half-updated. It is keyed on `id` and idempotent, so `catalog.json` can stay
+the source of truth and be re-imported after every edit.
+
+Two rules it enforces: dates must be `YYYY-MM-DD`, and only one release may be
+`featured` — Home has exactly one hero. Releases with no streaming links are reported
+as a warning, since they render without a PLAY button.
+
+Leave `coverUrl` as `null` to use the generated sleeve: the app derives a facet
+composition from the title, so a release without artwork still looks intentional.
+
+
 ## Endpoints
 
 ### Public

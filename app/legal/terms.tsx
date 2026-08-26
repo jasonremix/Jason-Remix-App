@@ -5,7 +5,7 @@ export default function Terms() {
   return (
     <LegalDocument
       title="NUTZUNGSBEDINGUNGEN"
-      placeholderNotice="Betreiberangaben, Gerichtsstand und ggf. Widerrufsbelehrung durch eine juristische Prüfung ergänzen lassen, bevor die App veröffentlicht wird."
+      notice="Gerichtsstand und ggf. Widerrufsbelehrung vor Veröffentlichung juristisch prüfen lassen."
       intro={`Diese Bedingungen regeln die Nutzung der ${brand.name} App und des darin enthaltenen Mitglieds- und Credits-Systems.`}
       updatedAt="—"
       sections={[

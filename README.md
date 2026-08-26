@@ -199,8 +199,57 @@ every table, voids open giveaway entries, and revokes all sessions. The export
 deliberately excludes credential material.
 
 Legal texts (Impressum, Datenschutzerklärung, Nutzungsbedingungen, Gewinnspiel­bedingungen,
-Spotify notice) live under `app/legal/` in German. **Placeholders for the operator's real
-details are marked in-app and must be completed before release.**
+Spotify notice) live under `app/legal/` in German.
+
+**The operator's details go in one file: `constants/operator.ts`.** Until the required
+fields are filled in, every legal screen shows a warning naming exactly what is missing
+and renders the gaps as visible `[placeholders]`. The warning is derived from that
+config rather than hard-coded, so it switches itself off once the details are supplied —
+there is nothing to remember to remove, and an incomplete Impressum cannot ship
+unnoticed.
+
+---
+
+## Building for the stores (EAS)
+
+`eas.json` defines three profiles: `development` (dev client, iOS simulator + Android
+APK), `preview` (internal distribution) and `production` (store-ready, auto-incrementing
+build numbers).
+
+```bash
+npm i -g eas-cli
+eas login
+eas init            # writes extra.eas.projectId into app.json
+eas build --profile preview --platform all
+```
+
+### Configuration per environment
+
+`EXPO_PUBLIC_*` values are compiled into the bundle, so they are set per build
+environment rather than committed:
+
+```bash
+eas env:create --environment production --name EXPO_PUBLIC_API_BASE_URL       --value https://api.jasonremix.de
+eas env:create --environment production --name EXPO_PUBLIC_SPOTIFY_CLIENT_ID  --value <client id>
+```
+
+A build with neither set produces a working app in demo mode — useful for a first
+internal build before the API is deployed.
+
+> The Spotify **client secret** is never part of a build. It belongs only in the API
+> server's environment.
+
+### CI
+
+`.github/workflows/ci.yml` runs typecheck, lint and both test suites on every push. It
+needs no secrets.
+
+`.github/workflows/eas-build.yml` starts a build on manual dispatch and is the only
+workflow that needs credentials: an **Expo access token** stored as the repository
+secret `EXPO_TOKEN` (Settings → Secrets and variables → Actions). Create the token at
+<https://expo.dev/settings/access-tokens>. Treat it like a password — it authenticates
+as your Expo account, so it belongs in the secret store and never in a file, a commit,
+or a message.
 
 ---
 
@@ -215,12 +264,15 @@ details are marked in-app and must be completed before release.**
 | `npm test` | Client logic tests |
 | `npm run server` | API server in watch mode |
 | `npm run server:seed` | Schema + reference data + first admin |
+| `npm --prefix server run import:catalog` | Import the real discography from `server/catalog.json` |
+| `npm --prefix server run backup` | Online SQLite snapshot |
+| `docker compose up --build` | Run the API locally in a container |
 | `npm run server:test` | API test suite |
 
 ## Tests
 
 ```bash
-npm test              # 61 client tests
+npm test              # 67 client tests
 npm run server:test   # 94 API tests
 ```
 
