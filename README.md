@@ -272,26 +272,20 @@ Everything that does not require an Expo account is already in place: bundle ide
 and package name, icons, `eas.json`, `expo-updates`, a `runtimeVersion` policy, an
 `.easignore` that keeps the API server out of the upload, and two GitHub Actions.
 
-The one missing piece is the project id, because only your account can create it:
-
-```bash
-npm i -g eas-cli
-eas login
-npm run eas:setup      # eas init + eas update:configure, then re-checks
-```
-
-`eas init` registers the project in your Expo account — from that moment it is visible
-on expo.dev — and writes `extra.eas.projectId` into `app.json`. Commit that change.
+The project id is committed, so `npm run eas:check` passes with no blockers:
 
 ```bash
 npm run eas:check      # what is still missing, before a build burns 20 minutes
 npm run eas:build      # preview APK for Android
-npm run eas:update     # ship a JS-only change to installed builds
+npm run eas:update     # ship a JS-only change, openable in Expo Go
 ```
 
-`npm run eas:check` is the thing to run first. It reports exactly one blocker until
-`eas init` has run, and separately lists what should be done before a *store* release
-(Impressum details, the real discography) without treating those as build failures.
+`eas:check` separately lists what should be done before a *store* release (Impressum
+details, the real discography) without treating those as build failures.
+
+> If `eas` reports that the config slug does not match the project, the slug on
+> expo.dev differs from `expo.slug` in `app.json`. The project id decides which project
+> is meant; align the slug to it and the message goes away.
 
 ### Builds versus updates
 

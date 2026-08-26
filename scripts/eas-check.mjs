@@ -70,11 +70,20 @@ check(
   'eas login && eas init   — legt das Projekt in deinem Expo-Konto an',
 );
 
-soft(
-  Boolean(app.owner),
-  `owner (${app.owner ?? 'nicht gesetzt — es gilt das eingeloggte Konto'})`,
-  'expo.owner in app.json setzen, wenn das Projekt einer Organisation gehört',
-);
+if (projectId) {
+  ok.push(`Projekt-ID ${projectId}`);
+}
+
+// `owner` ist nur nötig, solange keine Projekt-ID vorliegt: die ID identifiziert das
+// Projekt samt Besitzer eindeutig. Zusätzlich gesetzt kann `owner` nur noch
+// widersprechen, deshalb wird er hier nicht eingefordert.
+if (app.owner) ok.push(`owner (${app.owner})`);
+else if (!projectId) {
+  warnings.push({
+    label: 'owner nicht gesetzt',
+    fix: 'Ohne Projekt-ID entscheidet das eingeloggte Konto, welchem Konto das Projekt zugeordnet wird.',
+  });
+}
 
 // --- Assets --------------------------------------------------------------------------
 
@@ -103,11 +112,22 @@ if (policy === 'sdkVersion') {
     fix: 'Für Expo Go: EAS_RUNTIME_POLICY nicht setzen (Standard ist sdkVersion). Für Store-Builds ist appVersion richtig.',
   });
 }
-soft(
-  Boolean(app.updates?.url),
-  'updates.url gesetzt',
-  'eas update:configure   — trägt die URL ein (braucht die Projekt-ID)',
-);
+// Die Update-URL enthält die Projekt-ID. Passen die beiden nicht zusammen, holt die
+// App Updates von einem fremden Projekt — und zwar lautlos, ohne Fehlermeldung.
+const expectedUrl = projectId ? `https://u.expo.dev/${projectId}` : null;
+if (!app.updates?.url) {
+  warnings.push({
+    label: 'updates.url nicht gesetzt',
+    fix: 'eas update:configure   — trägt die URL ein',
+  });
+} else if (expectedUrl && app.updates.url !== expectedUrl) {
+  problems.push({
+    label: `updates.url passt nicht zur Projekt-ID`,
+    fix: `erwartet ${expectedUrl}, gefunden ${app.updates.url} — eas update:configure korrigiert das`,
+  });
+} else {
+  ok.push(`updates.url passt zur Projekt-ID`);
+}
 
 // --- Things that would embarrass a store release --------------------------------------
 

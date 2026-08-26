@@ -5,7 +5,8 @@
     "version": "1.0.0",
     "updates": {
       "enabled": true,
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/6d3a49ef-bfa2-4451-8921-0dbd4262666c"
     },
     "orientation": "portrait",
     "scheme": "jasonremix",
@@ -92,7 +93,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "6d3a49ef-bfa2-4451-8921-0dbd4262666c"
       }
     }
   }
