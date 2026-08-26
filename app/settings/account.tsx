@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Input } from '@/components/ui/Input';
 import { Row } from '@/components/ui/Row';
@@ -13,6 +14,7 @@ import { Hairline, Surface } from '@/components/ui/Surface';
 import { Text } from '@/components/ui/Text';
 import { config } from '@/constants/config';
 import { spacing } from '@/constants/theme';
+import { useEmailVerified, useResendVerification } from '@/hooks/useEmailVerification';
 import { useMe } from '@/hooks/useMe';
 import { toAppError } from '@/lib/errors';
 import { authService } from '@/services/auth.service';
@@ -28,15 +30,31 @@ import { useUiStore } from '@/store/uiStore';
  */
 export default function AccountSettings() {
   const me = useMe();
+  const { verified, emailConfigured } = useEmailVerified();
+  const resend = useResendVerification();
+  // Der Auth-Store hat die Sitzung schon beim Start; die Query kommt später nach.
+  const sessionUser = useAuthStore((state) => state.user);
+  const sessionProfile = useAuthStore((state) => state.profile);
   const signOut = useAuthStore((state) => state.signOut);
   const showToast = useUiStore((state) => state.showToast);
 
-  const [username, setUsername] = useState(me.data?.profile?.username ?? '');
+  /**
+   * Der angezeigte Benutzername wird abgeleitet, nicht gespiegelt.
+   *
+   * `draft` ist `null`, solange nichts getippt wurde — dann gilt der geladene Wert, und
+   * der darf beim Kaltstart auch später noch eintreffen. Sobald jemand tippt, gewinnt
+   * der Entwurf und wird von keiner nachkommenden Antwort mehr überschrieben.
+   */
+  const [draft, setDraft] = useState<string | null>(null);
+  const loadedUsername = me.data?.profile?.username ?? sessionProfile?.username ?? '';
+  const username = draft ?? loadedUsername;
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const email = me.data?.user.email ?? sessionUser?.email ?? '';
 
   const saveProfile = useCallback(async () => {
     setSavingProfile(true);
@@ -44,6 +62,8 @@ export default function AccountSettings() {
     try {
       await authService.updateProfile({ username: username.trim() });
       showToast('PROFIL AKTUALISIERT', 'positive');
+      // Entwurf verwerfen: ab jetzt ist der Serverwert der richtige.
+      setDraft(null);
       void me.refetch();
     } catch (error) {
       setProfileError(toAppError(error).message);
@@ -85,7 +105,7 @@ export default function AccountSettings() {
           <Input
             label="BENUTZERNAME"
             value={username}
-            onChangeText={setUsername}
+            onChangeText={setDraft}
             error={profileError}
             maxLength={20}
             placeholder="dein_name"
@@ -94,9 +114,46 @@ export default function AccountSettings() {
             label="SPEICHERN"
             variant="secondary"
             loading={savingProfile}
-            disabled={!username.trim() || username.trim() === me.data?.profile?.username}
+            disabled={!username.trim() || username.trim() === loadedUsername}
             onPress={() => void saveProfile()}
           />
+        </Surface>
+      </View>
+
+      <View style={styles.section}>
+        <SectionHeader title="E-MAIL-ADRESSE" />
+        <Surface style={styles.card}>
+          <View style={styles.statusRow}>
+            <Text variant="bodySmall" tone="secondary" numberOfLines={1} style={styles.grow}>
+              {email}
+            </Text>
+            {/* Solange der Stand unbekannt ist, steht hier kein Etikett — lieber nichts
+                als eine falsche Behauptung über das Konto. */}
+            {verified !== null && (
+              <Chip
+                label={verified ? 'BESTÄTIGT' : 'NICHT BESTÄTIGT'}
+                tone={verified ? 'success' : 'warning'}
+              />
+            )}
+          </View>
+
+          {verified === false && (
+            <>
+              <Hairline style={styles.divider} />
+              <Text variant="caption" tone="muted">
+                {emailConfigured === false
+                  ? 'Auf diesem Server ist noch kein E-Mail-Versand eingerichtet, deshalb konnte keine Bestätigungsmail zugestellt werden.'
+                  : 'Tippe auf den Link in der Bestätigungsmail. Nichts angekommen? Fordere hier eine neue an.'}
+              </Text>
+              <Button
+                label="BESTÄTIGUNGSMAIL SENDEN"
+                variant="secondary"
+                loading={resend.isPending}
+                disabled={emailConfigured === false}
+                onPress={() => resend.mutate()}
+              />
+            </>
+          )}
         </Surface>
       </View>
 
@@ -163,4 +220,7 @@ const styles = StyleSheet.create({
   content: { gap: spacing.xxl, paddingTop: spacing.lg },
   section: { gap: spacing.base },
   card: { padding: spacing.lg, gap: spacing.lg },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  grow: { flex: 1 },
+  divider: { marginVertical: 0 },
 });

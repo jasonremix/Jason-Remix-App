@@ -81,7 +81,7 @@ export function applyLedgerEntry(input: LedgerInput): {
 } {
   const amount = Math.trunc(input.amount);
   if (amount === 0) {
-    throw new ApiError('BAD_REQUEST', 'A credit movement must be non-zero.');
+    throw new ApiError('BAD_REQUEST', 'Eine Credit-Bewegung darf nicht null sein.');
   }
 
   ensureBalanceRow(input.userId);
@@ -92,7 +92,7 @@ export function applyLedgerEntry(input: LedgerInput): {
 
   const nextBalance = current.balance + amount;
   if (nextBalance < 0) {
-    throw new ApiError('INSUFFICIENT_CREDITS', 'You do not have enough credits for this.');
+    throw new ApiError('INSUFFICIENT_CREDITS', 'Dafür reicht dein Guthaben nicht aus.');
   }
 
   const earned = amount > 0 ? amount : 0;

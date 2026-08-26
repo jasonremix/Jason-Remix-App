@@ -5,6 +5,7 @@ import { formatSignedCredits } from '@/lib/format';
 import { resolveLevel } from '@/lib/levels';
 import type {
   AdminAuditResponse,
+  AdminEmailLogResponse,
   AdminDrawResponse,
   AdminUsersResponse,
   CatalogResponse,
@@ -69,6 +70,10 @@ import {
  */
 
 const DEMO_STATE_KEY = 'jrx.demo.state.v1';
+
+/** Said wherever demo mode would otherwise imply that a message went out. */
+const DEMO_NO_EMAIL =
+  'Im Demo-Modus wird keine E-Mail verschickt. Verbinde die API, um Konten wirklich zu bestätigen.';
 
 type DemoState = {
   user: User;
@@ -265,10 +270,34 @@ export const demoBackend: Backend = {
   kind: 'demo',
 
   async register(input: RegisterInput) {
-    const next = freshState({ ...DEMO_USER, email: input.email });
+    // A demo registration produces an *unconfirmed* account, because no message was
+    // sent — demo mode has no mail transport and must not point at an empty inbox.
+    const next = freshState({ ...DEMO_USER, email: input.email, emailVerifiedAt: null });
     next.profile = { ...next.profile, username: input.username, completedAt: null };
     await commit(next);
-    return demoSession(next.user, next.profile);
+    return {
+      ...demoSession(next.user, next.profile),
+      emailVerification: { required: true, sent: false, reason: DEMO_NO_EMAIL },
+    };
+  },
+
+  async verificationStatus() {
+    const current = await getState();
+    return {
+      verified: Boolean(current.user.emailVerifiedAt),
+      verifiedAt: current.user.emailVerifiedAt,
+      emailConfigured: false,
+    };
+  },
+
+  async resendVerification() {
+    return { sent: false, alreadyVerified: false, reason: DEMO_NO_EMAIL };
+  },
+
+  async verifyEmail(): Promise<{ verified: boolean; alreadyVerified: boolean }> {
+    // There is no real token to confirm, and marking the account verified here would
+    // be exactly the kind of pretend success demo mode exists to avoid.
+    throw new AppError('SERVER_ERROR', DEMO_NO_EMAIL);
   },
 
   async login(input: LoginInput) {
@@ -825,6 +854,11 @@ export const demoBackend: Backend = {
       ...current,
       audit: [auditEntry(current, 'push.send', null, { title: input.title }), ...current.audit],
     });
+  },
+
+  async adminEmailLog(): Promise<AdminEmailLogResponse> {
+    // Nothing was ever sent in demo mode, so the log is genuinely empty.
+    return { transport: 'none', configured: false, entries: [] };
   },
 
   async adminAuditLog(): Promise<AdminAuditResponse> {

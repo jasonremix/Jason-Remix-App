@@ -4,7 +4,8 @@ import { createUser } from '../services/users.service.ts';
 
 /**
  * Seeds the reference data the app needs to be usable: missions, achievements, the
- * reward ladder, a first giveaway, the discography and news.
+ * reward ladder, a first giveaway, the discography and news. All member-facing text is
+ * German, because that is what a real member reads.
  *
  * Idempotent — every insert is `INSERT OR IGNORE` keyed on a stable id, so running it
  * again after a deploy adds anything new without disturbing live data.
@@ -17,11 +18,11 @@ const days = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString();
 // --- Missions ------------------------------------------------------------------
 
 const missions: [string, string, string, string, number, number | null, number, number][] = [
-  ['msn-daily', 'DAILY_CHECK_IN', 'DAILY CHECK-IN', 'Open the app once a day.', 100, 86_400, 1, 0],
-  ['msn-spotify', 'CONNECT_SPOTIFY', 'CONNECT SPOTIFY', 'Link your Spotify account to personalise your experience.', 250, null, 0, 1],
-  ['msn-profile', 'COMPLETE_PROFILE', 'COMPLETE PROFILE', 'Choose a username and add a picture.', 100, null, 0, 2],
-  ['msn-release', 'NEW_RELEASE', 'NEW RELEASE MISSION', 'Listen to the current release on your platform of choice.', 250, null, 0, 3],
-  ['msn-community', 'COMMUNITY', 'COMMUNITY MISSION', 'Share the new release with someone who has not heard it yet.', 500, 604_800, 1, 4],
+  ['msn-daily', 'DAILY_CHECK_IN', 'TÄGLICHER BESUCH', 'Öffne die App einmal am Tag.', 100, 86_400, 1, 0],
+  ['msn-spotify', 'CONNECT_SPOTIFY', 'SPOTIFY VERBINDEN', 'Verbinde dein Spotify-Konto, damit die App persönlicher wird.', 250, null, 0, 1],
+  ['msn-profile', 'COMPLETE_PROFILE', 'PROFIL VERVOLLSTÄNDIGEN', 'Wähle einen Benutzernamen und lade ein Bild hoch.', 100, null, 0, 2],
+  ['msn-release', 'NEW_RELEASE', 'MISSION ZUR NEUEN SINGLE', 'Hör die aktuelle Veröffentlichung auf der Plattform deiner Wahl.', 250, null, 0, 3],
+  ['msn-community', 'COMMUNITY', 'COMMUNITY-MISSION', 'Teile die neue Veröffentlichung mit jemandem, der sie noch nicht kennt.', 500, 604_800, 1, 4],
 ];
 
 const insertMission = db.prepare(
@@ -33,13 +34,13 @@ for (const mission of missions) insertMission.run(...mission);
 // --- Achievements ---------------------------------------------------------------
 
 const achievements: [string, string, string, string, string, number][] = [
-  ['ach-first-listen', 'FIRST_LISTEN', 'FIRST LISTEN', 'You opened the app and started your collection.', 'STANDARD', 0],
-  ['ach-early', 'EARLY_SUPPORTER', 'EARLY SUPPORTER', 'A member since the first season.', 'RARE', 1],
-  ['ach-zeitgeist', 'ZEITGEIST', 'ZEITGEIST', 'Completed the Zeitgeist release mission.', 'STANDARD', 2],
-  ['ach-super-fan', 'SUPER_FAN', 'SUPER FAN', 'Checked in on thirty separate days.', 'RARE', 3],
-  ['ach-collector', 'CREDITS_COLLECTOR', 'CREDITS COLLECTOR', 'Earned 50,000 credits in total.', 'ELITE', 4],
-  ['ach-vip', 'VIP_MEMBER', 'VIP MEMBER', 'Reached level 07.', 'ELITE', 5],
-  ['ach-legend', 'JASON_LEGEND', 'JASON LEGEND', 'Reached level 08 — the highest tier.', 'ELITE', 6],
+  ['ach-first-listen', 'FIRST_LISTEN', 'ERSTES HÖREN', 'Du hast die App geöffnet und deine Sammlung begonnen.', 'STANDARD', 0],
+  ['ach-early', 'EARLY_SUPPORTER', 'FRÜHER UNTERSTÜTZER', 'Mitglied seit der ersten Saison.', 'RARE', 1],
+  ['ach-zeitgeist', 'ZEITGEIST', 'ZEITGEIST', 'Die Mission zur Zeitgeist-Veröffentlichung abgeschlossen.', 'STANDARD', 2],
+  ['ach-super-fan', 'SUPER_FAN', 'SUPER FAN', 'An dreißig verschiedenen Tagen vorbeigeschaut.', 'RARE', 3],
+  ['ach-collector', 'CREDITS_COLLECTOR', 'CREDIT-SAMMLER', 'Insgesamt 50.000 Credits verdient.', 'ELITE', 4],
+  ['ach-vip', 'VIP_MEMBER', 'VIP-MITGLIED', 'Level 07 erreicht.', 'ELITE', 5],
+  ['ach-legend', 'JASON_LEGEND', 'JASON-LEGENDE', 'Level 08 erreicht — die höchste Stufe.', 'ELITE', 6],
 ];
 
 const insertAchievement = db.prepare(
@@ -50,11 +51,11 @@ for (const achievement of achievements) insertAchievement.run(...achievement);
 // --- Rewards ---------------------------------------------------------------------
 
 const rewards: [string, string, string, string, string, number, number, number, number | null, number][] = [
-  ['rwd-merch', 'MERCH', 'Member tee, black on black', 'Heavyweight tee with a tonal Jason Remix mark. Ships within Germany and the EU.', 'MERCH', 1_000, 200, 1, null, 0],
-  ['rwd-collector', 'COLLECTOR BOX', 'Numbered edition', 'A numbered box with the current pressing, a brushed metal member card and a signed insert.', 'COLLECTOR', 2_500, 100, 1, 3, 1],
-  ['rwd-ticket', 'CONCERT TICKET', 'See You Soon Tour 2027', 'One standing ticket for a date of your choice, subject to availability.', 'TICKET', 5_000, 60, 0, 4, 2],
-  ['rwd-vip', 'VIP EXPERIENCE', 'Soundcheck access', 'Early entry, soundcheck access and a dedicated member area for the night.', 'EXPERIENCE', 10_000, 20, 0, 5, 3],
-  ['rwd-meet', 'MEET & GREET', 'Backstage, before the show', 'A small-group meet & greet with Jason before doors, plus a photo.', 'EXPERIENCE', 15_000, 10, 0, 6, 4],
+  ['rwd-merch', 'MERCH', 'Mitglieder-Shirt, Schwarz auf Schwarz', 'Schweres Shirt mit Ton-in-Ton-Aufdruck der Jason-Remix-Marke. Versand innerhalb Deutschlands und der EU.', 'MERCH', 1_000, 200, 1, null, 0],
+  ['rwd-collector', 'SAMMLERBOX', 'Nummerierte Auflage', 'Eine nummerierte Box mit der aktuellen Pressung, einer Mitgliedskarte aus gebürstetem Metall und einem signierten Einlegeblatt.', 'COLLECTOR', 2_500, 100, 1, 3, 1],
+  ['rwd-ticket', 'KONZERTTICKET', 'See You Soon Tour 2027', 'Ein Stehplatzticket für einen Termin deiner Wahl, solange verfügbar.', 'TICKET', 5_000, 60, 0, 4, 2],
+  ['rwd-vip', 'VIP-ERLEBNIS', 'Zutritt zum Soundcheck', 'Früher Einlass, Zutritt zum Soundcheck und ein eigener Mitgliederbereich für den Abend.', 'EXPERIENCE', 10_000, 20, 0, 5, 3],
+  ['rwd-meet', 'MEET & GREET', 'Backstage, vor der Show', 'Ein Meet & Greet mit Jason in kleiner Runde vor dem Einlass, samt Foto.', 'EXPERIENCE', 15_000, 10, 0, 6, 4],
 ];
 
 const insertReward = db.prepare(
@@ -105,9 +106,9 @@ for (const [id, title, albumId, releaseDate, genre, duration, featured] of track
 const insertNews = db.prepare(
   `INSERT OR IGNORE INTO news (id, category, title, body) VALUES (?, ?, ?, ?)`,
 );
-insertNews.run('news-zeitgeist', 'RELEASE', 'ZEITGEIST is out now', 'The new single is available on every major platform.');
-insertNews.run('news-tour', 'TOUR', 'SEE YOU SOON TOUR 2027', 'Dates across Germany announced. Members get early access to the ticket window.');
-insertNews.run('news-reward', 'REWARD', 'New reward: Collector Box', 'A numbered box with the current pressing and a metal member card.');
+insertNews.run('news-zeitgeist', 'RELEASE', 'ZEITGEIST ist da', 'Die neue Single ist auf allen großen Plattformen verfügbar.');
+insertNews.run('news-tour', 'TOUR', 'SEE YOU SOON TOUR 2027', 'Die Termine in ganz Deutschland stehen. Mitglieder kommen früher an den Ticketvorverkauf.');
+insertNews.run('news-reward', 'REWARD', 'Neue Prämie: Sammlerbox', 'Eine nummerierte Box mit der aktuellen Pressung und einer Mitgliedskarte aus Metall.');
 
 // --- A first giveaway ------------------------------------------------------------------
 
@@ -118,15 +119,15 @@ db.prepare(
 ).run(
   'gwy-tour-vip',
   'SEE YOU SOON TOUR 2027',
-  'VIP EXPERIENCE',
-  'Two VIP places for the tour opening, including soundcheck access and backstage entry.',
+  'VIP-ERLEBNIS',
+  'Zwei VIP-Plätze zum Tourauftakt, inklusive Zutritt zum Soundcheck und Backstage-Bereich.',
   days(-1),
   days(21),
   1_000,
   5_000,
   5,
   2,
-  'Open to members aged 18 or over resident in the EU. Credits spent on entries are not refundable once the draw has taken place. Winners are drawn at random on the server and notified in the app.',
+  'Teilnahmeberechtigt sind Mitglieder ab 18 Jahren mit Wohnsitz in der EU. Für Lose eingesetzte Credits werden nach der Ziehung nicht erstattet. Die Gewinner werden per Zufall auf dem Server gezogen und in der App benachrichtigt.',
 );
 
 // --- First administrator ------------------------------------------------------------------

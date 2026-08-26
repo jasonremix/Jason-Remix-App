@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { CreditPill } from '@/components/credits/CreditPill';
 import { RewardCard, resolveAvailability } from '@/components/rewards/RewardCard';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Chip } from '@/components/ui/Chip';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Screen } from '@/components/ui/Screen';
@@ -91,6 +91,7 @@ export default function Rewards() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Giveaways entry point ------------------------------------------- */}

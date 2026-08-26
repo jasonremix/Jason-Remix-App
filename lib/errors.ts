@@ -66,12 +66,18 @@ export function toAppError(error: unknown): AppError {
   return new AppError('SERVER_ERROR', MESSAGES.SERVER_ERROR);
 }
 
+/** Codes whose server message is member-facing copy, not an internal detail. */
+const PASS_THROUGH_CODES = new Set<ApiErrorCode>(['BAD_REQUEST', 'CONFLICT']);
+
 export function fromApiPayload(payload: unknown, status: number): AppError {
   const code = readCode(payload, status);
   const serverMessage = readMessage(payload);
-  // Validation copy from the server is safe to surface; everything else falls back
-  // to our own wording so internal detail never leaks into the UI.
-  const message = code === 'BAD_REQUEST' && serverMessage ? serverMessage : messageForCode(code);
+  // Validation and conflict copy from the server is written for members and is far more
+  // useful than a generic line — "that address is already taken" beats "something
+  // changed". Everything else falls back to our own wording so internal detail never
+  // leaks into the UI.
+  const message =
+    PASS_THROUGH_CODES.has(code) && serverMessage ? serverMessage : messageForCode(code);
   return new AppError(code, message, { status, details: readDetails(payload) });
 }
 

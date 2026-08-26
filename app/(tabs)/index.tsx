@@ -5,14 +5,14 @@ import { StyleSheet, View } from 'react-native';
 import { CreditCounter } from '@/components/credits/CreditCounter';
 import { HeroRelease } from '@/components/music/HeroRelease';
 import { Wordmark } from '@/components/brand/Wordmark';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 import { Hairline, Surface } from '@/components/ui/Surface';
-import { ErrorState } from '@/components/ui/States';
+import { EmptyState, ErrorState } from '@/components/ui/States';
 import { Text } from '@/components/ui/Text';
 import { brand } from '@/constants/brand';
 import { spacing } from '@/constants/theme';
@@ -57,6 +57,7 @@ export default function Home() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Current release ------------------------------------------------ */}
@@ -121,6 +122,14 @@ export default function Home() {
 
         {catalog.isPending ? (
           <SkeletonCard lines={2} height={14} />
+        ) : (catalog.data?.news ?? []).length === 0 ? (
+          // Ein Abschnittstitel über einer leeren Fläche sieht kaputt aus — hier steht,
+          // dass es schlicht noch nichts gibt.
+          <EmptyState
+            icon="document"
+            title="Noch nichts Neues."
+            message="Sobald es etwas zu berichten gibt, steht es hier."
+          />
         ) : (
           <View style={styles.news}>
             {(catalog.data?.news ?? []).slice(0, 3).map((item, index, all) => (

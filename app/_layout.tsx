@@ -21,6 +21,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BootScreen } from '@/components/system/BootScreen';
+import { VerificationLinkHandler } from '@/components/system/VerificationLinkHandler';
 import { CreditPulse } from '@/components/credits/CreditPulse';
 import { ToastHost } from '@/components/ui/ToastHost';
 import { palette } from '@/constants/theme';
@@ -104,6 +105,7 @@ export default function RootLayout() {
 
           <CreditPulse />
           <ToastHost />
+          <VerificationLinkHandler />
 
           {/* The brand moment: holds over the app until state is ready, then dissolves. */}
           {!bootComplete && (

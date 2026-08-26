@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { CreditPill } from '@/components/credits/CreditPill';
 import { AchievementBadge } from '@/components/profile/AchievementBadge';
 import { LevelBar } from '@/components/profile/LevelBar';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip } from '@/components/ui/Chip';
 import { Row } from '@/components/ui/Row';
@@ -65,6 +65,7 @@ export default function Profile() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Identity ---------------------------------------------------------- */}

@@ -69,7 +69,7 @@ describe('credit balance', () => {
         type: 'SPEND',
         description: 'Too much',
       }),
-    ).toThrowError(/enough credits/i);
+    ).toThrowError(/reicht dein Guthaben nicht/i);
 
     expect(getBalance(session.userId).balance).toBe(100);
   });

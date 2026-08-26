@@ -1,9 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/ui/Icon';
 import { Text } from '@/components/ui/Text';
 import { palette, radius, spacing } from '@/constants/theme';
 import { config } from '@/constants/config';
+import { useEmailVerified, useResendVerification } from '@/hooks/useEmailVerification';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 /**
@@ -86,6 +87,51 @@ export function SpotifyUnavailableNotice() {
   );
 }
 
+/**
+ * Erinnert daran, dass die Adresse noch nicht bestätigt ist.
+ *
+ * Erscheint erst, wenn der Server den Stand tatsächlich gemeldet hat — solange die
+ * Antwort aussteht, behauptet die App nichts. Im Demo-Modus bleibt das Banner weg:
+ * dort wurde nie eine Mail verschickt, es gäbe also nichts zu bestätigen.
+ */
+export function UnverifiedEmailBanner() {
+  const { verified, emailConfigured } = useEmailVerified();
+  const resend = useResendVerification();
+
+  if (config.isDemoMode) return null;
+  // `null` heißt: noch keine Antwort. Dann steht hier nichts.
+  if (verified !== false) return null;
+
+  return (
+    <View style={[styles.banner, styles.warning]}>
+      <Icon name="alert" size={16} color={palette.warning} />
+      <View style={styles.text}>
+        <Text variant="label" tone="primary" uppercase>
+          E-MAIL NOCH NICHT BESTÄTIGT
+        </Text>
+        <Text variant="caption" tone="tertiary">
+          {emailConfigured === false
+            ? 'Auf diesem Server ist noch kein E-Mail-Versand eingerichtet, deshalb konnte keine Bestätigungsmail zugestellt werden.'
+            : 'Tippe auf den Link in der Bestätigungsmail, um dein Konto vollständig freizuschalten.'}
+        </Text>
+      </View>
+      {emailConfigured !== false && (
+        <Pressable
+          onPress={() => resend.mutate()}
+          disabled={resend.isPending}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Bestätigungsmail erneut senden"
+        >
+          <Text variant="labelWide" tone="accent" uppercase>
+            {resend.isPending ? '…' : 'ERNEUT'}
+          </Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   banner: {
     flexDirection: 'row',
@@ -98,6 +144,7 @@ const styles = StyleSheet.create({
   },
   compact: { alignSelf: 'flex-start', paddingVertical: 6 },
   offline: { backgroundColor: palette.warningWash, borderColor: palette.warningWash },
+  warning: { backgroundColor: palette.warningWash, borderColor: palette.warningWash },
   demo: { backgroundColor: palette.accentWash, borderColor: palette.accentWash },
   text: { flex: 1, gap: 2 },
 });

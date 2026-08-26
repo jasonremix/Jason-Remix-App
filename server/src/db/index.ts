@@ -32,10 +32,27 @@ if (env.databaseUrl !== ':memory:') db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 db.pragma('busy_timeout = 5000');
 
+/**
+ * Columns added to a table that already exists in a deployed database.
+ *
+ * `schema.sql` only ever runs as CREATE TABLE IF NOT EXISTS, so a new column on an
+ * existing table has to be added separately. Each entry is applied only when the
+ * column is genuinely absent, which keeps `migrate()` safe to call repeatedly.
+ */
+const ADDED_COLUMNS: { table: string; column: string; definition: string }[] = [
+  { table: 'users', column: 'email_verified_at', definition: 'TEXT' },
+];
+
 /** Applies the schema. Safe to call repeatedly — every statement is IF NOT EXISTS. */
 export function migrate(target: Database.Database = db): void {
   const schema = readFileSync(resolve(here, 'schema.sql'), 'utf8');
   target.exec(schema);
+
+  for (const { table, column, definition } of ADDED_COLUMNS) {
+    const columns = target.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    if (columns.some((existing) => existing.name === column)) continue;
+    target.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
 }
 
 /**

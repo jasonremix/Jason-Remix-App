@@ -27,6 +27,7 @@ export const DEMO_USER: User = {
   role: 'USER',
   status: 'ACTIVE',
   createdAt: days(-142),
+  emailVerifiedAt: days(-142),
 };
 
 export const DEMO_ADMIN: User = {
@@ -35,6 +36,7 @@ export const DEMO_ADMIN: User = {
   role: 'ADMIN',
   status: 'ACTIVE',
   createdAt: days(-400),
+  emailVerifiedAt: days(-400),
 };
 
 export const DEMO_PROFILE: UserProfile = {

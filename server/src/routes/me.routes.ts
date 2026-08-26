@@ -36,7 +36,7 @@ const profileSchema = z.object({
   username: z
     .string()
     .trim()
-    .regex(/^[a-z0-9_.]{3,20}$/i, 'Use 3–20 letters, numbers, dots or underscores.')
+    .regex(/^[a-z0-9_.]{3,20}$/i, 'Verwende 3–20 Buchstaben, Ziffern, Punkte oder Unterstriche.')
     .optional(),
   displayName: z.string().trim().max(60).nullish(),
   avatarUrl: z.string().url().max(500).nullish(),
@@ -53,9 +53,9 @@ const passwordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: z
     .string()
-    .min(10, 'Use at least 10 characters.')
-    .regex(/[a-z]/i, 'Include at least one letter and one number.')
-    .regex(/[0-9]/, 'Include at least one letter and one number.'),
+    .min(10, 'Verwende mindestens 10 Zeichen.')
+    .regex(/[a-z]/i, 'Mindestens ein Buchstabe und eine Ziffer.')
+    .regex(/[0-9]/, 'Mindestens ein Buchstabe und eine Ziffer.'),
 });
 
 meRoutes.post('/password', limits.auth(), (req, res) => {

@@ -116,6 +116,13 @@ export default function AdminHome() {
           />
           <Hairline />
           <Row
+            title="E-MAIL-VERSAND"
+            subtitle="Zustellprotokoll für Bestätigungs- und Willkommensmails"
+            icon="document"
+            onPress={() => router.push('/admin/email')}
+          />
+          <Hairline />
+          <Row
             title="PRÜFPROTOKOLL"
             subtitle="Jede Verwaltungsaktion, der Reihe nach"
             icon="shield"

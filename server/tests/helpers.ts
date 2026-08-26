@@ -21,6 +21,8 @@ export function app(): Express {
 /** Wipes member data between tests while leaving the schema in place. */
 export function resetDatabase(): void {
   const tables = [
+    'email_deliveries',
+    'email_verifications',
     'idempotency_keys',
     'admin_action_log',
     'push_notifications',

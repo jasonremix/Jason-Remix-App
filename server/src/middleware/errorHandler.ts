@@ -33,10 +33,10 @@ export function errorHandler(
   });
 
   res.status(500).json({
-    error: { code: 'SERVER_ERROR', message: 'Something went wrong.' },
+    error: { code: 'SERVER_ERROR', message: 'Da ist etwas schiefgelaufen.' },
   });
 }
 
 export function notFoundHandler(_req: Request, res: Response): void {
-  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'This is no longer available.' } });
+  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Das ist nicht mehr verfügbar.' } });
 }

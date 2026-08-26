@@ -6,7 +6,7 @@ import { CreditCounter } from '@/components/credits/CreditCounter';
 import { TransactionRow } from '@/components/credits/TransactionRow';
 import { MissionRow } from '@/components/missions/MissionRow';
 import { LevelBar } from '@/components/profile/LevelBar';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Screen } from '@/components/ui/Screen';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -74,6 +74,7 @@ export default function Credits() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Balance and level ------------------------------------------------ */}

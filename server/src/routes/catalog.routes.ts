@@ -13,6 +13,6 @@ catalogRoutes.get('/', (_req, res) => {
 
 catalogRoutes.get('/tracks/:trackId', (req, res) => {
   const track = getTrack(routeParam(req, 'trackId'));
-  if (!track) throw notFound('This release is no longer available.');
+  if (!track) throw notFound('Diese Veröffentlichung ist nicht mehr verfügbar.');
   res.json(track);
 });

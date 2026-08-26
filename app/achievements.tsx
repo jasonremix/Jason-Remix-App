@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { AchievementBadge } from '@/components/profile/AchievementBadge';
+import { RequireSession } from '@/components/system/RequireSession';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -14,6 +15,14 @@ import { formatDateTime } from '@/lib/format';
 
 /** Die vollständige Sammlung: freigeschaltete Plaketten zuerst, dann was noch aussteht. */
 export default function Achievements() {
+  return (
+    <RequireSession>
+      <AchievementsContent />
+    </RequireSession>
+  );
+}
+
+function AchievementsContent() {
   const me = useMe();
   const achievements = me.data?.achievements ?? [];
   const unlocked = achievements.filter((achievement) => achievement.unlockedAt);

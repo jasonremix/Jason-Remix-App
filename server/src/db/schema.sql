@@ -310,3 +310,37 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (key, user_id, endpoint)
 );
+
+-- --- Email verification and delivery ------------------------------------------------
+
+-- One row per issued verification link. Only the SHA-256 of the token is stored, so a
+-- database dump cannot be used to verify anyone's address.
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  email      TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  purpose    TEXT NOT NULL DEFAULT 'VERIFY_EMAIL' CHECK (purpose IN ('VERIFY_EMAIL')),
+  expires_at TEXT NOT NULL,
+  consumed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_user ON email_verifications(user_id, consumed_at);
+
+-- Every send attempt, successful or not. This is what makes "an email went out" a
+-- checkable claim rather than an assumption: nothing reports a delivery that has no
+-- row here, and a failed attempt keeps its error.
+CREATE TABLE IF NOT EXISTS email_deliveries (
+  id          TEXT PRIMARY KEY,
+  user_id     TEXT REFERENCES users(id) ON DELETE SET NULL,
+  recipient   TEXT NOT NULL,
+  kind        TEXT NOT NULL
+              CHECK (kind IN ('VERIFY_EMAIL', 'WELCOME', 'EMAIL_CHANGED')),
+  subject     TEXT NOT NULL,
+  transport   TEXT NOT NULL,
+  status      TEXT NOT NULL CHECK (status IN ('SENT', 'FAILED', 'SKIPPED')),
+  provider_id TEXT,
+  error       TEXT,
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_email_deliveries_created ON email_deliveries(created_at DESC);

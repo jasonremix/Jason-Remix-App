@@ -81,7 +81,7 @@ export function consumeRefreshToken(token: string): RefreshResult {
   }
 
   if (row.status !== 'ACTIVE') {
-    throw new ApiError('ACCOUNT_BANNED', 'This account has been suspended.');
+    throw new ApiError('ACCOUNT_BANNED', 'Dieses Konto ist gesperrt.');
   }
 
   db.prepare(`UPDATE refresh_tokens SET revoked_at = datetime('now') WHERE id = ?`).run(row.id);

@@ -154,17 +154,17 @@ export type EnterResult = {
 
 export function enterGiveaway(userId: string, giveawayId: string, entries: number): EnterResult {
   if (!Number.isInteger(entries) || entries < 1 || entries > 50) {
-    throw new ApiError('BAD_REQUEST', 'Choose a valid number of entries.');
+    throw new ApiError('BAD_REQUEST', 'Wähle eine gültige Anzahl an Losen.');
   }
 
   return transaction(() => {
     const row = db.prepare(`SELECT * FROM giveaways WHERE id = ?`).get(giveawayId) as
       | GiveawayRow
       | undefined;
-    if (!row) throw notFound('This giveaway is no longer available.');
+    if (!row) throw notFound('Dieses Gewinnspiel gibt es nicht mehr.');
 
     if (effectiveStatus(row) !== 'OPEN') {
-      throw new ApiError('GIVEAWAY_CLOSED', 'This giveaway is closed.');
+      throw new ApiError('GIVEAWAY_CLOSED', 'Dieses Gewinnspiel ist beendet.');
     }
 
     const mine = db
@@ -175,7 +175,7 @@ export function enterGiveaway(userId: string, giveawayId: string, entries: numbe
       .get(giveawayId, userId) as { count: number };
 
     if (mine.count + entries > row.max_entries_per_user) {
-      throw new ApiError('GIVEAWAY_ENTRY_LIMIT', 'You have used all your entries for this giveaway.');
+      throw new ApiError('GIVEAWAY_ENTRY_LIMIT', 'Du hast alle deine Lose für dieses Gewinnspiel genutzt.');
     }
 
     // Guarded capacity update — the same pattern as reward stock, for the same reason.
@@ -187,7 +187,7 @@ export function enterGiveaway(userId: string, giveawayId: string, entries: numbe
         )
         .run(entries, giveawayId, entries);
       if (result.changes === 0) {
-        throw new ApiError('GIVEAWAY_CLOSED', 'All entries for this giveaway have been taken.');
+        throw new ApiError('GIVEAWAY_CLOSED', 'Alle Lose für dieses Gewinnspiel sind vergeben.');
       }
     } else {
       db.prepare(`UPDATE giveaways SET entries_used = entries_used + ? WHERE id = ?`).run(
@@ -246,7 +246,7 @@ export function closeGiveaway(giveawayId: string): Giveaway {
   const row = db.prepare(`SELECT * FROM giveaways WHERE id = ?`).get(giveawayId) as
     | GiveawayRow
     | undefined;
-  if (!row) throw notFound('This giveaway no longer exists.');
+  if (!row) throw notFound('Dieses Gewinnspiel existiert nicht mehr.');
 
   db.prepare(
     `UPDATE giveaways SET status = 'CLOSED', ends_at = datetime('now'), updated_at = datetime('now')
@@ -276,13 +276,13 @@ export function drawGiveaway(giveawayId: string, adminId: string): DrawResult {
     const row = db.prepare(`SELECT * FROM giveaways WHERE id = ?`).get(giveawayId) as
       | GiveawayRow
       | undefined;
-    if (!row) throw notFound('This giveaway no longer exists.');
+    if (!row) throw notFound('Dieses Gewinnspiel existiert nicht mehr.');
 
     if (row.status === 'DRAWN') {
-      throw new ApiError('CONFLICT', 'This giveaway has already been drawn.');
+      throw new ApiError('CONFLICT', 'Dieses Gewinnspiel wurde bereits gezogen.');
     }
     if (effectiveStatus(row) === 'OPEN') {
-      throw new ApiError('BAD_REQUEST', 'Close the giveaway before drawing winners.');
+      throw new ApiError('BAD_REQUEST', 'Schließe das Gewinnspiel, bevor du Gewinner ziehst.');
     }
 
     const entries = db
@@ -296,7 +296,7 @@ export function drawGiveaway(giveawayId: string, adminId: string): DrawResult {
       .all(giveawayId) as { id: string; user_id: string; username: string | null }[];
 
     if (entries.length === 0) {
-      throw new ApiError('BAD_REQUEST', 'There are no entries to draw from.');
+      throw new ApiError('BAD_REQUEST', 'Es gibt keine Lose, aus denen gezogen werden kann.');
     }
 
     // One win per member: draw over entries but stop once enough distinct members
@@ -342,9 +342,9 @@ export function cancelGiveaway(giveawayId: string): { refunded: number } {
     const row = db.prepare(`SELECT * FROM giveaways WHERE id = ?`).get(giveawayId) as
       | GiveawayRow
       | undefined;
-    if (!row) throw notFound('This giveaway no longer exists.');
+    if (!row) throw notFound('Dieses Gewinnspiel existiert nicht mehr.');
     if (row.status === 'DRAWN') {
-      throw new ApiError('CONFLICT', 'A giveaway that has been drawn cannot be cancelled.');
+      throw new ApiError('CONFLICT', 'Ein bereits gezogenes Gewinnspiel lässt sich nicht mehr absagen.');
     }
 
     const entries = db

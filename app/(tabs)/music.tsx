@@ -4,7 +4,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { CoverArt } from '@/components/music/CoverArt';
 import { TrackCard } from '@/components/music/TrackCard';
-import { DemoBanner, OfflineBanner, SpotifyUnavailableNotice } from '@/components/system/Banners';
+import {
+  DemoBanner,
+  OfflineBanner,
+  SpotifyUnavailableNotice,
+  UnverifiedEmailBanner,
+} from '@/components/system/Banners';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -75,6 +80,7 @@ export default function Music() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Spotify ---------------------------------------------------------- */}

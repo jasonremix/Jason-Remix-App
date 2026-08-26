@@ -1,6 +1,7 @@
 import { apiClient, clearTokens, persistTokens } from '@/lib/apiClient';
 import type {
   AdminAuditResponse,
+  AdminEmailLogResponse,
   AdminDrawResponse,
   AdminUsersResponse,
   CatalogResponse,
@@ -11,9 +12,11 @@ import type {
   MeResponse,
   MissionsResponse,
   RedeemRewardResponse,
+  ResendVerificationResult,
   RewardsResponse,
   SessionPayload,
   SpotifyExchangeResponse,
+  VerificationState,
 } from '@/types/api';
 import type {
   Giveaway,
@@ -64,6 +67,19 @@ export const httpBackend: Backend = {
       await clearTokens();
     }
   },
+
+  verificationStatus: () => apiClient.get<VerificationState>('/auth/verification-status'),
+
+  resendVerification: () =>
+    apiClient.post<ResendVerificationResult>('/auth/resend-verification', {}),
+
+  verifyEmail: (token: string) =>
+    apiClient.post<{ verified: boolean; alreadyVerified: boolean }>(
+      '/auth/verify-email',
+      { token },
+      // The link may be opened before the app has a session, or by a signed-out member.
+      { anonymous: true },
+    ),
 
   me: () => apiClient.get<MeResponse>('/me'),
 
@@ -151,4 +167,6 @@ export const httpBackend: Backend = {
   adminSendPush: (input: AdminPushInput) => apiClient.post<void>('/admin/notifications', input),
   adminAuditLog: (cursor) =>
     apiClient.get<AdminAuditResponse>('/admin/audit', { query: { cursor } }),
+
+  adminEmailLog: () => apiClient.get<AdminEmailLogResponse>('/admin/email-log'),
 };

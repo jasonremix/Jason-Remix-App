@@ -27,7 +27,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
       return;
     }
     if (user.status === 'BANNED') {
-      next(new ApiError('ACCOUNT_BANNED', 'This account has been suspended.'));
+      next(new ApiError('ACCOUNT_BANNED', 'Dieses Konto ist gesperrt.'));
       return;
     }
     if (user.status === 'DELETED') {

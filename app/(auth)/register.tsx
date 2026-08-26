@@ -40,7 +40,9 @@ export default function Register() {
     setFieldErrors({});
     try {
       await signUp({ email, password, username, acceptedTerms });
-      router.replace('/(tabs)');
+      // Nicht direkt in die App: der nächste Bildschirm sagt, was mit der
+      // Bestätigungsmail passiert ist.
+      router.replace('/(auth)/verify-email');
     } catch (caught) {
       const appError = toAppError(caught);
       setError(appError.message);

@@ -32,7 +32,7 @@ cp server/.env.example server/.env
 node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
 node -e "console.log('TOKEN_ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex'))"
 
-npm run server:seed          # creates the schema and reference data
+npm run server:seed          # creates the schema and German reference data
 npm run server                # http://localhost:4000
 ```
 
@@ -42,6 +42,62 @@ your machine's LAN address, not `localhost`.
 Create the first administrator by setting `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`
 before running the seed. There is deliberately **no API route that grants the admin
 role** — promotion is a database operation.
+
+### On a phone, with Expo Go
+
+```bash
+npm run expo-go:write        # writes your LAN address into both .env files
+npm run server               # terminal A
+npm start                    # terminal B — scan the QR code with Expo Go
+```
+
+`expo-go` alone prints what it *would* write without touching anything. It never
+overwrites a value that already points somewhere real; pass `--force` for that.
+
+Every dependency is either an Expo SDK module or bundled with Expo Go, so **no custom
+development build is needed**.
+
+Two things that reliably trip up a first run:
+
+- **`localhost` in `.env`.** The phone resolves that to itself. Use the LAN address —
+  which is exactly what `npm run expo-go:write` puts there.
+- **A stale Metro cache.** `EXPO_PUBLIC_*` values are compiled into the bundle, so after
+  editing `.env` start with `npm run start:clear`, or the previous value is reused.
+
+If the phone cannot reach your machine at all (guest Wi-Fi, client isolation), use
+`npm run tunnel`.
+
+---
+
+## Account email
+
+Registration creates the account and sends a confirmation link; following it sends a
+welcome message. Both are German, and both are recorded in `email_deliveries` before
+anything reports them as sent.
+
+Set **either** a Resend API key **or** an SMTP host in `server/.env`:
+
+```bash
+RESEND_API_KEY=re_...                 # option A — one key, nothing to run
+SMTP_HOST=smtp.example.com            # option B — any SMTP server
+SMTP_PORT=587
+SMTP_USER=...
+SMTP_PASSWORD=...
+
+EMAIL_FROM_ADDRESS=noreply@jasonremix.de
+PUBLIC_BASE_URL=http://192.168.1.42:4000   # must be reachable from the phone
+```
+
+`PUBLIC_BASE_URL` is what goes into the link inside the email, so it has to be reachable
+from the member's device — `npm run expo-go:write` sets it alongside the app's API URL.
+
+**With neither configured, nothing is faked.** The API reports `emailVerification.sent:
+false` with a reason, the app says "no email was sent" instead of pointing at an empty
+inbox, and the delivery is logged as `SKIPPED`. An admin can check what actually went out
+under **Admin → E-Mail-Versand**.
+
+Tokens are stored as SHA-256 hashes — the plaintext exists only in the link in the
+member's inbox — and requesting a new link invalidates the previous one.
 
 ---
 
@@ -258,6 +314,9 @@ or a message.
 | Command | Purpose |
 | --- | --- |
 | `npm start` | Expo dev server |
+| `npm run start:clear` | Expo dev server with a cleared Metro cache (after editing `.env`) |
+| `npm run expo-go` / `expo-go:write` | Show / write your LAN address into both `.env` files |
+| `npm run tunnel` | Expo dev server over a tunnel, when the LAN is not usable |
 | `npm run android` / `ios` / `web` | Start on a platform |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
@@ -272,15 +331,20 @@ or a message.
 ## Tests
 
 ```bash
-npm test              # 67 client tests
-npm run server:test   # 94 API tests
+npm test              # 72 client tests
+npm run server:test   # 110 API tests
 ```
 
-The API suite covers registration, login, credit balance and ledger integrity, mission
-completion and cooldowns, reward redemption and stock races, giveaway entry and draws,
-Spotify connect and disconnect, token expiration and refresh rotation, unauthorised
-admin access, account deletion, and rate limiting. Spotify is stubbed at the `fetch`
-boundary — no test makes a network call.
+The API suite covers registration, login, email confirmation, credit balance and ledger
+integrity, mission completion and cooldowns, reward redemption and stock races, giveaway
+entry and draws, Spotify connect and disconnect, token expiration and refresh rotation,
+unauthorised admin access, account deletion, and rate limiting. Spotify and the mail
+transport are stubbed at their boundaries — no test makes a network call.
+
+The email tests assert the properties that matter rather than the wording: the token is
+stored only as a hash, a delivery row exists for every claimed send, a failed or skipped
+send is reported as such instead of being swallowed, and requesting a new link
+invalidates the old one.
 
 ---
 
