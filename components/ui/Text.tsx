@@ -9,27 +9,26 @@ export type TextTone =
   | 'primary'
   | 'secondary'
   | 'tertiary'
-  | 'chrome'
   | 'muted'
+  | 'accent'
   | 'danger'
   | 'success'
   | 'inverse';
 
 const TONES: Record<TextTone, string> = {
-  primary: palette.offWhite,
-  chrome: palette.chrome,
-  secondary: palette.brushed,
-  tertiary: palette.silver,
-  muted: palette.titanium,
+  primary: palette.ink,
+  secondary: palette.inkSoft,
+  tertiary: palette.muted,
+  muted: palette.faint,
+  accent: palette.accent,
   danger: palette.danger,
   success: palette.success,
-  inverse: palette.black,
+  inverse: palette.onDark,
 };
 
 /**
- * Caps on dynamic type. Large display sizes scale less than body copy so a member
- * running the biggest accessibility size still gets a readable layout rather than a
- * broken one — body text keeps most of its range.
+ * Caps on dynamic type. Display sizes scale less than body copy so the biggest
+ * accessibility setting still produces a readable layout rather than a broken one.
  */
 const SCALE_CAP: Partial<Record<TextVariant, number>> = {
   hero: 1.25,
@@ -42,7 +41,7 @@ const SCALE_CAP: Partial<Record<TextVariant, number>> = {
 export type TextProps = RNTextProps & {
   variant?: TextVariant;
   tone?: TextTone;
-  /** Uppercases the content — used for labels and brand terms. */
+  /** Uppercases the content — used for labels. */
   uppercase?: boolean;
   /** Extra tracking on top of the variant's own, in points. */
   tracking?: number;
@@ -68,17 +67,17 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
       ]}
       {...rest}
     >
-      {uppercase && typeof children === 'string' ? children.toLocaleUpperCase('en-US') : children}
+      {uppercase && typeof children === 'string' ? children.toLocaleUpperCase('de-DE') : children}
     </RNText>
   );
 });
 
-/** Small tracked-out uppercase label — the app's most-used piece of type. */
+/** Small uppercase label — the app's most-used piece of type after body copy. */
 export function Label({ tone = 'tertiary', ...rest }: Omit<TextProps, 'variant'>) {
   return <Text variant="label" tone={tone} uppercase {...rest} />;
 }
 
-/** Section heading: wider tracking, dimmer, used above every list. */
+/** Section marker: wider tracking, quieter, used above every list. */
 export function Overline({ tone = 'muted', ...rest }: Omit<TextProps, 'variant'>) {
   return <Text variant="labelWide" tone={tone} uppercase {...rest} />;
 }

@@ -21,7 +21,7 @@ const CATEGORIES: AdminPushInput['category'][] = [
   'SYSTEM',
 ];
 
-/** Queues a push notification. Only members who opted in ever receive one. */
+/** Reiht eine Push-Nachricht ein. Sie erreicht nur Mitglieder, die zugestimmt haben. */
 export default function AdminNotifications() {
   const showToast = useUiStore((state) => state.showToast);
   const [pending, setPending] = useState<AdminPushInput | null>(null);
@@ -48,7 +48,7 @@ export default function AdminNotifications() {
     try {
       await adminService.sendPush(pending);
       setLastSent(pending.title);
-      showToast('NOTIFICATION QUEUED', 'positive');
+      showToast('NACHRICHT EINGEREIHT', 'positive');
     } catch (error) {
       showToast(toAppError(error).message, 'negative');
     } finally {
@@ -58,24 +58,30 @@ export default function AdminNotifications() {
   }, [pending, showToast]);
 
   return (
-    <Screen header={<ScreenHeader title="NOTIFICATIONS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="PUSH-NACHRICHTEN" />} contentStyle={styles.content}>
       <AdminForm
-        title="SEND A PUSH NOTIFICATION"
-        description="Delivered only to members who have switched notifications on."
-        submitLabel="REVIEW MESSAGE"
+        title="PUSH-NACHRICHT SENDEN"
+        description="Wird nur an Mitglieder zugestellt, die Benachrichtigungen eingeschaltet haben."
+        submitLabel="NACHRICHT PRÜFEN"
         onSubmit={stage}
         fields={[
-          { name: 'title', label: 'TITLE', required: true, placeholder: 'NEW RELEASE' },
-          { name: 'body', label: 'MESSAGE', type: 'multiline', required: true, placeholder: 'Zeitgeist is available now.' },
-          { name: 'category', label: 'CATEGORY', initialValue: 'SYSTEM', hint: CATEGORIES.join(' · ') },
-          { name: 'deepLink', label: 'DEEP LINK', placeholder: 'jasonremix://giveaways/gwy-tour-vip' },
+          { name: 'title', label: 'TITEL', required: true, placeholder: 'NEUE VERÖFFENTLICHUNG' },
+          {
+            name: 'body',
+            label: 'NACHRICHT',
+            type: 'multiline',
+            required: true,
+            placeholder: 'Zeitgeist ist jetzt verfügbar.',
+          },
+          { name: 'category', label: 'KATEGORIE', initialValue: 'SYSTEM', hint: CATEGORIES.join(' · ') },
+          { name: 'deepLink', label: 'DEEP-LINK', placeholder: 'jasonremix://giveaways/gwy-tour-vip' },
         ]}
       />
 
       {lastSent && (
-        <Surface elevation="inset" style={styles.result}>
+        <Surface elevation="sunk" style={styles.result}>
           <Text variant="labelWide" tone="muted" uppercase>
-            LAST QUEUED
+            ZULETZT EINGEREIHT
           </Text>
           <Text variant="bodySmall" tone="secondary">
             {lastSent}
@@ -84,17 +90,17 @@ export default function AdminNotifications() {
       )}
 
       <Text variant="caption" tone="muted">
-        Messages are recorded on the server and dispatched by the notification worker, so
-        a slow delivery never blocks this screen.
+        Nachrichten werden auf dem Server erfasst und vom Benachrichtigungsdienst
+        versendet — eine langsame Zustellung blockiert diesen Bildschirm also nie.
       </Text>
 
       <ConfirmDialog
         visible={pending !== null}
-        eyebrow="SEND NOTIFICATION"
+        eyebrow="NACHRICHT SENDEN"
         title={pending?.title ?? ''}
         message={pending?.body ?? ''}
-        detail={pending ? `Category ${pending.category}. This reaches every opted-in member and cannot be recalled.` : undefined}
-        confirmLabel="SEND"
+        detail={pending ? `Kategorie ${pending.category}. Das erreicht alle Mitglieder mit Einwilligung und lässt sich nicht zurückholen.` : undefined}
+        confirmLabel="SENDEN"
         loading={sending}
         onConfirm={() => void send()}
         onCancel={() => setPending(null)}

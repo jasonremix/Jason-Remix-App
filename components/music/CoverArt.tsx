@@ -1,25 +1,38 @@
 import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { Text } from '@/components/ui/Text';
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 
 /**
  * Release artwork.
  *
- * When a cover image exists it is shown. When one does not — during demo mode, or for a
- * release whose art has not been uploaded yet — a sleeve is *generated* from the title
- * rather than a grey placeholder box being shown: a facet composition whose angles and
- * light direction are derived deterministically from the title, so the same release
- * always produces the same sleeve.
+ * When a cover image exists it is shown. When one does not — during demo mode, or for
+ * a release whose art has not been uploaded yet — a sleeve is *generated* from the
+ * title: flat colour fields in the manner of a Swiss concert poster, composed
+ * deterministically so the same release always produces the same sleeve.
+ *
+ * This is the one place in the app that carries colour beyond the single accent. The
+ * pigments below are artwork, not interface: they never appear on a control, a label
+ * or a surface, which is what keeps the app quiet around them.
  */
+
+/** Poster pigments. Artwork only — see the note above. */
+const PIGMENTS = [
+  '#001EC8', // ultramarine, the brand accent
+  '#0D0E11', // ink
+  '#E8402A', // cadmium red
+  '#F0B323', // ochre
+  '#0E7C5A', // viridian
+  '#F0F1F3', // paper
+] as const;
 
 export function CoverArt({
   uri,
   title,
   size,
-  showTitle = true,
+  showTitle = false,
   rounded = 'md',
 }: {
   uri?: string | null;
@@ -39,9 +52,9 @@ export function CoverArt({
           source={{ uri }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
-          transition={240}
+          transition={220}
           accessibilityIgnoresInvertColors
-          accessibilityLabel={`${title} cover`}
+          accessibilityLabel={`Cover von ${title}`}
         />
       ) : (
         <GeneratedSleeve title={title} />
@@ -49,7 +62,7 @@ export function CoverArt({
 
       {!uri && showTitle && (
         <View style={styles.caption} pointerEvents="none">
-          <Text variant="labelWide" tone="tertiary" numberOfLines={2} uppercase>
+          <Text variant="labelWide" tone="inverse" numberOfLines={2} uppercase>
             {title}
           </Text>
         </View>
@@ -70,82 +83,91 @@ function hash(value: string): number {
 
 function GeneratedSleeve({ title }: { title: string }) {
   const seed = hash(title);
-  const id = `sleeve-${seed}`;
-
-  // Every varying quantity is a bounded read from the same hash, so a title always
-  // produces the same sleeve. The ranges are deliberately wide: at a 64pt thumbnail
-  // a subtle variation is no variation at all, and the discography would read as one
-  // repeated tile.
   const pick = (shift: number, range: number) => (seed >> shift) % range;
 
-  const angle = pick(0, 70) - 35;
-  const bandY = 22 + pick(3, 56);
-  const bandWeight = 6 + pick(6, 16);
-  const facetX = 18 + pick(9, 64);
-  const facetY = 30 + pick(13, 40);
-  const facetSize = 14 + pick(17, 34);
-  const lightX = pick(21, 80) / 100;
-  const ground = pick(25, 3);
-  const hasSecondFacet = pick(27, 2) === 1;
+  // Two pigments that are never the same, plus the composition archetype.
+  const groundIndex = pick(0, PIGMENTS.length);
+  const figureIndex = (groundIndex + 1 + pick(4, PIGMENTS.length - 1)) % PIGMENTS.length;
+  const ground = PIGMENTS[groundIndex];
+  const figure = PIGMENTS[figureIndex];
+  const composition = pick(8, 5);
 
-  // Three ground ramps rather than one, so tiles differ in overall value and not
-  // only in the arrangement of their marks.
-  const grounds = [
-    ['#1E2126', '#111317', '#08090B'],
-    ['#15171B', '#0D0E11', '#050506'],
-    ['#232629', '#14161A', '#0A0B0D'],
-  ][ground];
+  /**
+   * The split facet, drawn in the figure colour.
+   *
+   * Every archetype places it on bare ground rather than over its own field: a mark that
+   * half-overlaps the main shape reads as a printing fault, not as a composition.
+   */
+  const facet = (cx: number, cy: number, s: number) => (
+    <>
+      <Path d={`M${cx - 1} ${cy - s} L${cx - 1} ${cy + s} L${cx - s * 0.9} ${cy} Z`} fill={figure} />
+      <Path d={`M${cx + 1} ${cy - s} L${cx + s * 0.9} ${cy} L${cx + 1} ${cy + s} Z`} fill={figure} />
+    </>
+  );
 
   return (
     <Svg width="100%" height="100%" viewBox="0 0 100 100">
-      <Defs>
-        <LinearGradient id={`${id}-ground`} x1="0" y1="0" x2="0.7" y2="1">
-          <Stop offset="0" stopColor={grounds[0]} />
-          <Stop offset="0.6" stopColor={grounds[1]} />
-          <Stop offset="1" stopColor={grounds[2]} />
-        </LinearGradient>
-        <LinearGradient id={`${id}-metal`} x1={String(lightX)} y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#F2F5F8" stopOpacity="0.96" />
-          <Stop offset="0.3" stopColor="#BCC1C9" stopOpacity="0.72" />
-          <Stop offset="0.62" stopColor="#767C85" stopOpacity="0.46" />
-          <Stop offset="1" stopColor="#CDD2D8" stopOpacity="0.3" />
-        </LinearGradient>
-      </Defs>
+      <Rect x="0" y="0" width="100" height="100" fill={ground} />
 
-      <Rect x="0" y="0" width="100" height="100" fill={`url(#${id}-ground)`} />
+      {composition === 0 &&
+        (() => {
+          // Diagonal split: the field takes the lower half, the facet sits above it.
+          const left = 52 + pick(23, 26);
+          const right = 44 + pick(25, 26);
+          return (
+            <>
+              <Path d={`M0 ${left} L100 ${right} L100 100 L0 100 Z`} fill={figure} />
+              {facet(30 + pick(27, 40), 24, 13)}
+            </>
+          );
+        })()}
 
-      {/* The band of light across the sleeve. */}
-      <Path
-        d={`M-20 ${bandY} L120 ${bandY - bandWeight} L120 ${bandY + 2} L-20 ${bandY + bandWeight + 2} Z`}
-        fill={`url(#${id}-metal)`}
-        transform={`rotate(${angle} 50 50)`}
-        opacity={0.62}
-      />
+      {composition === 1 &&
+        (() => {
+          // Offset disc, with the facet on the opposite side of the square.
+          const cx = 32 + pick(23, 12);
+          const r = 20 + pick(27, 8);
+          return (
+            <>
+              <Circle cx={cx} cy={38 + pick(25, 10)} r={r} fill={figure} />
+              {facet(78, 80, 12)}
+            </>
+          );
+        })()}
 
-      {/* The facet — the brand mark, cropped by the sleeve edge as often as not. */}
-      <Path
-        d={`M${facetX} ${facetY - facetSize} L${facetX + facetSize} ${facetY} L${facetX} ${facetY + facetSize} L${facetX - facetSize} ${facetY} Z`}
-        fill={`url(#${id}-metal)`}
-      />
-      <Path
-        d={`M${facetX} ${facetY - facetSize / 2} L${facetX + facetSize / 2} ${facetY} L${facetX} ${facetY + facetSize / 2} L${facetX - facetSize / 2} ${facetY} Z`}
-        fill={grounds[2]}
-        opacity={0.85}
-      />
+      {composition === 2 &&
+        (() => {
+          // Stacked bands, with the facet in the gap between them.
+          const top = 12 + pick(23, 8);
+          const height = 12 + pick(25, 8);
+          return (
+            <>
+              <Rect x="0" y={top} width="100" height={height} fill={figure} />
+              <Rect x="0" y="74" width="100" height={8 + pick(29, 8)} fill={figure} />
+              {facet(50, (top + height + 74) / 2, 14)}
+            </>
+          );
+        })()}
 
-      {hasSecondFacet && (
-        <Path
-          d={`M${100 - facetX} ${100 - facetY - facetSize / 3} L${100 - facetX + facetSize / 3} ${100 - facetY} L${100 - facetX} ${100 - facetY + facetSize / 3} L${100 - facetX - facetSize / 3} ${100 - facetY} Z`}
-          fill="none"
-          stroke="#FFFFFF"
-          strokeOpacity="0.22"
-          strokeWidth={0.8}
-        />
+      {composition === 3 &&
+        (() => {
+          // Corner wedge out of the top left, facet in the free bottom-right corner.
+          const reach = 48 + pick(23, 26);
+          return (
+            <>
+              <Path d={`M0 0 L${reach} 0 L0 ${reach} Z`} fill={figure} />
+              {facet(72, 72, 16)}
+            </>
+          );
+        })()}
+
+      {composition === 4 && (
+        // The facet alone, large and centred, over a single rule.
+        <>
+          <Rect x="14" y={72 + pick(23, 8)} width="72" height="2" fill={figure} />
+          {facet(50, 44, 28)}
+        </>
       )}
-
-      {/* Two hairlines to give the composition a horizon. */}
-      <Path d={`M0 ${bandY + 26} H100`} stroke="rgba(255,255,255,0.08)" strokeWidth={0.4} />
-      <Path d={`M0 ${bandY + 30} H100`} stroke="rgba(255,255,255,0.04)" strokeWidth={0.4} />
     </Svg>
   );
 }
@@ -153,9 +175,9 @@ function GeneratedSleeve({ title }: { title: string }) {
 const styles = StyleSheet.create({
   root: {
     overflow: 'hidden',
-    backgroundColor: palette.graphite,
+    backgroundColor: palette.paperSunk,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edge,
+    borderColor: palette.rule,
   },
   caption: {
     position: 'absolute',

@@ -17,7 +17,15 @@ import { spacing } from '@/constants/theme';
 import { useGiveaways } from '@/hooks/useGiveaways';
 import { formatDateTime } from '@/lib/format';
 
-/** All giveaways, open first, with the member's own entries listed underneath. */
+/** Der Server liefert den Status englisch; angezeigt wird er deutsch. */
+const ENTRY_STATUS: Record<string, string> = {
+  ENTERED: 'TEILGENOMMEN',
+  WON: 'GEWONNEN',
+  LOST: 'NICHT GEZOGEN',
+  DISQUALIFIED: 'AUSGESCHLOSSEN',
+};
+
+/** Alle Gewinnspiele, offene zuerst, darunter die eigenen Lose. */
 export default function GiveawaysIndex() {
   const giveaways = useGiveaways();
 
@@ -33,7 +41,7 @@ export default function GiveawaysIndex() {
 
   return (
     <Screen
-      header={<ScreenHeader title="GIVEAWAYS" />}
+      header={<ScreenHeader title="GEWINNSPIELE" />}
       onRefresh={() => void giveaways.refetch()}
       refreshing={giveaways.isRefetching}
       contentStyle={styles.content}
@@ -49,16 +57,19 @@ export default function GiveawaysIndex() {
           <SkeletonCard height={140} />
         </View>
       ) : giveaways.isError ? (
-        <ErrorState message="Giveaways could not be loaded." onRetry={() => void giveaways.refetch()} />
+        <ErrorState
+          message="Die Gewinnspiele konnten nicht geladen werden."
+          onRetry={() => void giveaways.refetch()}
+        />
       ) : (
         <>
           <View style={styles.section}>
-            <SectionHeader title="OPEN NOW" meta={open.length ? `${open.length}` : undefined} />
+            <SectionHeader title="JETZT OFFEN" meta={open.length ? `${open.length}` : undefined} />
             {open.length === 0 ? (
               <EmptyState
                 icon="ticket"
-                title="No giveaways open."
-                message="Members are notified as soon as a new one starts."
+                title="Gerade kein Gewinnspiel offen."
+                message="Mitglieder werden benachrichtigt, sobald ein neues startet."
               />
             ) : (
               <View style={styles.list}>
@@ -75,7 +86,7 @@ export default function GiveawaysIndex() {
 
           {entries.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader title="YOUR ENTRIES" meta={`${entries.length}`} />
+              <SectionHeader title="DEINE LOSE" meta={`${entries.length}`} />
               <View>
                 {entries.map((entry, index) => (
                   <View key={entry.id}>
@@ -84,8 +95,14 @@ export default function GiveawaysIndex() {
                       subtitle={formatDateTime(entry.createdAt)}
                       trailing={
                         <Chip
-                          label={entry.status}
-                          tone={entry.status === 'WON' ? 'success' : entry.status === 'LOST' ? 'muted' : 'neutral'}
+                          label={ENTRY_STATUS[entry.status] ?? entry.status}
+                          tone={
+                            entry.status === 'WON'
+                              ? 'success'
+                              : entry.status === 'LOST'
+                                ? 'muted'
+                                : 'neutral'
+                          }
                         />
                       }
                       onPress={() => router.push(`/giveaways/${entry.giveawayId}`)}
@@ -99,7 +116,7 @@ export default function GiveawaysIndex() {
 
           {past.length > 0 && (
             <View style={styles.section}>
-              <SectionHeader title="CLOSED" />
+              <SectionHeader title="BEENDET" />
               <View style={styles.list}>
                 {past.map((giveaway) => (
                   <GiveawayCard
@@ -115,8 +132,8 @@ export default function GiveawaysIndex() {
       )}
 
       <Text variant="caption" tone="muted" align="center">
-        Winners are drawn on the server and recorded in an auditable log. Entry terms apply
-        to every giveaway.
+        Die Ziehung findet auf dem Server statt und wird nachvollziehbar protokolliert.
+        Für jedes Gewinnspiel gelten die Teilnahmebedingungen.
       </Text>
     </Screen>
   );

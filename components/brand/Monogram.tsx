@@ -1,64 +1,46 @@
-import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 import { palette } from '@/constants/theme';
 
 /**
  * The Jason Remix facet mark — the same figure as the app icon.
  *
- * An outer hairline diamond around a chrome core split down the middle: one form made
- * of two halves. It doubles as the credit token (`◈`), so the brand mark and the
- * currency are one shape at two sizes.
+ * A solid ultramarine diamond split down the middle: one form made of two halves, the
+ * mark for a remix. Flat pigment, no bevel and no gradient — on paper the shape does
+ * the work that metal shading used to do on black.
+ *
+ * It doubles as the credit token, so the brand mark and the currency are one shape at
+ * two sizes.
  */
 export function Monogram({
   size = 48,
-  tone = 'chrome',
+  tone = 'accent',
 }: {
   size?: number;
-  /** `chrome` fills the core with metal; `outline` leaves it as an empty recess. */
-  tone?: 'chrome' | 'outline';
+  /** `accent` is the pigment mark; `ink` for use on an accent ground; `outline` is hollow. */
+  tone?: 'accent' | 'ink' | 'outline' | 'inverse';
 }) {
-  const id = `facet-${tone}`;
-  const filled = tone === 'chrome';
+  const fill =
+    tone === 'accent' ? palette.accent : tone === 'ink' ? palette.ink : tone === 'inverse' ? palette.onAccent : 'none';
+  const stroke = tone === 'outline' ? palette.ruleStrong : 'none';
 
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityRole="image">
-      <Defs>
-        <LinearGradient id={`${id}-l`} x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#F6F8FA" />
-          <Stop offset="0.24" stopColor="#CBD0D7" />
-          <Stop offset="0.5" stopColor="#8A9098" />
-          <Stop offset="0.72" stopColor="#DCE1E7" />
-          <Stop offset="1" stopColor="#9AA0A8" />
-        </LinearGradient>
-        <LinearGradient id={`${id}-r`} x1="1" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#F6F8FA" />
-          <Stop offset="0.24" stopColor="#CBD0D7" />
-          <Stop offset="0.5" stopColor="#8A9098" />
-          <Stop offset="0.72" stopColor="#DCE1E7" />
-          <Stop offset="1" stopColor="#9AA0A8" />
-        </LinearGradient>
-      </Defs>
-
-      {/* Outer facet */}
+      {/* Left half */}
       <Path
-        d="M50 3 97 50 50 97 3 50Z"
-        fill="none"
-        stroke={filled ? palette.brushed : palette.steel}
-        strokeWidth={2.2}
+        d="M47.4 6 47.4 94 5 50Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={tone === 'outline' ? 5 : 0}
+        strokeLinejoin="round"
       />
-
-      {/* Core, split into mirrored halves by a 2.2-unit seam */}
+      {/* Right half — the seam between them is the ground showing through */}
       <Path
-        d="M48.9 22.1 48.9 77.9 21 50Z"
-        fill={filled ? `url(#${id}-l)` : 'none'}
-        stroke={filled ? 'none' : palette.steel}
-        strokeWidth={2.2}
-      />
-      <Path
-        d="M51.1 22.1 79 50 51.1 77.9Z"
-        fill={filled ? `url(#${id}-r)` : 'none'}
-        stroke={filled ? 'none' : palette.steel}
-        strokeWidth={2.2}
+        d="M52.6 6 95 50 52.6 94Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={tone === 'outline' ? 5 : 0}
+        strokeLinejoin="round"
       />
     </Svg>
   );

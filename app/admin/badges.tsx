@@ -17,14 +17,19 @@ import type { AchievementTier } from '@/types/models';
 
 const TIERS: AchievementTier[] = ['STANDARD', 'RARE', 'ELITE'];
 
-/** Badges. Codes are referenced by the server's unlock rules, so they are immutable keys. */
+/**
+ * Abzeichen.
+ *
+ * Auf die Codes beziehen sich die Freischaltregeln des Servers — sie sind feste
+ * Schlüssel und werden nach dem Anlegen nicht mehr geändert.
+ */
 export default function AdminBadges() {
   const me = useMe();
 
   const save = useCallback(
     async (values: Record<string, string | boolean>) => {
       if (config.isDemoMode) {
-        throw new AppError('SERVER_ERROR', 'Connect the API to create badges.');
+        throw new AppError('SERVER_ERROR', 'Zum Anlegen von Abzeichen muss die API verbunden sein.');
       }
 
       const raw = String(values.tier ?? '').trim().toUpperCase();
@@ -42,24 +47,30 @@ export default function AdminBadges() {
   );
 
   return (
-    <Screen header={<ScreenHeader title="BADGES" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="ABZEICHEN" />} contentStyle={styles.content}>
       <AdminForm
-        title="ADD OR UPDATE A BADGE"
-        description="The code is the key the server's unlock rules refer to — choose it once and keep it."
-        submitLabel="SAVE BADGE"
+        title="ABZEICHEN ANLEGEN ODER ÄNDERN"
+        description="Auf den Code beziehen sich die Freischaltregeln des Servers — einmal wählen und dann behalten."
+        submitLabel="ABZEICHEN SPEICHERN"
         onSubmit={save}
         fields={[
-          { name: 'code', label: 'CODE', required: true, placeholder: 'SUPER_FAN', hint: 'Uppercase letters, numbers and underscores.' },
-          { name: 'title', label: 'TITLE', required: true, placeholder: 'SUPER FAN' },
-          { name: 'description', label: 'DESCRIPTION', type: 'multiline' },
-          { name: 'tier', label: 'TIER', initialValue: 'STANDARD', hint: TIERS.join(' · ') },
+          {
+            name: 'code',
+            label: 'CODE',
+            required: true,
+            placeholder: 'SUPER_FAN',
+            hint: 'Großbuchstaben, Ziffern und Unterstriche.',
+          },
+          { name: 'title', label: 'TITEL', required: true, placeholder: 'SUPER FAN' },
+          { name: 'description', label: 'BESCHREIBUNG', type: 'multiline' },
+          { name: 'tier', label: 'STUFE', initialValue: 'STANDARD', hint: TIERS.join(' · ') },
         ]}
       />
 
       <View style={styles.section}>
-        <SectionHeader title="EXISTING BADGES" meta={`${me.data?.achievements.length ?? 0}`} />
+        <SectionHeader title="VORHANDENE ABZEICHEN" meta={`${me.data?.achievements.length ?? 0}`} />
         {(me.data?.achievements ?? []).length === 0 ? (
-          <EmptyState icon="star" title="No badges defined yet." />
+          <EmptyState icon="star" title="Noch keine Abzeichen angelegt." />
         ) : (
           <View style={styles.grid}>
             {(me.data?.achievements ?? []).map((achievement) => (
@@ -70,8 +81,8 @@ export default function AdminBadges() {
       </View>
 
       <Text variant="caption" tone="muted">
-        Badges shown here are rendered against your own account, so the locked and
-        unlocked states reflect your progress rather than every member&rsquo;s.
+        Die Abzeichen hier werden gegen dein eigenes Konto gezeichnet: gesperrt und
+        freigeschaltet zeigen deinen Fortschritt, nicht den aller Mitglieder.
       </Text>
     </Screen>
   );

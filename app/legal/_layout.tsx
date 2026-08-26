@@ -8,7 +8,7 @@ export default function LegalLayout() {
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: palette.black },
+        contentStyle: { backgroundColor: palette.paper },
       }}
     />
   );

@@ -5,20 +5,26 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "jasonremix",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "icon": "./assets/images/icon.png",
-    "backgroundColor": "#0A0A0C",
-    "primaryColor": "#E4E7EB",
-    "assetBundlePatterns": ["**/*"],
+    "backgroundColor": "#F0F1F3",
+    "primaryColor": "#001EC8",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "de.jasonremix.app",
-      "backgroundColor": "#0A0A0C",
+      "backgroundColor": "#F0F1F3",
       "infoPlist": {
         "UIViewControllerBasedStatusBarAppearance": false,
         "ITSAppUsesNonExemptEncryption": false,
-        "LSApplicationQueriesSchemes": ["spotify", "youtube", "music"]
+        "LSApplicationQueriesSchemes": [
+          "spotify",
+          "youtube",
+          "music"
+        ]
       }
     },
     "android": {
@@ -28,14 +34,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "monochromeImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0A0A0C"
+        "backgroundColor": "#F0F1F3"
       },
       "intentFilters": [
         {
           "action": "VIEW",
           "autoVerify": false,
-          "data": [{ "scheme": "jasonremix" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "jasonremix"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -51,16 +64,16 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 132,
+          "imageWidth": 120,
           "resizeMode": "contain",
-          "backgroundColor": "#050506"
+          "backgroundColor": "#F0F1F3"
         }
       ],
       [
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#0A0A0C"
+          "color": "#001EC8"
         }
       ],
       [

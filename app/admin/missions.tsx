@@ -25,6 +25,7 @@ const TYPES: MissionType[] = [
   'SPECIAL_EVENT',
 ];
 
+/** Missionen: die einzige Stelle, an der festgelegt wird, was eine Mission einbringt. */
 export default function AdminMissions() {
   const missions = useMissions();
 
@@ -51,29 +52,41 @@ export default function AdminMissions() {
   );
 
   return (
-    <Screen header={<ScreenHeader title="MISSIONS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="MISSIONEN" />} contentStyle={styles.content}>
       <AdminForm
-        title="ADD OR UPDATE A MISSION"
-        description="The reward amount set here is the only amount the server will ever pay out for it."
-        submitLabel="SAVE MISSION"
+        title="MISSION ANLEGEN ODER ÄNDERN"
+        description="Der hier gesetzte Betrag ist der einzige, den der Server dafür jemals auszahlt."
+        submitLabel="MISSION SPEICHERN"
         onSubmit={save}
         fields={[
-          { name: 'id', label: 'ID (LEAVE BLANK TO CREATE)', placeholder: 'msn-daily' },
-          { name: 'title', label: 'TITLE', required: true, placeholder: 'COMMUNITY MISSION' },
-          { name: 'description', label: 'DESCRIPTION', type: 'multiline' },
-          { name: 'type', label: 'TYPE', initialValue: 'SPECIAL_EVENT', hint: TYPES.join(' · ') },
-          { name: 'reward', label: 'REWARD IN CREDITS', type: 'number', required: true, placeholder: '250' },
-          { name: 'repeatable', label: 'Can be completed more than once', type: 'switch' },
-          { name: 'cooldownHours', label: 'COOLDOWN IN HOURS', type: 'number', placeholder: '24', hint: 'Only used for repeatable missions.' },
-          { name: 'startsAt', label: 'STARTS AT', placeholder: '2026-08-01T00:00:00Z' },
-          { name: 'endsAt', label: 'ENDS AT', placeholder: '2026-09-01T00:00:00Z' },
+          { name: 'id', label: 'ID (LEER = NEU ANLEGEN)', placeholder: 'msn-daily' },
+          { name: 'title', label: 'TITEL', required: true, placeholder: 'COMMUNITY-MISSION' },
+          { name: 'description', label: 'BESCHREIBUNG', type: 'multiline' },
+          { name: 'type', label: 'TYP', initialValue: 'SPECIAL_EVENT', hint: TYPES.join(' · ') },
+          {
+            name: 'reward',
+            label: 'BELOHNUNG IN CREDITS',
+            type: 'number',
+            required: true,
+            placeholder: '250',
+          },
+          { name: 'repeatable', label: 'Mehrfach abschließbar', type: 'switch' },
+          {
+            name: 'cooldownHours',
+            label: 'WARTEZEIT IN STUNDEN',
+            type: 'number',
+            placeholder: '24',
+            hint: 'Wird nur bei wiederholbaren Missionen verwendet.',
+          },
+          { name: 'startsAt', label: 'BEGINNT AM', placeholder: '2026-08-01T00:00:00Z' },
+          { name: 'endsAt', label: 'ENDET AM', placeholder: '2026-09-01T00:00:00Z' },
         ]}
       />
 
       <View style={styles.section}>
-        <SectionHeader title="ACTIVE MISSIONS" meta={`${missions.data?.missions.length ?? 0}`} />
+        <SectionHeader title="AKTIVE MISSIONEN" meta={`${missions.data?.missions.length ?? 0}`} />
         {(missions.data?.missions ?? []).length === 0 ? (
-          <EmptyState icon="token" title="No missions yet." />
+          <EmptyState icon="token" title="Noch keine Missionen." />
         ) : (
           <View>
             {(missions.data?.missions ?? []).map((mission, index, all) => (
@@ -85,7 +98,7 @@ export default function AdminMissions() {
                   showChevron={false}
                   trailing={
                     <View style={styles.trailing}>
-                      {mission.repeatable && <Chip label="REPEATS" tone="muted" />}
+                      {mission.repeatable && <Chip label="WIEDERHOLBAR" tone="muted" />}
                       <CreditPill amount={mission.reward} size="sm" />
                     </View>
                   }
@@ -98,8 +111,8 @@ export default function AdminMissions() {
       </View>
 
       <Text variant="caption" tone="muted">
-        Missions of type CONNECT_SPOTIFY only ever pay out once a real Spotify connection
-        exists on the account; the server refuses the claim otherwise.
+        Missionen vom Typ CONNECT_SPOTIFY zahlen erst aus, wenn am Konto tatsächlich eine
+        Spotify-Verbindung besteht; andernfalls lehnt der Server das Einlösen ab.
       </Text>
     </Screen>
   );

@@ -1,14 +1,15 @@
 import type { ApiErrorCode, ApiErrorPayload } from '@/types/api';
 
 /**
- * A failure that already carries member-safe wording. Raw network/parse errors are
- * wrapped into this so no stack trace or status code ever reaches a screen.
+ * Ein Fehler, der bereits eine für Mitglieder geeignete Formulierung trägt. Rohe Netzwerk-
+ * und Parse-Fehler werden hierin verpackt, damit weder Stacktrace noch Statuscode je auf
+ * einem Screen landet.
  */
 export class AppError extends Error {
   readonly code: ApiErrorCode;
   readonly status: number;
   readonly details?: Record<string, string>;
-  /** True when retrying the same action could plausibly succeed. */
+  /** True, wenn ein erneuter Versuch derselben Aktion plausibel gelingen könnte. */
   readonly retryable: boolean;
 
   constructor(
@@ -27,26 +28,26 @@ export class AppError extends Error {
 
 const RETRYABLE_CODES = new Set<ApiErrorCode>(['OFFLINE', 'SERVER_ERROR', 'RATE_LIMITED']);
 
-/** Copy shown to members. Deliberately non-technical — no codes, no status numbers. */
+/** Texte für Mitglieder. Bewusst untechnisch — keine Codes, keine Statusnummern. */
 const MESSAGES: Record<ApiErrorCode, string> = {
-  BAD_REQUEST: 'Please check the details you entered and try again.',
-  UNAUTHORIZED: 'Please sign in again to continue.',
-  FORBIDDEN: 'You do not have access to this area.',
-  NOT_FOUND: 'This is no longer available.',
-  CONFLICT: 'That did not work — something has already changed.',
-  INSUFFICIENT_CREDITS: 'You do not have enough credits for this.',
-  MISSION_ON_COOLDOWN: 'This mission is not ready yet. Come back soon.',
-  MISSION_ALREADY_COMPLETED: 'You have already completed this mission.',
-  GIVEAWAY_CLOSED: 'This giveaway is closed.',
-  GIVEAWAY_ENTRY_LIMIT: 'You have used all your entries for this giveaway.',
-  REWARD_UNAVAILABLE: 'This reward is currently unavailable.',
-  RATE_LIMITED: 'Too many attempts. Please wait a moment.',
-  SPOTIFY_NOT_CONFIGURED: 'Spotify is not available yet.',
-  SPOTIFY_AUTH_FAILED: 'Spotify could not be connected.',
-  TOKEN_EXPIRED: 'Your session expired. Please sign in again.',
-  ACCOUNT_BANNED: 'This account has been suspended.',
-  SERVER_ERROR: 'Something went wrong.',
-  OFFLINE: 'You are offline. Some features are currently unavailable.',
+  BAD_REQUEST: 'Bitte prüfe deine Eingaben und versuche es erneut.',
+  UNAUTHORIZED: 'Bitte melde dich erneut an.',
+  FORBIDDEN: 'Auf diesen Bereich hast du keinen Zugriff.',
+  NOT_FOUND: 'Das ist nicht mehr verfügbar.',
+  CONFLICT: 'Das hat nicht geklappt — etwas hat sich zwischenzeitlich geändert.',
+  INSUFFICIENT_CREDITS: 'Dafür reicht dein Guthaben nicht aus.',
+  MISSION_ON_COOLDOWN: 'Diese Mission ist noch nicht wieder verfügbar. Schau bald wieder vorbei.',
+  MISSION_ALREADY_COMPLETED: 'Diese Mission hast du bereits erledigt.',
+  GIVEAWAY_CLOSED: 'Dieses Gewinnspiel ist beendet.',
+  GIVEAWAY_ENTRY_LIMIT: 'Du hast alle deine Lose für dieses Gewinnspiel eingesetzt.',
+  REWARD_UNAVAILABLE: 'Diese Prämie ist derzeit nicht verfügbar.',
+  RATE_LIMITED: 'Zu viele Versuche. Bitte warte einen Moment.',
+  SPOTIFY_NOT_CONFIGURED: 'Spotify ist noch nicht verfügbar.',
+  SPOTIFY_AUTH_FAILED: 'Spotify konnte nicht verbunden werden.',
+  TOKEN_EXPIRED: 'Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
+  ACCOUNT_BANNED: 'Dieses Konto wurde gesperrt.',
+  SERVER_ERROR: 'Da ist etwas schiefgelaufen.',
+  OFFLINE: 'Du bist offline. Einige Funktionen sind gerade nicht verfügbar.',
 };
 
 export function messageForCode(code: ApiErrorCode): string {
@@ -60,7 +61,7 @@ export function toAppError(error: unknown): AppError {
     return new AppError('OFFLINE', MESSAGES.OFFLINE);
   }
   if (error instanceof Error && error.name === 'AbortError') {
-    return new AppError('OFFLINE', 'The request took too long. Please try again.');
+    return new AppError('OFFLINE', 'Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.');
   }
   return new AppError('SERVER_ERROR', MESSAGES.SERVER_ERROR);
 }

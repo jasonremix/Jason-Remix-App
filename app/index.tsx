@@ -16,7 +16,7 @@ export default function Index() {
   const { ready, completed } = useOnboardingStore();
 
   if (!ready || authStatus === 'unknown') {
-    return <View style={{ flex: 1, backgroundColor: palette.black }} />;
+    return <View style={{ flex: 1, backgroundColor: palette.paper }} />;
   }
 
   if (!completed) return <Redirect href="/(onboarding)" />;

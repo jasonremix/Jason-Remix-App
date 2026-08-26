@@ -9,9 +9,9 @@ export default function NotFound() {
       <EmptyState
         icon="alert"
         eyebrow="404"
-        title="This page does not exist."
-        message="The link you followed does not lead anywhere in the app."
-        actionLabel="BACK TO HOME"
+        title="Diese Seite gibt es nicht."
+        message="Der Link, dem du gefolgt bist, führt in dieser App nirgendwo hin."
+        actionLabel="ZURÜCK ZUM START"
         onAction={() => router.replace('/(tabs)')}
       />
     </Screen>

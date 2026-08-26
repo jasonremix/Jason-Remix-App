@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { alpha, layout, palette, spacing } from '@/constants/theme';
@@ -34,8 +33,8 @@ export function ConfirmDialog({
   title,
   message,
   detail,
-  confirmLabel = 'CONFIRM',
-  cancelLabel = 'CANCEL',
+  confirmLabel = 'BESTÄTIGEN',
+  cancelLabel = 'ABBRECHEN',
   destructive = false,
   loading = false,
   onConfirm,
@@ -44,10 +43,11 @@ export function ConfirmDialog({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel} statusBarTranslucent>
       <View style={styles.root}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={loading ? undefined : onCancel} accessibilityLabel="Dismiss">
-          <BlurView intensity={28} tint="dark" style={StyleSheet.absoluteFill} />
-          <View style={[StyleSheet.absoluteFill, styles.scrim]} />
-        </Pressable>
+        <Pressable
+          style={[StyleSheet.absoluteFill, styles.scrim]}
+          onPress={loading ? undefined : onCancel}
+          accessibilityLabel="Schließen"
+        />
 
         <Surface style={styles.dialog} rounded="xl">
           <View style={styles.body}>
@@ -60,7 +60,7 @@ export function ConfirmDialog({
             </Text>
             {detail && (
               <View style={styles.detail}>
-                <Text variant="bodySmall" tone="chrome">
+                <Text variant="bodySmall" tone="accent">
                   {detail}
                 </Text>
               </View>
@@ -96,21 +96,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: layout.gutter,
   },
-  scrim: { backgroundColor: alpha.scrimSoft },
+  scrim: { backgroundColor: alpha.scrim },
   dialog: {
     width: '100%',
     maxWidth: 420,
-    borderColor: alpha.edgeStrong,
+    borderColor: palette.ruleStrong,
   },
   body: { padding: spacing.xl, gap: spacing.md },
   detail: {
     marginTop: spacing.xs,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.base,
-    backgroundColor: palette.well,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.hairline,
+    backgroundColor: palette.accentWash,
+    borderRadius: 4,
   },
   actions: {
     flexDirection: 'row',

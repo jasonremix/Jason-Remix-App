@@ -33,15 +33,15 @@ export function GiveawayCard({ giveaway, onPress }: { giveaway: Giveaway; onPres
             />
             {giveaway.myEntries > 0 && (
               <Chip
-                label={`${giveaway.myEntries} ${giveaway.myEntries === 1 ? 'ENTRY' : 'ENTRIES'}`}
+                label={`${giveaway.myEntries} ${giveaway.myEntries === 1 ? 'LOS' : 'LOSE'}`}
                 tone="success"
               />
             )}
           </View>
 
           <View style={styles.titleBlock}>
-            <Text variant="title" tone="primary" numberOfLines={2}>
-              {giveaway.title.toLocaleUpperCase('en-US')}
+            <Text variant="display" tone="primary" numberOfLines={2}>
+              {giveaway.title}
             </Text>
             {giveaway.subtitle && (
               <Text variant="labelWide" tone="tertiary" uppercase numberOfLines={1}>
@@ -57,17 +57,17 @@ export function GiveawayCard({ giveaway, onPress }: { giveaway: Giveaway; onPres
           {filled !== null && (
             <View style={styles.progress}>
               <ProgressBar progress={filled} accessibilityLabel="Entries taken" />
-              <Text variant="caption" tone="muted">
-                {giveaway.entriesUsed.toLocaleString('en-US')} of{' '}
-                {(giveaway.totalEntries ?? 0).toLocaleString('en-US')} entries taken
+              <Text variant="caption" tone="tertiary">
+                {giveaway.entriesUsed.toLocaleString('de-DE')} von{' '}
+                {(giveaway.totalEntries ?? 0).toLocaleString('de-DE')} Losen vergeben
               </Text>
             </View>
           )}
 
           <View style={styles.footer}>
             <CreditPill amount={giveaway.entryCost} size="sm" />
-            <Text variant="labelWide" tone="muted" uppercase>
-              {giveaway.winnerCount === 1 ? '1 WINNER' : `${giveaway.winnerCount} WINNERS`}
+            <Text variant="labelWide" tone="tertiary" uppercase>
+              {giveaway.winnerCount === 1 ? '1 GEWINNER' : `${giveaway.winnerCount} GEWINNER`}
             </Text>
           </View>
         </View>

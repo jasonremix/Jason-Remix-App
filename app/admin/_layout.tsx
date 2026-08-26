@@ -4,11 +4,11 @@ import { palette } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
 
 /**
- * Administration area.
+ * Admin-Bereich.
  *
- * This gate is a convenience, not the access control: every `/admin/*` API route
- * independently verifies the role against the database record, so a member who reaches
- * these screens some other way still cannot do anything.
+ * Diese Sperre ist Bequemlichkeit, nicht die Zugriffskontrolle: jede `/admin/*`-Route
+ * der API prüft die Rolle unabhängig gegen den Datenbankeintrag. Wer diese Bildschirme
+ * auf anderem Weg erreicht, kann hier trotzdem nichts ausrichten.
  */
 export default function AdminLayout() {
   const status = useAuthStore((state) => state.status);
@@ -22,7 +22,7 @@ export default function AdminLayout() {
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: palette.black },
+        contentStyle: { backgroundColor: palette.paper },
       }}
     />
   );

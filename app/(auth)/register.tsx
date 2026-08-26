@@ -15,12 +15,12 @@ import { MIN_PASSWORD_LENGTH } from '@/services/auth.service';
 import { useAuthStore } from '@/store/authStore';
 
 /**
- * Registration.
+ * Registrierung.
  *
- * Deliberately minimal: email, username, password. No date of birth, no real name, no
- * marketing consent bundled into the account — anything the app does not strictly need
- * is not collected. Age is asked for only where a giveaway legally requires it, at the
- * point of entry.
+ * Bewusst knapp: E-Mail, Benutzername, Passwort. Kein Geburtsdatum, kein Klarname,
+ * keine Werbe-Einwilligung im Konto versteckt — was die App nicht zwingend braucht,
+ * wird nicht erhoben. Nach dem Alter wird nur dort gefragt, wo ein Gewinnspiel es
+ * rechtlich verlangt, und zwar direkt bei der Teilnahme.
  */
 export default function Register() {
   const insets = useSafeAreaInsets();
@@ -65,37 +65,37 @@ export default function Register() {
 
         <View style={styles.form}>
           <Text variant="labelWide" tone="muted" uppercase>
-            CREATE YOUR ACCOUNT
+            KONTO ANLEGEN
           </Text>
 
           <Input
-            label="EMAIL"
+            label="E-MAIL"
             value={email}
             onChangeText={setEmail}
             error={fieldErrors.email}
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="du@beispiel.de"
           />
 
           <Input
-            label="USERNAME"
+            label="BENUTZERNAME"
             value={username}
             onChangeText={setUsername}
             error={fieldErrors.username}
-            hint="Visible to other members. 3–20 characters."
+            hint="Für andere Mitglieder sichtbar. 3–20 Zeichen."
             autoComplete="username-new"
-            placeholder="your_name"
+            placeholder="dein_name"
             maxLength={20}
           />
 
           <Input
-            label="PASSWORD"
+            label="PASSWORT"
             value={password}
             onChangeText={setPassword}
             error={fieldErrors.password}
-            hint={`At least ${MIN_PASSWORD_LENGTH} characters, including a number.`}
+            hint={`Mindestens ${MIN_PASSWORD_LENGTH} Zeichen, davon mindestens eine Ziffer.`}
             secure
             textContentType="newPassword"
             autoComplete="new-password"
@@ -109,18 +109,20 @@ export default function Register() {
             style={styles.consent}
           >
             <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
-              {acceptedTerms && <Icon name="check" size={12} color={palette.obsidian} strokeWidth={1.8} />}
+              {acceptedTerms && (
+                <Icon name="check" size={12} color={palette.onAccent} strokeWidth={2.2} />
+              )}
             </View>
             <Text variant="bodySmall" tone="tertiary" style={styles.consentText}>
-              I accept the{' '}
+              Ich akzeptiere die{' '}
               <Link href="/legal/terms" style={styles.inlineLink}>
-                Terms of Use
+                Nutzungsbedingungen
               </Link>{' '}
-              and have read the{' '}
+              und habe die{' '}
               <Link href="/legal/privacy" style={styles.inlineLink}>
-                Privacy Policy
-              </Link>
-              .
+                Datenschutzerklärung
+              </Link>{' '}
+              gelesen.
             </Text>
           </Pressable>
 
@@ -131,7 +133,7 @@ export default function Register() {
           )}
 
           <Button
-            label="CREATE ACCOUNT"
+            label="KONTO ANLEGEN"
             variant="primary"
             fullWidth
             loading={submitting}
@@ -142,11 +144,11 @@ export default function Register() {
 
         <View style={styles.footer}>
           <Text variant="bodySmall" tone="muted">
-            Already a member?
+            Schon Mitglied?
           </Text>
           <Link href="/(auth)/login" asChild>
-            <Text variant="bodySmall" tone="chrome" accessibilityRole="link">
-              SIGN IN
+            <Text variant="bodySmall" tone="accent" accessibilityRole="link">
+              ANMELDEN
             </Text>
           </Link>
         </View>
@@ -156,7 +158,7 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.black },
+  root: { flex: 1, backgroundColor: palette.paper },
   content: { paddingHorizontal: layout.gutter, gap: spacing.xxl },
   form: { gap: spacing.lg },
   consent: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
@@ -165,13 +167,13 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: radius.sm,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: palette.ruleStrong,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
   },
-  checkboxChecked: { backgroundColor: palette.chrome, borderColor: palette.chrome },
+  checkboxChecked: { backgroundColor: palette.accent, borderColor: palette.accent },
   consentText: { flex: 1 },
-  inlineLink: { color: palette.chrome },
+  inlineLink: { color: palette.accent },
   footer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center' },
 });

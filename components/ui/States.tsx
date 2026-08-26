@@ -30,13 +30,13 @@ export function EmptyState({
 }) {
   return (
     <View style={styles.root}>
-      <Icon name={icon} size={28} color={palette.titanium} strokeWidth={1} />
+      <Icon name={icon} size={30} color={palette.faint} strokeWidth={1.4} />
       {eyebrow && <Overline tone="muted">{eyebrow}</Overline>}
-      <Text variant="heading" tone="secondary" align="center">
+      <Text variant="heading" tone="primary" align="center">
         {title}
       </Text>
       {message && (
-        <Text variant="bodySmall" tone="muted" align="center" style={styles.message}>
+        <Text variant="bodySmall" tone="tertiary" align="center" style={styles.message}>
           {message}
         </Text>
       )}
@@ -60,12 +60,12 @@ export function ErrorState({
 }) {
   return (
     <View style={styles.root}>
-      <Icon name="alert" size={26} color={palette.titanium} strokeWidth={1} />
-      <Text variant="heading" tone="secondary" align="center">
+      <Icon name="alert" size={28} color={palette.danger} strokeWidth={1.4} />
+      <Text variant="heading" tone="primary" align="center">
         {title}
       </Text>
       {message && (
-        <Text variant="bodySmall" tone="muted" align="center" style={styles.message}>
+        <Text variant="bodySmall" tone="tertiary" align="center" style={styles.message}>
           {message}
         </Text>
       )}

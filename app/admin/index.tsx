@@ -13,7 +13,7 @@ import { config } from '@/constants/config';
 import { spacing } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
 
-/** The administration index. Deliberately plain — these screens are tools. */
+/** Die Admin-Übersicht. Bewusst nüchtern — diese Bildschirme sind Werkzeuge. */
 export default function AdminHome() {
   const user = useAuthStore((state) => state.user);
 
@@ -24,7 +24,7 @@ export default function AdminHome() {
       <Surface style={styles.identity}>
         <View style={styles.identityRow}>
           <Text variant="labelWide" tone="muted" uppercase>
-            SIGNED IN AS
+            ANGEMELDET ALS
           </Text>
           <Chip label="ADMIN" tone="warning" />
         </View>
@@ -32,52 +32,102 @@ export default function AdminHome() {
           {user?.email}
         </Text>
         <Text variant="caption" tone="muted">
-          Every action below is recorded in the audit log with your account against it.
+          Jede Aktion hier unten wird im Prüfprotokoll mit deinem Konto festgehalten.
         </Text>
       </Surface>
 
       <View style={styles.section}>
-        <SectionHeader title="CATALOGUE" />
+        <SectionHeader title="KATALOG" />
         <View>
-          <Row title="RELEASES" subtitle="Add or edit tracks, covers and links" icon="disc" onPress={() => router.push('/admin/tracks')} />
+          <Row
+            title="VERÖFFENTLICHUNGEN"
+            subtitle="Titel, Cover und Links anlegen oder ändern"
+            icon="disc"
+            onPress={() => router.push('/admin/tracks')}
+          />
           <Hairline />
-          <Row title="NEWS" subtitle="Publish an announcement to Home" icon="document" onPress={() => router.push('/admin/news')} />
+          <Row
+            title="AKTUELLES"
+            subtitle="Eine Meldung auf der Startseite veröffentlichen"
+            icon="document"
+            onPress={() => router.push('/admin/news')}
+          />
         </View>
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="ECONOMY" />
+        <SectionHeader title="WIRTSCHAFT" />
         <View>
-          <Row title="MISSIONS" subtitle="Create and edit ways to earn credits" icon="token" onPress={() => router.push('/admin/missions')} />
+          <Row
+            title="MISSIONEN"
+            subtitle="Wege zu Credits anlegen und bearbeiten"
+            icon="token"
+            onPress={() => router.push('/admin/missions')}
+          />
           <Hairline />
-          <Row title="REWARDS" subtitle="The redemption ladder and its stock" icon="gift" onPress={() => router.push('/admin/rewards')} />
+          <Row
+            title="PRÄMIEN"
+            subtitle="Der Katalog zum Einlösen und sein Bestand"
+            icon="gift"
+            onPress={() => router.push('/admin/rewards')}
+          />
           <Hairline />
-          <Row title="BADGES" subtitle="Achievements members can unlock" icon="star" onPress={() => router.push('/admin/badges')} />
+          <Row
+            title="ABZEICHEN"
+            subtitle="Erfolge, die Mitglieder freischalten können"
+            icon="star"
+            onPress={() => router.push('/admin/badges')}
+          />
           <Hairline />
-          <Row title="CREDITS" subtitle="Grant, correct or refund a balance" icon="edit" onPress={() => router.push('/admin/credits')} />
+          <Row
+            title="CREDITS"
+            subtitle="Guthaben gutschreiben, korrigieren oder erstatten"
+            icon="edit"
+            onPress={() => router.push('/admin/credits')}
+          />
         </View>
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="GIVEAWAYS" />
-        <Row title="GIVEAWAYS & DRAWS" subtitle="Create, close and draw winners" icon="ticket" onPress={() => router.push('/admin/giveaways')} />
+        <SectionHeader title="GEWINNSPIELE" />
+        <Row
+          title="GEWINNSPIELE & ZIEHUNGEN"
+          subtitle="Anlegen, schließen und Gewinner ziehen"
+          icon="ticket"
+          onPress={() => router.push('/admin/giveaways')}
+        />
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="MEMBERS" />
+        <SectionHeader title="MITGLIEDER" />
         <View>
-          <Row title="MEMBERS" subtitle="Look up accounts, suspend or restore" icon="user" onPress={() => router.push('/admin/users')} />
+          <Row
+            title="MITGLIEDER"
+            subtitle="Konten nachschlagen, sperren oder wiederherstellen"
+            icon="user"
+            onPress={() => router.push('/admin/users')}
+          />
           <Hairline />
-          <Row title="PUSH NOTIFICATIONS" subtitle="Queue a message to opted-in members" icon="bell" onPress={() => router.push('/admin/notifications')} />
+          <Row
+            title="PUSH-NACHRICHTEN"
+            subtitle="Eine Nachricht an Mitglieder mit Einwilligung einreihen"
+            icon="bell"
+            onPress={() => router.push('/admin/notifications')}
+          />
           <Hairline />
-          <Row title="AUDIT LOG" subtitle="Every administrative action, in order" icon="shield" onPress={() => router.push('/admin/audit')} />
+          <Row
+            title="PRÜFPROTOKOLL"
+            subtitle="Jede Verwaltungsaktion, der Reihe nach"
+            icon="shield"
+            onPress={() => router.push('/admin/audit')}
+          />
         </View>
       </View>
 
       {config.isDemoMode && (
         <Text variant="caption" tone="muted">
-          Demo mode keeps these screens explorable, but a draw needs the real API — winners
-          are never selected on the device.
+          Im Demo-Modus lassen sich diese Bildschirme ansehen, eine Ziehung braucht aber die
+          echte API — Gewinner werden niemals auf dem Gerät ausgewählt.
         </Text>
       )}
     </Screen>

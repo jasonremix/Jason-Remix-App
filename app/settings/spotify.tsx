@@ -22,10 +22,10 @@ import { useSpotifyStore } from '@/store/spotifyStore';
 import { useUiStore } from '@/store/uiStore';
 
 /**
- * Spotify connection management.
+ * Verwaltung der Spotify-Verbindung.
  *
- * States plainly what is shared before anything is authorised, and offers a single
- * unambiguous way to sever the link.
+ * Sagt vor der Freigabe klar, was geteilt wird, und bietet genau einen eindeutigen Weg,
+ * die Verbindung wieder zu lösen.
  */
 export default function SpotifySettings() {
   useSpotifyConnection();
@@ -54,10 +54,10 @@ export default function SpotifySettings() {
           <Chip
             label={
               !config.isSpotifyConfigured
-                ? 'NOT CONFIGURED'
+                ? 'NICHT EINGERICHTET'
                 : connected
-                  ? 'SPOTIFY CONNECTED'
-                  : 'NOT CONNECTED'
+                  ? 'SPOTIFY VERBUNDEN'
+                  : 'NICHT VERBUNDEN'
             }
             tone={connected ? 'success' : 'muted'}
           />
@@ -73,8 +73,9 @@ export default function SpotifySettings() {
                   {connection.displayName ?? connection.spotifyUserId}
                 </Text>
                 <Text variant="caption" tone="muted">
-                  {connection.product ? `${connection.product.toLocaleUpperCase('en-US')} · ` : ''}
-                  Connected {connection.connectedAt ? formatDateTime(connection.connectedAt) : ''}
+                  {connection.product ? `${connection.product.toLocaleUpperCase('de-DE')} · ` : ''}
+                  Verbunden seit{' '}
+                  {connection.connectedAt ? formatDateTime(connection.connectedAt) : ''}
                 </Text>
               </View>
             </View>
@@ -85,7 +86,7 @@ export default function SpotifySettings() {
 
         {connected ? (
           <Button
-            label="DISCONNECT"
+            label="VERBINDUNG TRENNEN"
             variant="danger"
             fullWidth
             loading={disconnect.isPending}
@@ -93,7 +94,7 @@ export default function SpotifySettings() {
           />
         ) : (
           <Button
-            label="CONNECT SPOTIFY"
+            label="SPOTIFY VERBINDEN"
             variant="primary"
             icon="spotify"
             fullWidth
@@ -110,14 +111,14 @@ export default function SpotifySettings() {
         )}
       </Surface>
 
-      {/* --- Transparency about what is shared --------------------------------- */}
+      {/* --- Offenlegung, was geteilt wird ------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="WHAT IS SHARED" />
+        <SectionHeader title="DAS WIRD GETEILT" />
         <View>
           {scopes.map((entry, index) => (
             <View key={entry.scope}>
               <View style={styles.scopeRow}>
-                <Icon name="check" size={14} color={palette.titanium} strokeWidth={1.4} />
+                <Icon name="check" size={14} color={palette.faint} strokeWidth={1.4} />
                 <View style={styles.scopeText}>
                   <Text variant="bodySmall" tone="secondary">
                     {entry.description}
@@ -133,41 +134,42 @@ export default function SpotifySettings() {
         </View>
 
         <Text variant="caption" tone="muted">
-          Read-only access. The app cannot control playback, change your library, or post
-          anything to your account. No audio is downloaded, copied or stored.
+          Nur Lesezugriff. Die App kann die Wiedergabe nicht steuern, deine Bibliothek nicht
+          verändern und nichts in deinem Namen posten. Es werden keine Audiodateien
+          heruntergeladen, kopiert oder gespeichert.
         </Text>
       </View>
 
-      {/* --- Setup reference ---------------------------------------------------- */}
+      {/* --- Nachschlagewert für die Einrichtung -------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="REDIRECT URI" />
-        <Surface elevation="inset" style={styles.uriBox}>
+        <SectionHeader title="REDIRECT-URI" />
+        <Surface elevation="sunk" style={styles.uriBox}>
           <Text variant="caption" tone="secondary" selectable>
             {redirectUri}
           </Text>
         </Surface>
         <Button
-          label="COPY REDIRECT URI"
+          label="REDIRECT-URI KOPIEREN"
           variant="secondary"
           size="sm"
           icon="link"
           onPress={async () => {
             await Clipboard.setStringAsync(redirectUri);
-            showToast('REDIRECT URI COPIED', 'neutral');
+            showToast('REDIRECT-URI KOPIERT', 'neutral');
           }}
         />
         <Text variant="caption" tone="muted">
-          Register this exact value in the Spotify developer dashboard for the client id
-          this build uses.
+          Genau dieser Wert muss im Spotify-Developer-Dashboard für die Client-ID
+          hinterlegt sein, die dieser Build verwendet.
         </Text>
       </View>
 
       <ConfirmDialog
         visible={confirmingDisconnect}
-        eyebrow="DISCONNECT SPOTIFY"
-        title="Disconnect your Spotify account?"
-        message="The link will be removed and the stored tokens deleted on the server. Credits you have already earned are unaffected."
-        confirmLabel="DISCONNECT"
+        eyebrow="SPOTIFY TRENNEN"
+        title="Spotify-Konto wirklich trennen?"
+        message="Die Verbindung wird gelöst und die gespeicherten Tokens werden auf dem Server gelöscht. Bereits verdiente Credits bleiben davon unberührt."
+        confirmLabel="TRENNEN"
         destructive
         loading={disconnect.isPending}
         onConfirm={async () => {

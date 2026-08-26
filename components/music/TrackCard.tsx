@@ -7,16 +7,16 @@ import { alpha, palette, spacing } from '@/constants/theme';
 import { formatDuration, formatReleaseDate } from '@/lib/format';
 import type { Track } from '@/types/models';
 
-/** A discography row: sleeve, title, artist, and the release date with genre. */
+/** Eine Zeile der Diskografie: Cover, Titel, Artist, Datum und Genre. */
 export function TrackCard({ track, onPress }: { track: Track; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${track.title} by ${track.artist}`}
+      accessibilityLabel={`${track.title} von ${track.artist}`}
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
-      <CoverArt uri={track.coverUrl} title={track.title} size={64} showTitle={false} />
+      <CoverArt uri={track.coverUrl} title={track.title} size={68} showTitle={false} />
 
       <View style={styles.text}>
         <Text variant="heading" tone="primary" numberOfLines={1}>
@@ -32,7 +32,7 @@ export function TrackCard({ track, onPress }: { track: Track; onPress: () => voi
         </Text>
       </View>
 
-      <Icon name="chevron-right" size={14} color={palette.titanium} />
+      <Icon name="chevron-right" size={15} color={palette.faint} />
     </Pressable>
   );
 }

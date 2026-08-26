@@ -22,17 +22,17 @@ import { formatRelative } from '@/lib/format';
 import type { NewsItem } from '@/types/models';
 
 const NEWS_LABELS: Record<NewsItem['category'], string> = {
-  RELEASE: 'NEW RELEASE',
+  RELEASE: 'NEUE VERÖFFENTLICHUNG',
   TOUR: 'TOUR',
-  REWARD: 'NEW REWARD',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
+  REWARD: 'NEUE PRÄMIE',
+  ANNOUNCEMENT: 'ANKÜNDIGUNG',
 };
 
 /**
- * Home.
+ * Start.
  *
- * One release, one balance, three headlines. The restraint is the point: everything
- * else in the app is one tap away from the bar below.
+ * Eine Veröffentlichung, ein Guthaben, drei Meldungen. Die Zurückhaltung ist der Punkt:
+ * alles Weitere ist von der Leiste unten aus einen Fingertipp entfernt.
  */
 export default function Home() {
   const catalog = useCatalog();
@@ -68,7 +68,7 @@ export default function Home() {
         </View>
       ) : catalog.isError ? (
         <ErrorState
-          message="The release could not be loaded."
+          message="Die Veröffentlichung konnte nicht geladen werden."
           onRetry={() => void catalog.refetch()}
         />
       ) : catalog.featuredTrack ? (
@@ -80,13 +80,13 @@ export default function Home() {
 
       {/* --- Balance -------------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="YOUR CREDITS" />
+        <SectionHeader title="DEIN GUTHABEN" />
         <Surface style={styles.creditCard}>
           {credits.isPending ? (
             <Skeleton height={46} width="60%" />
           ) : credits.isError ? (
-            <Text variant="body" tone="muted">
-              Balance unavailable right now.
+            <Text variant="body" tone="tertiary">
+              Guthaben gerade nicht verfügbar.
             </Text>
           ) : (
             <>
@@ -105,7 +105,7 @@ export default function Home() {
 
           <Hairline style={styles.divider} />
           <Button
-            label="VIEW CREDITS"
+            label="GUTHABEN ANSEHEN"
             variant="ghost"
             size="sm"
             icon="chevron-right"
@@ -117,7 +117,7 @@ export default function Home() {
 
       {/* --- News ----------------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="LATEST NEWS" />
+        <SectionHeader title="AKTUELLES" />
 
         {catalog.isPending ? (
           <SkeletonCard lines={2} height={14} />
@@ -134,7 +134,7 @@ export default function Home() {
                       {formatRelative(item.publishedAt)}
                     </Text>
                   </View>
-                  <Text variant="heading" tone="primary">
+                  <Text variant="title" tone="primary">
                     {item.title}
                   </Text>
                   <Text variant="bodySmall" tone="tertiary">

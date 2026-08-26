@@ -12,12 +12,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Monogram } from '@/components/brand/Monogram';
 import { Text } from '@/components/ui/Text';
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 import { formatSignedCredits } from '@/lib/format';
 import { useUiStore } from '@/store/uiStore';
 
 /**
- * The award flash: `+250` rising once through a brief metallic light, then gone.
+ * The award flash: `+250` rising once on a solid accent chip, then gone.
  *
  * Mounted once in the root layout so any awarding action anywhere produces the same
  * moment. Roughly one second start to finish — long enough to register, short enough
@@ -64,10 +64,10 @@ export function CreditPulse() {
     <View style={[styles.host, { top: insets.top + spacing.huge }]} pointerEvents="none">
       <Animated.View style={[styles.badge, badgeStyle]}>
         <Animated.View
-          style={[StyleSheet.absoluteFill, { backgroundColor: palette.chrome }, flashStyle]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: palette.onAccent }, flashStyle]}
         />
-        <Monogram size={14} />
-        <Text variant="heading" tone="primary" style={styles.amount}>
+        <Monogram size={15} tone="inverse" />
+        <Text variant="heading" tone="inverse" style={styles.amount}>
           {formatSignedCredits(pulse.amount)}
         </Text>
       </Animated.View>
@@ -90,9 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
-    backgroundColor: palette.gunmetal,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edgeStrong,
+    backgroundColor: palette.accent,
     overflow: 'hidden',
   },
   amount: { letterSpacing: 1, fontVariant: ['tabular-nums'] },

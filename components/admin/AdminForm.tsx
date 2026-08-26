@@ -10,10 +10,11 @@ import { toAppError } from '@/lib/errors';
 import { useUiStore } from '@/store/uiStore';
 
 /**
- * A small declarative form used by every admin screen.
+ * Ein kleines deklaratives Formular, das jeder Admin-Screen benutzt.
  *
- * Admin screens are tools, not showpieces: one shared form keeps them consistent and
- * keeps each screen down to a field list plus a submit handler.
+ * Der Admin-Bereich besteht aus Werkzeugen, nicht aus Schaustücken: ein gemeinsames
+ * Formular hält sie einheitlich und reduziert jeden Screen auf eine Feldliste plus
+ * einen Submit-Handler.
  */
 
 export type FieldType = 'text' | 'multiline' | 'number' | 'switch';
@@ -59,7 +60,7 @@ export function AdminForm({
     const missing: Record<string, string> = {};
     for (const field of fields) {
       if (field.required && !String(values[field.name] ?? '').trim()) {
-        missing[field.name] = 'Required.';
+        missing[field.name] = 'Pflichtfeld.';
       }
     }
     if (Object.keys(missing).length > 0) {
@@ -84,7 +85,7 @@ export function AdminForm({
   return (
     <Surface style={styles.card}>
       <View style={styles.header}>
-        <Text variant="label" tone="chrome" uppercase>
+        <Text variant="label" tone="accent" uppercase>
           {title}
         </Text>
         {description && (
@@ -98,7 +99,7 @@ export function AdminForm({
         field.type === 'switch' ? (
           <View key={field.name} style={styles.switchRow}>
             <View style={styles.switchText}>
-              <Text variant="bodySmall" tone="secondary">
+              <Text variant="bodySmall" tone="primary">
                 {field.label}
               </Text>
               {field.hint && (
@@ -110,9 +111,9 @@ export function AdminForm({
             <Switch
               value={Boolean(values[field.name])}
               onValueChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
-              trackColor={{ false: palette.steel, true: palette.brushed }}
-              thumbColor={values[field.name] ? palette.offWhite : palette.titanium}
-              ios_backgroundColor={palette.steel}
+              trackColor={{ false: palette.ruleStrong, true: palette.accent }}
+              thumbColor={palette.card}
+              ios_backgroundColor={palette.ruleStrong}
             />
           </View>
         ) : (

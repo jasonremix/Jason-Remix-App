@@ -6,21 +6,21 @@ import { formatDateTime, formatSignedCredits } from '@/lib/format';
 import type { CreditTransaction } from '@/types/models';
 
 const TYPE_LABELS: Record<CreditTransaction['type'], string> = {
-  EARN: 'EARN',
-  SPEND: 'SPEND',
+  EARN: 'VERDIENT',
+  SPEND: 'AUSGEGEBEN',
   BONUS: 'BONUS',
-  ADMIN_ADJUSTMENT: 'ADJUSTMENT',
-  REFUND: 'REFUND',
+  ADMIN_ADJUSTMENT: 'KORREKTUR',
+  REFUND: 'ERSTATTUNG',
 };
 
-/** One line of the ledger. The running balance is shown so the history reconciles. */
+/** Eine Zeile des Kontobuchs. Der laufende Kontostand steht dabei, damit die Historie aufgeht. */
 export function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
   const positive = transaction.amount >= 0;
 
   return (
     <View style={styles.root}>
       <View style={styles.left}>
-        <Text variant="body" tone="secondary" numberOfLines={1}>
+        <Text variant="body" tone="primary" numberOfLines={1}>
           {transaction.description}
         </Text>
         <Text variant="caption" tone="muted">
@@ -31,12 +31,12 @@ export function TransactionRow({ transaction }: { transaction: CreditTransaction
       <View style={styles.right}>
         <Text
           variant="body"
-          style={[styles.amount, { color: positive ? palette.chrome : palette.silver }]}
+          style={[styles.amount, { color: positive ? palette.success : palette.ink }]}
         >
           {formatSignedCredits(transaction.amount)}
         </Text>
         <Text variant="caption" tone="muted" style={styles.balance}>
-          {transaction.balanceAfter.toLocaleString('en-US')}
+          {transaction.balanceAfter.toLocaleString('de-DE')}
         </Text>
       </View>
     </View>

@@ -15,11 +15,11 @@ import { Wordmark } from '@/components/brand/Wordmark';
 import { palette } from '@/constants/theme';
 
 /**
- * The launch sequence.
+ * Der Startvorgang.
  *
- * The native splash shows the facet mark on black; this takes over seamlessly and
- * brings up the wordmark, then dissolves once the session has been restored. Held for
- * a minimum beat so a fast launch does not produce a flicker.
+ * Der native Splash zeigt die Facette auf Papier; hier wird nahtlos übernommen und der
+ * Schriftzug eingeblendet, bevor sich alles auflöst, sobald die Sitzung wiederhergestellt
+ * ist. Ein Mindest-Moment verhindert, dass ein schneller Start nur flackert.
  */
 
 const ENTRY_MS = 620;
@@ -69,7 +69,7 @@ export function BootScreen({ ready, onFinished }: { ready: boolean; onFinished: 
     <Animated.View style={[StyleSheet.absoluteFill, styles.root, coverStyle]} pointerEvents="none">
       <View style={styles.stack}>
         <Animated.View style={markStyle}>
-          <Monogram size={56} />
+          <Monogram size={64} />
         </Animated.View>
 
         <Animated.View style={wordStyle}>
@@ -82,10 +82,10 @@ export function BootScreen({ ready, onFinished }: { ready: boolean; onFinished: 
 
 const styles = StyleSheet.create({
   root: {
-    backgroundColor: palette.obsidian,
+    backgroundColor: palette.paper,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 100,
   },
-  stack: { alignItems: 'center', gap: 34 },
+  stack: { alignItems: 'center', gap: 30 },
 });

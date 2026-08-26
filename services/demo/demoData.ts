@@ -11,11 +11,11 @@ import type {
 } from '@/types/models';
 
 /**
- * Demo dataset.
+ * Demo-Datensatz.
  *
- * Everything here is illustrative placeholder content used only while the API and
- * Spotify credentials are absent. It is never written to a real account, and every
- * screen that renders it shows the DEMO MODE marker.
+ * Alles hier ist Beispielinhalt und wird nur verwendet, solange API und
+ * Spotify-Zugangsdaten fehlen. Nichts davon wird je in ein echtes Konto geschrieben,
+ * und jeder Bildschirm, der es anzeigt, trägt die Kennzeichnung DEMO-MODUS.
  */
 
 const now = Date.now();
@@ -39,8 +39,8 @@ export const DEMO_ADMIN: User = {
 
 export const DEMO_PROFILE: UserProfile = {
   userId: 'demo-user',
-  username: 'demo_member',
-  displayName: 'Demo Member',
+  username: 'demo_mitglied',
+  displayName: 'Demo-Mitglied',
   avatarUrl: null,
   bio: null,
   country: 'DE',
@@ -210,8 +210,8 @@ export const DEMO_NEWS: NewsItem[] = [
   {
     id: 'news-zeitgeist',
     category: 'RELEASE',
-    title: 'ZEITGEIST is out now',
-    body: 'The new single is available on every major platform. Stream it wherever you listen.',
+    title: 'ZEITGEIST ist da',
+    body: 'Die neue Single ist auf allen großen Plattformen verfügbar. Hör sie dort, wo du sowieso hörst.',
     imageUrl: null,
     publishedAt: days(-2),
     linkUrl: null,
@@ -220,7 +220,7 @@ export const DEMO_NEWS: NewsItem[] = [
     id: 'news-tour',
     category: 'TOUR',
     title: 'SEE YOU SOON TOUR 2027',
-    body: 'Dates across Germany announced. Members get early access to the ticket window.',
+    body: 'Die Termine in ganz Deutschland stehen. Mitglieder kommen früher an den Ticketvorverkauf.',
     imageUrl: null,
     publishedAt: days(-9),
     linkUrl: null,
@@ -228,8 +228,8 @@ export const DEMO_NEWS: NewsItem[] = [
   {
     id: 'news-reward',
     category: 'REWARD',
-    title: 'New reward: Collector Box',
-    body: 'A numbered box with the Chrome Season pressing and a metal member card.',
+    title: 'Neue Prämie: Sammlerbox',
+    body: 'Eine nummerierte Box mit der Chrome-Season-Pressung und einer Mitgliedskarte aus Metall.',
     imageUrl: null,
     publishedAt: days(-16),
     linkUrl: null,
@@ -240,8 +240,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-daily',
     type: 'DAILY_CHECK_IN',
-    title: 'DAILY CHECK-IN',
-    description: 'Open the app once a day.',
+    title: 'TÄGLICHER BESUCH',
+    description: 'Öffne die App einmal am Tag.',
     reward: 100,
     cooldownSeconds: 86_400,
     repeatable: true,
@@ -254,8 +254,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-spotify',
     type: 'CONNECT_SPOTIFY',
-    title: 'CONNECT SPOTIFY',
-    description: 'Link your Spotify account to personalise your experience.',
+    title: 'SPOTIFY VERBINDEN',
+    description: 'Verbinde dein Spotify-Konto, damit die App persönlicher wird.',
     reward: 250,
     cooldownSeconds: null,
     repeatable: false,
@@ -268,8 +268,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-profile',
     type: 'COMPLETE_PROFILE',
-    title: 'COMPLETE PROFILE',
-    description: 'Choose a username and add a picture.',
+    title: 'PROFIL VERVOLLSTÄNDIGEN',
+    description: 'Wähle einen Benutzernamen und lade ein Bild hoch.',
     reward: 100,
     cooldownSeconds: null,
     repeatable: false,
@@ -282,8 +282,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-release',
     type: 'NEW_RELEASE',
-    title: 'NEW RELEASE MISSION',
-    description: 'Listen to ZEITGEIST on your platform of choice.',
+    title: 'MISSION ZUR NEUEN SINGLE',
+    description: 'Hör ZEITGEIST auf der Plattform deiner Wahl.',
     reward: 250,
     cooldownSeconds: null,
     repeatable: false,
@@ -296,8 +296,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-community',
     type: 'COMMUNITY',
-    title: 'COMMUNITY MISSION',
-    description: 'Share the new release with someone who has not heard it yet.',
+    title: 'COMMUNITY-MISSION',
+    description: 'Teile die neue Veröffentlichung mit jemandem, der sie noch nicht kennt.',
     reward: 500,
     cooldownSeconds: 604_800,
     repeatable: true,
@@ -310,8 +310,8 @@ export const DEMO_MISSIONS: Mission[] = [
   {
     id: 'msn-event',
     type: 'SPECIAL_EVENT',
-    title: 'SPECIAL EVENT',
-    description: 'Tour announcement week — a one-off bonus for members.',
+    title: 'SONDERAKTION',
+    description: 'Woche der Tourankündigung — ein einmaliger Bonus für Mitglieder.',
     reward: 750,
     cooldownSeconds: null,
     repeatable: false,
@@ -327,9 +327,9 @@ export const DEMO_REWARDS: Reward[] = [
   {
     id: 'rwd-merch',
     title: 'MERCH',
-    subtitle: 'Member tee, black on black',
+    subtitle: 'Mitglieder-Shirt, Schwarz auf Schwarz',
     description:
-      'Heavyweight tee with a tonal Jason Remix mark. Ships within Germany and the EU.',
+      'Schweres Shirt mit Ton-in-Ton-Aufdruck der Jason-Remix-Marke. Versand innerhalb Deutschlands und der EU.',
     category: 'MERCH',
     cost: 1_000,
     imageUrl: null,
@@ -341,10 +341,10 @@ export const DEMO_REWARDS: Reward[] = [
   },
   {
     id: 'rwd-collector',
-    title: 'COLLECTOR BOX',
-    subtitle: 'Numbered edition',
+    title: 'SAMMLERBOX',
+    subtitle: 'Nummerierte Auflage',
     description:
-      'The Chrome Season pressing, a brushed metal member card and a signed insert.',
+      'Die Chrome-Season-Pressung, eine Mitgliedskarte aus gebürstetem Metall und ein signiertes Einlegeblatt.',
     category: 'COLLECTOR',
     cost: 2_500,
     imageUrl: null,
@@ -356,9 +356,9 @@ export const DEMO_REWARDS: Reward[] = [
   },
   {
     id: 'rwd-ticket',
-    title: 'CONCERT TICKET',
+    title: 'KONZERTTICKET',
     subtitle: 'See You Soon Tour 2027',
-    description: 'One standing ticket for a date of your choice, subject to availability.',
+    description: 'Ein Stehplatzticket für einen Termin deiner Wahl, solange verfügbar.',
     category: 'TICKET',
     cost: 5_000,
     imageUrl: null,
@@ -370,9 +370,9 @@ export const DEMO_REWARDS: Reward[] = [
   },
   {
     id: 'rwd-vip',
-    title: 'VIP EXPERIENCE',
-    subtitle: 'Soundcheck access',
-    description: 'Early entry, soundcheck access and a dedicated member area for the night.',
+    title: 'VIP-ERLEBNIS',
+    subtitle: 'Zutritt zum Soundcheck',
+    description: 'Früher Einlass, Zutritt zum Soundcheck und ein eigener Mitgliederbereich für den Abend.',
     category: 'EXPERIENCE',
     cost: 10_000,
     imageUrl: null,
@@ -385,8 +385,8 @@ export const DEMO_REWARDS: Reward[] = [
   {
     id: 'rwd-meet',
     title: 'MEET & GREET',
-    subtitle: 'Backstage, before the show',
-    description: 'A small-group meet & greet with Jason before doors, plus a photo.',
+    subtitle: 'Backstage, vor der Show',
+    description: 'Ein Meet & Greet mit Jason in kleiner Runde vor dem Einlass, samt Foto.',
     category: 'EXPERIENCE',
     cost: 15_000,
     imageUrl: null,
@@ -402,9 +402,9 @@ export const DEMO_GIVEAWAYS: Giveaway[] = [
   {
     id: 'gwy-tour-vip',
     title: 'SEE YOU SOON TOUR 2027',
-    subtitle: 'VIP EXPERIENCE',
+    subtitle: 'VIP-ERLEBNIS',
     description:
-      'Two VIP places for the tour opening, including soundcheck access and backstage entry.',
+      'Zwei VIP-Plätze zum Tourauftakt, inklusive Zutritt zum Soundcheck und Backstage-Bereich.',
     imageUrl: null,
     startsAt: days(-6),
     endsAt: days(18),
@@ -415,15 +415,15 @@ export const DEMO_GIVEAWAYS: Giveaway[] = [
     winnerCount: 2,
     status: 'OPEN',
     terms:
-      'Open to members aged 18 or over resident in the EU. Credits spent on entries are not refundable once the draw has taken place. Winners are drawn at random on the server and notified in the app.',
+      'Teilnahmeberechtigt sind Mitglieder ab 18 Jahren mit Wohnsitz in der EU. Für Lose eingesetzte Credits werden nach der Ziehung nicht erstattet. Die Gewinner werden per Zufall auf dem Server gezogen und in der App benachrichtigt.',
     myEntries: 0,
     myStatus: null,
   },
   {
     id: 'gwy-studio',
-    title: 'STUDIO SESSION',
-    subtitle: 'ONE AFTERNOON, BRANDENBURG',
-    description: 'Spend an afternoon in the studio while a Jason Remix track is finished.',
+    title: 'STUDIO-SESSION',
+    subtitle: 'EIN NACHMITTAG, BRANDENBURG',
+    description: 'Verbring einen Nachmittag im Studio, während ein Jason-Remix-Track fertig wird.',
     imageUrl: null,
     startsAt: days(-1),
     endsAt: days(29),
@@ -434,15 +434,15 @@ export const DEMO_GIVEAWAYS: Giveaway[] = [
     winnerCount: 1,
     status: 'OPEN',
     terms:
-      'Open to members aged 18 or over. Travel is not included. Credits spent on entries are not refundable once the draw has taken place.',
+      'Teilnahmeberechtigt sind Mitglieder ab 18 Jahren. Die Anreise ist nicht enthalten. Für Lose eingesetzte Credits werden nach der Ziehung nicht erstattet.',
     myEntries: 0,
     myStatus: null,
   },
   {
     id: 'gwy-vinyl',
-    title: 'ZEITGEIST TEST PRESSING',
-    subtitle: 'ONE OF FIVE',
-    description: 'One of five signed test pressings from the Zeitgeist session.',
+    title: 'ZEITGEIST-TESTPRESSUNG',
+    subtitle: 'EINE VON FÜNF',
+    description: 'Eine von fünf signierten Testpressungen aus der Zeitgeist-Session.',
     imageUrl: null,
     startsAt: days(-40),
     endsAt: days(-4),
@@ -452,7 +452,7 @@ export const DEMO_GIVEAWAYS: Giveaway[] = [
     maxEntriesPerUser: 10,
     winnerCount: 5,
     status: 'DRAWN',
-    terms: 'Closed. Winners have been drawn and notified.',
+    terms: 'Beendet. Die Gewinner wurden gezogen und benachrichtigt.',
     myEntries: 0,
     myStatus: null,
   },
@@ -462,8 +462,8 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-first-listen',
     code: 'FIRST_LISTEN',
-    title: 'FIRST LISTEN',
-    description: 'You opened the app and started your collection.',
+    title: 'ERSTES HÖREN',
+    description: 'Du hast die App geöffnet und deine Sammlung begonnen.',
     tier: 'STANDARD',
     unlockedAt: days(-142),
     progress: 1,
@@ -471,8 +471,8 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-early',
     code: 'EARLY_SUPPORTER',
-    title: 'EARLY SUPPORTER',
-    description: 'A member since the first season.',
+    title: 'FRÜHER UNTERSTÜTZER',
+    description: 'Mitglied seit der ersten Saison.',
     tier: 'RARE',
     unlockedAt: days(-142),
     progress: 1,
@@ -481,7 +481,7 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
     id: 'ach-zeitgeist',
     code: 'ZEITGEIST',
     title: 'ZEITGEIST',
-    description: 'Completed the Zeitgeist release mission.',
+    description: 'Die Mission zur Zeitgeist-Veröffentlichung abgeschlossen.',
     tier: 'STANDARD',
     unlockedAt: null,
     progress: 0,
@@ -490,7 +490,7 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
     id: 'ach-super-fan',
     code: 'SUPER_FAN',
     title: 'SUPER FAN',
-    description: 'Checked in on thirty separate days.',
+    description: 'An dreißig verschiedenen Tagen vorbeigeschaut.',
     tier: 'RARE',
     unlockedAt: days(-30),
     progress: 1,
@@ -498,8 +498,8 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-collector',
     code: 'CREDITS_COLLECTOR',
-    title: 'CREDITS COLLECTOR',
-    description: 'Earned 50,000 credits in total.',
+    title: 'CREDIT-SAMMLER',
+    description: 'Insgesamt 50.000 Credits verdient.',
     tier: 'ELITE',
     unlockedAt: days(-12),
     progress: 1,
@@ -507,8 +507,8 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-vip',
     code: 'VIP_MEMBER',
-    title: 'VIP MEMBER',
-    description: 'Reached level 07.',
+    title: 'VIP-MITGLIED',
+    description: 'Level 07 erreicht.',
     tier: 'ELITE',
     unlockedAt: null,
     progress: 0.62,
@@ -516,8 +516,8 @@ export const DEMO_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-legend',
     code: 'JASON_LEGEND',
-    title: 'JASON LEGEND',
-    description: 'Reached level 08 — the highest tier.',
+    title: 'JASON-LEGENDE',
+    description: 'Level 08 erreicht — die höchste Stufe.',
     tier: 'ELITE',
     unlockedAt: null,
     progress: 0.9,

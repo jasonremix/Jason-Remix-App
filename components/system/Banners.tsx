@@ -2,15 +2,15 @@ import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/ui/Icon';
 import { Text } from '@/components/ui/Text';
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 import { config } from '@/constants/config';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 /**
- * Offline notice.
+ * Offline-Hinweis.
  *
- * Content already loaded stays on screen — this only states that live features are
- * paused, rather than replacing the page with an error.
+ * Bereits geladene Inhalte bleiben stehen — der Hinweis sagt nur, dass Live-Funktionen
+ * pausieren, statt die Seite durch einen Fehler zu ersetzen.
  */
 export function OfflineBanner() {
   const { isOnline, isPending } = useNetworkStatus();
@@ -18,13 +18,13 @@ export function OfflineBanner() {
 
   return (
     <View style={[styles.banner, styles.offline]} accessibilityRole="alert">
-      <Icon name="offline" size={15} color={palette.silver} />
+      <Icon name="offline" size={16} color={palette.warning} />
       <View style={styles.text}>
-        <Text variant="label" tone="secondary" uppercase>
+        <Text variant="label" tone="primary" uppercase>
           OFFLINE
         </Text>
-        <Text variant="caption" tone="muted">
-          Some features are currently unavailable.
+        <Text variant="caption" tone="tertiary">
+          Einige Funktionen sind gerade nicht verfügbar.
         </Text>
       </View>
     </View>
@@ -32,11 +32,11 @@ export function OfflineBanner() {
 }
 
 /**
- * Demo notice.
+ * Demo-Hinweis.
  *
- * Shown wherever placeholder data appears. The app must never let demo content be
- * mistaken for a real account, so this is deliberately persistent rather than
- * dismissible.
+ * Erscheint überall dort, wo Beispieldaten stehen. Demo-Inhalte dürfen nie für ein
+ * echtes Konto gehalten werden, deshalb ist der Hinweis bewusst dauerhaft und nicht
+ * wegklickbar.
  */
 export function DemoBanner({ compact = false }: { compact?: boolean }) {
   if (!config.isDemoMode) return null;
@@ -44,9 +44,9 @@ export function DemoBanner({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <View style={[styles.banner, styles.demo, styles.compact]}>
-        <Icon name="info" size={13} color={palette.titanium} />
-        <Text variant="labelWide" tone="muted" uppercase>
-          DEMO MODE
+        <Icon name="info" size={13} color={palette.accent} />
+        <Text variant="labelWide" tone="accent" uppercase>
+          DEMO-MODUS
         </Text>
       </View>
     );
@@ -54,32 +54,32 @@ export function DemoBanner({ compact = false }: { compact?: boolean }) {
 
   return (
     <View style={[styles.banner, styles.demo]}>
-      <Icon name="info" size={15} color={palette.titanium} />
+      <Icon name="info" size={16} color={palette.accent} />
       <View style={styles.text}>
-        <Text variant="label" tone="tertiary" uppercase>
-          DEMO MODE
+        <Text variant="label" tone="accent" uppercase>
+          DEMO-MODUS
         </Text>
-        <Text variant="caption" tone="muted">
-          Sample data. No account is affected and no credits are real.
+        <Text variant="caption" tone="tertiary">
+          Beispieldaten. Kein Konto ist betroffen, keine Credits sind echt.
         </Text>
       </View>
     </View>
   );
 }
 
-/** States plainly that Spotify has no credentials yet, instead of failing silently. */
+/** Sagt klar, dass für Spotify noch keine Zugangsdaten hinterlegt sind, statt still zu scheitern. */
 export function SpotifyUnavailableNotice() {
   if (config.isSpotifyConfigured) return null;
 
   return (
     <View style={[styles.banner, styles.demo]}>
-      <Icon name="spotify" size={15} color={palette.titanium} />
+      <Icon name="spotify" size={16} color={palette.muted} />
       <View style={styles.text}>
-        <Text variant="label" tone="tertiary" uppercase>
-          SPOTIFY NOT CONFIGURED
+        <Text variant="label" tone="primary" uppercase>
+          SPOTIFY NICHT KONFIGURIERT
         </Text>
-        <Text variant="caption" tone="muted">
-          Connecting becomes available once Spotify credentials are set for this build.
+        <Text variant="caption" tone="tertiary">
+          Das Verbinden wird möglich, sobald für diesen Build Spotify-Zugangsdaten hinterlegt sind.
         </Text>
       </View>
     </View>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
   compact: { alignSelf: 'flex-start', paddingVertical: 6 },
-  offline: { backgroundColor: palette.gunmetal, borderColor: alpha.edge },
-  demo: { backgroundColor: palette.well, borderColor: alpha.hairline },
+  offline: { backgroundColor: palette.warningWash, borderColor: palette.warningWash },
+  demo: { backgroundColor: palette.accentWash, borderColor: palette.accentWash },
   text: { flex: 1, gap: 2 },
 });

@@ -21,11 +21,20 @@ import { useRedeemReward, useRewards } from '@/hooks/useRewards';
 import { formatCredits, formatDateTime } from '@/lib/format';
 import type { Reward } from '@/types/models';
 
+/** Der Server liefert den Status englisch; angezeigt wird er deutsch. */
+const REDEMPTION_STATUS: Record<string, string> = {
+  PENDING: 'IN PRÜFUNG',
+  APPROVED: 'BESTÄTIGT',
+  FULFILLED: 'EINGELÖST',
+  REJECTED: 'ABGELEHNT',
+  CANCELLED: 'STORNIERT',
+};
+
 /**
- * Rewards.
+ * Prämien.
  *
- * The ladder of what credits are for, plus a way through to giveaways. Redemption
- * always passes through a confirmation that restates the cost in full.
+ * Wofür Credits da sind, plus der Weg zu den Gewinnspielen. Eingelöst wird immer
+ * über eine Rückfrage, die die Kosten noch einmal vollständig nennt.
  */
 export default function Rewards() {
   const rewards = useRewards();
@@ -68,12 +77,12 @@ export default function Rewards() {
       contentStyle={styles.content}
     >
       <View style={styles.head}>
-        <Text variant="display" tone="primary" style={styles.heading}>
-          REWARDS
+        <Text variant="display" tone="primary">
+          Prämien
         </Text>
         <View style={styles.balanceRow}>
           <Text variant="bodySmall" tone="muted">
-            Your balance
+            Dein Guthaben
           </Text>
           <CreditPill amount={balance} size="sm" onPress={() => router.push('/(tabs)/credits')} />
         </View>
@@ -88,24 +97,26 @@ export default function Rewards() {
       <Surface style={styles.giveawayCard}>
         <View style={styles.giveawayHead}>
           <Text variant="labelWide" tone="muted" uppercase>
-            GIVEAWAYS
+            GEWINNSPIELE
           </Text>
-          {openGiveaways.length > 0 && <Chip label={`${openGiveaways.length} OPEN`} tone="active" />}
+          {openGiveaways.length > 0 && (
+            <Chip label={`${openGiveaways.length} OFFEN`} tone="active" />
+          )}
         </View>
         <Text variant="heading" tone="primary">
-          {openGiveaways[0]?.title ?? 'No giveaways open right now'}
+          {openGiveaways[0]?.title ?? 'Gerade läuft kein Gewinnspiel'}
         </Text>
         <Text variant="bodySmall" tone="tertiary" numberOfLines={2}>
           {openGiveaways[0]?.description ??
-            'New giveaways open regularly. Members are notified when one starts.'}
+            'Neue Gewinnspiele starten regelmäßig. Mitglieder werden benachrichtigt, sobald eines beginnt.'}
         </Text>
         <Hairline style={styles.divider} />
-        <Row title="VIEW ALL GIVEAWAYS" icon="ticket" onPress={() => router.push('/giveaways')} />
+        <Row title="ALLE GEWINNSPIELE" icon="ticket" onPress={() => router.push('/giveaways')} />
       </Surface>
 
       {/* --- Reward catalogue -------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="AVAILABLE REWARDS" />
+        <SectionHeader title="VERFÜGBARE PRÄMIEN" />
 
         {rewards.isPending ? (
           <View style={styles.list}>
@@ -113,9 +124,16 @@ export default function Rewards() {
             <SkeletonCard height={70} />
           </View>
         ) : rewards.isError ? (
-          <ErrorState message="Rewards could not be loaded." onRetry={() => void rewards.refetch()} />
+          <ErrorState
+            message="Die Prämien konnten nicht geladen werden."
+            onRetry={() => void rewards.refetch()}
+          />
         ) : (rewards.data?.rewards ?? []).length === 0 ? (
-          <EmptyState icon="gift" title="No rewards yet." message="New rewards are added regularly." />
+          <EmptyState
+            icon="gift"
+            title="Noch keine Prämien."
+            message="Neue Prämien kommen regelmäßig dazu."
+          />
         ) : (
           <View style={styles.list}>
             {(rewards.data?.rewards ?? []).map((reward) => (
@@ -134,14 +152,19 @@ export default function Rewards() {
       {/* --- My redemptions ---------------------------------------------------- */}
       {(rewards.data?.redemptions ?? []).length > 0 && (
         <View style={styles.section}>
-          <SectionHeader title="REWARDS WON" />
+          <SectionHeader title="EINGELÖSTE PRÄMIEN" />
           <View>
             {(rewards.data?.redemptions ?? []).map((redemption, index, all) => (
               <View key={redemption.id}>
                 <Row
                   title={redemption.rewardTitle}
-                  subtitle={`${formatDateTime(redemption.createdAt)} · ${formatCredits(redemption.creditsSpent)} credits`}
-                  trailing={<Chip label={redemption.status} tone={redemption.status === 'FULFILLED' ? 'success' : 'muted'} />}
+                  subtitle={`${formatDateTime(redemption.createdAt)} · ${formatCredits(redemption.creditsSpent)} Credits`}
+                  trailing={
+                    <Chip
+                      label={REDEMPTION_STATUS[redemption.status] ?? redemption.status}
+                      tone={redemption.status === 'FULFILLED' ? 'success' : 'muted'}
+                    />
+                  }
                   showChevron={false}
                 />
                 {index < all.length - 1 && <Hairline />}
@@ -153,19 +176,19 @@ export default function Rewards() {
 
       <ConfirmDialog
         visible={pending !== null}
-        eyebrow="REDEEM REWARD"
+        eyebrow="PRÄMIE EINLÖSEN"
         title={pending?.title ?? ''}
         message={pending?.description ?? ''}
         detail={
           pending
             ? availability && !availability.levelMet
-              ? `This reward unlocks at level ${pending.minLevel}.`
+              ? `Diese Prämie schaltet sich ab Level ${pending.minLevel} frei.`
               : availability && !availability.inStock
-                ? 'This reward is currently sold out.'
-                : `You are spending ${formatCredits(pending.cost)} credits. Your balance afterwards will be ${formatCredits(Math.max(0, balance - pending.cost))}.`
+                ? 'Diese Prämie ist gerade vergriffen.'
+                : `Du gibst ${formatCredits(pending.cost)} Credits aus. Danach hast du noch ${formatCredits(Math.max(0, balance - pending.cost))}.`
             : undefined
         }
-        confirmLabel="CONFIRM"
+        confirmLabel="EINLÖSEN"
         loading={redeem.isPending}
         onConfirm={() => void confirmRedeem()}
         onCancel={() => setPending(null)}
@@ -177,7 +200,6 @@ export default function Rewards() {
 const styles = StyleSheet.create({
   content: { gap: spacing.xxl },
   head: { gap: spacing.md },
-  heading: { letterSpacing: 3 },
   balanceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   notices: { gap: spacing.md },
   section: { gap: spacing.base },

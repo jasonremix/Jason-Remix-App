@@ -117,11 +117,11 @@ function freshState(user: User = DEMO_USER): DemoState {
 function seedTransactions(userId: string): CreditTransaction[] {
   const base = DEMO_STARTING_BALANCE;
   const seeds: { amount: number; type: CreditTransaction['type']; description: string; ago: number }[] = [
-    { amount: 100, type: 'EARN', description: 'Daily check-in', ago: 1 },
-    { amount: 250, type: 'EARN', description: 'New release mission — Chrome Season', ago: 4 },
-    { amount: -1_000, type: 'SPEND', description: 'Giveaway entry — Zeitgeist test pressing', ago: 9 },
-    { amount: 500, type: 'EARN', description: 'Community mission', ago: 14 },
-    { amount: 1_000, type: 'BONUS', description: 'Early supporter bonus', ago: 30 },
+    { amount: 100, type: 'EARN', description: 'Täglicher Besuch', ago: 1 },
+    { amount: 250, type: 'EARN', description: 'Mission zur neuen Single — Chrome Season', ago: 4 },
+    { amount: -1_000, type: 'SPEND', description: 'Gewinnspiel-Los — Zeitgeist-Testpressung', ago: 9 },
+    { amount: 500, type: 'EARN', description: 'Community-Mission', ago: 14 },
+    { amount: 1_000, type: 'BONUS', description: 'Bonus für frühe Unterstützer', ago: 30 },
   ];
 
   let running = base;
@@ -198,7 +198,7 @@ function applyLedger(
 ): { next: DemoState; transaction: CreditTransaction } {
   const nextBalance = current.balance + input.amount;
   if (nextBalance < 0) {
-    throw new AppError('INSUFFICIENT_CREDITS', 'You do not have enough credits for this.');
+    throw new AppError('INSUFFICIENT_CREDITS', 'Dafür reicht dein Guthaben nicht aus.');
   }
 
   const transaction: CreditTransaction = {
@@ -248,7 +248,7 @@ function unlockAchievements(current: DemoState, codes: string[]): { next: DemoSt
 }
 
 const spotifyNotConfigured = () =>
-  new AppError('SPOTIFY_NOT_CONFIGURED', 'Spotify is not available in demo mode.');
+  new AppError('SPOTIFY_NOT_CONFIGURED', 'Spotify steht im Demo-Modus nicht zur Verfügung.');
 
 function demoSession(user: User, profile: UserProfile): SessionPayload {
   // Deliberately not a JWT: nothing in demo mode should look like a real credential.
@@ -308,7 +308,7 @@ export const demoBackend: Backend = {
   },
 
   async changePassword() {
-    throw new AppError('SPOTIFY_NOT_CONFIGURED', 'Not available in demo mode.');
+    throw new AppError('SPOTIFY_NOT_CONFIGURED', 'Im Demo-Modus nicht verfügbar.');
   },
 
   async deleteAccount() {
@@ -318,7 +318,7 @@ export const demoBackend: Backend = {
   async exportData() {
     const current = await getState();
     return {
-      note: 'Demo export — this data is placeholder content and belongs to no real account.',
+      note: 'Demo-Export — diese Daten sind Beispielinhalte und gehören zu keinem echten Konto.',
       user: current.user,
       profile: current.profile,
       transactions: current.transactions,
@@ -370,17 +370,17 @@ export const demoBackend: Backend = {
   claimMission(missionId: string, idempotencyKey: string): Promise<ClaimMissionResponse> {
     return idempotent(idempotencyKey, async (current) => {
       const mission = current.missions.find((entry) => entry.id === missionId);
-      if (!mission) throw new AppError('NOT_FOUND', 'This mission is no longer available.');
+      if (!mission) throw new AppError('NOT_FOUND', 'Diese Mission gibt es nicht mehr.');
 
       if (mission.type === 'CONNECT_SPOTIFY') {
         // Never award a "connect Spotify" mission without a real connection.
         throw spotifyNotConfigured();
       }
       if (mission.status === 'COMPLETED' && !mission.repeatable) {
-        throw new AppError('MISSION_ALREADY_COMPLETED', 'You have already completed this mission.');
+        throw new AppError('MISSION_ALREADY_COMPLETED', 'Diese Mission hast du schon abgeschlossen.');
       }
       if (mission.status === 'COOLDOWN') {
-        throw new AppError('MISSION_ON_COOLDOWN', 'This mission is not ready yet.');
+        throw new AppError('MISSION_ON_COOLDOWN', 'Diese Mission ist noch nicht wieder bereit.');
       }
 
       const { next: afterLedger, transaction } = applyLedger(current, {
@@ -430,10 +430,10 @@ export const demoBackend: Backend = {
     return idempotent(idempotencyKey, async (current) => {
       const reward = current.rewards.find((entry) => entry.id === rewardId);
       if (!reward || !reward.active) {
-        throw new AppError('REWARD_UNAVAILABLE', 'This reward is currently unavailable.');
+        throw new AppError('REWARD_UNAVAILABLE', 'Diese Prämie ist gerade nicht verfügbar.');
       }
       if (reward.remaining !== null && reward.remaining <= 0) {
-        throw new AppError('REWARD_UNAVAILABLE', 'This reward is sold out.');
+        throw new AppError('REWARD_UNAVAILABLE', 'Diese Prämie ist vergriffen.');
       }
       const level = resolveLevel(current.lifetimeEarned);
       if (reward.minLevel !== null && level.level < reward.minLevel) {
@@ -443,7 +443,7 @@ export const demoBackend: Backend = {
       const { next: afterLedger, transaction } = applyLedger(current, {
         amount: -reward.cost,
         type: 'SPEND',
-        description: `Reward — ${reward.title}`,
+        description: `Prämie — ${reward.title}`,
         reference: `reward:${reward.id}`,
       });
 
@@ -503,25 +503,28 @@ export const demoBackend: Backend = {
   ): Promise<EnterGiveawayResponse> {
     return idempotent(idempotencyKey, async (current) => {
       const giveaway = current.giveaways.find((entry) => entry.id === giveawayId);
-      if (!giveaway) throw new AppError('NOT_FOUND', 'This giveaway is no longer available.');
+      if (!giveaway) throw new AppError('NOT_FOUND', 'Dieses Gewinnspiel gibt es nicht mehr.');
 
       const now = Date.now();
       if (new Date(giveaway.startsAt).getTime() > now || new Date(giveaway.endsAt).getTime() <= now) {
-        throw new AppError('GIVEAWAY_CLOSED', 'This giveaway is closed.');
+        throw new AppError('GIVEAWAY_CLOSED', 'Dieses Gewinnspiel ist beendet.');
       }
       const mine = current.entries.filter((entry) => entry.giveawayId === giveawayId).length;
       if (mine + entries > giveaway.maxEntriesPerUser) {
-        throw new AppError('GIVEAWAY_ENTRY_LIMIT', 'You have used all your entries for this giveaway.');
+        throw new AppError(
+          'GIVEAWAY_ENTRY_LIMIT',
+          'Du hast alle deine Lose für dieses Gewinnspiel genutzt.',
+        );
       }
       if (giveaway.totalEntries !== null && giveaway.entriesUsed + entries > giveaway.totalEntries) {
-        throw new AppError('GIVEAWAY_CLOSED', 'All entries for this giveaway have been taken.');
+        throw new AppError('GIVEAWAY_CLOSED', 'Alle Lose für dieses Gewinnspiel sind vergeben.');
       }
 
       const cost = giveaway.entryCost * entries;
       const { next: afterLedger, transaction } = applyLedger(current, {
         amount: -cost,
         type: 'SPEND',
-        description: `Giveaway entry — ${giveaway.title}`,
+        description: `Gewinnspiel-Los — ${giveaway.title}`,
         reference: `giveaway:${giveaway.id}`,
       });
 
@@ -798,7 +801,7 @@ export const demoBackend: Backend = {
   async adminCloseGiveaway(giveawayId) {
     const current = await getState();
     const giveaway = current.giveaways.find((entry) => entry.id === giveawayId);
-    if (!giveaway) throw new AppError('NOT_FOUND', 'This giveaway no longer exists.');
+    if (!giveaway) throw new AppError('NOT_FOUND', 'Dieses Gewinnspiel existiert nicht mehr.');
     const closed: Giveaway = { ...giveaway, status: 'CLOSED', endsAt: new Date().toISOString() };
     await commit({
       ...current,
@@ -812,7 +815,7 @@ export const demoBackend: Backend = {
     // Draws are a server responsibility. Demo mode refuses rather than faking a winner.
     throw new AppError(
       'FORBIDDEN',
-      'Winners are drawn on the server. Connect the API to run a draw.',
+      'Gewinner werden auf dem Server gezogen. Für eine Ziehung muss die API verbunden sein.',
     );
   },
 

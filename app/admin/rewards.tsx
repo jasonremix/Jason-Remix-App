@@ -17,6 +17,16 @@ import type { RewardCategory } from '@/types/models';
 
 const CATEGORIES: RewardCategory[] = ['MERCH', 'COLLECTOR', 'TICKET', 'EXPERIENCE', 'DIGITAL'];
 
+/** Der Server liefert den Status englisch; angezeigt wird er deutsch. */
+const REDEMPTION_STATUS: Record<string, string> = {
+  PENDING: 'IN PRÜFUNG',
+  APPROVED: 'BESTÄTIGT',
+  FULFILLED: 'EINGELÖST',
+  REJECTED: 'ABGELEHNT',
+  CANCELLED: 'STORNIERT',
+};
+
+/** Prämien: Katalog, Bestand und die noch offenen Einlösungen. */
 export default function AdminRewards() {
   const rewards = useRewards();
 
@@ -43,37 +53,43 @@ export default function AdminRewards() {
   );
 
   return (
-    <Screen header={<ScreenHeader title="REWARDS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="PRÄMIEN" />} contentStyle={styles.content}>
       <AdminForm
-        title="ADD OR UPDATE A REWARD"
-        description="Leave stock blank for an unlimited reward, and level blank to open it to everyone."
-        submitLabel="SAVE REWARD"
+        title="PRÄMIE ANLEGEN ODER ÄNDERN"
+        description="Bestand leer lassen für eine unbegrenzte Prämie, Level leer lassen, um sie für alle zu öffnen."
+        submitLabel="PRÄMIE SPEICHERN"
         onSubmit={save}
         fields={[
-          { name: 'id', label: 'ID (LEAVE BLANK TO CREATE)', placeholder: 'rwd-merch' },
-          { name: 'title', label: 'TITLE', required: true, placeholder: 'COLLECTOR BOX' },
-          { name: 'subtitle', label: 'SUBTITLE', placeholder: 'Numbered edition' },
-          { name: 'description', label: 'DESCRIPTION', type: 'multiline' },
-          { name: 'category', label: 'CATEGORY', initialValue: 'MERCH', hint: CATEGORIES.join(' · ') },
-          { name: 'cost', label: 'COST IN CREDITS', type: 'number', required: true, placeholder: '2500' },
-          { name: 'stock', label: 'STOCK', type: 'number', placeholder: '100' },
-          { name: 'minLevel', label: 'MINIMUM LEVEL', type: 'number', placeholder: '3' },
-          { name: 'requiresShipping', label: 'Requires a shipping address', type: 'switch' },
-          { name: 'active', label: 'Visible to members', type: 'switch', initialValue: true },
+          { name: 'id', label: 'ID (LEER = NEU ANLEGEN)', placeholder: 'rwd-merch' },
+          { name: 'title', label: 'TITEL', required: true, placeholder: 'SAMMLERBOX' },
+          { name: 'subtitle', label: 'UNTERTITEL', placeholder: 'Nummerierte Auflage' },
+          { name: 'description', label: 'BESCHREIBUNG', type: 'multiline' },
+          { name: 'category', label: 'KATEGORIE', initialValue: 'MERCH', hint: CATEGORIES.join(' · ') },
+          {
+            name: 'cost',
+            label: 'KOSTEN IN CREDITS',
+            type: 'number',
+            required: true,
+            placeholder: '2500',
+          },
+          { name: 'stock', label: 'BESTAND', type: 'number', placeholder: '100' },
+          { name: 'minLevel', label: 'MINDESTLEVEL', type: 'number', placeholder: '3' },
+          { name: 'requiresShipping', label: 'Benötigt eine Lieferadresse', type: 'switch' },
+          { name: 'active', label: 'Für Mitglieder sichtbar', type: 'switch', initialValue: true },
         ]}
       />
 
       <View style={styles.section}>
-        <SectionHeader title="CURRENT LADDER" meta={`${rewards.data?.rewards.length ?? 0}`} />
+        <SectionHeader title="AKTUELLER KATALOG" meta={`${rewards.data?.rewards.length ?? 0}`} />
         {(rewards.data?.rewards ?? []).length === 0 ? (
-          <EmptyState icon="gift" title="No rewards yet." />
+          <EmptyState icon="gift" title="Noch keine Prämien." />
         ) : (
           <View>
             {(rewards.data?.rewards ?? []).map((reward, index, all) => (
               <View key={reward.id}>
                 <Row
                   title={reward.title}
-                  subtitle={`${reward.id}${reward.remaining !== null ? ` · ${reward.remaining} of ${reward.stock} left` : ' · unlimited'}`}
+                  subtitle={`${reward.id}${reward.remaining !== null ? ` · noch ${reward.remaining} von ${reward.stock}` : ' · unbegrenzt'}`}
                   icon="gift"
                   showChevron={false}
                   trailing={
@@ -91,9 +107,12 @@ export default function AdminRewards() {
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="PENDING REDEMPTIONS" meta={`${rewards.data?.redemptions.length ?? 0}`} />
+        <SectionHeader
+          title="OFFENE EINLÖSUNGEN"
+          meta={`${rewards.data?.redemptions.length ?? 0}`}
+        />
         {(rewards.data?.redemptions ?? []).length === 0 ? (
-          <EmptyState icon="box" title="Nothing waiting to be fulfilled." />
+          <EmptyState icon="box" title="Nichts wartet auf Bearbeitung." />
         ) : (
           <View>
             {(rewards.data?.redemptions ?? []).map((redemption, index, all) => (
@@ -101,7 +120,9 @@ export default function AdminRewards() {
                 <Row
                   title={redemption.rewardTitle}
                   subtitle={redemption.id}
-                  trailing={<Chip label={redemption.status} tone="muted" />}
+                  trailing={
+                    <Chip label={REDEMPTION_STATUS[redemption.status] ?? redemption.status} tone="muted" />
+                  }
                   showChevron={false}
                 />
                 {index < all.length - 1 && <Hairline />}

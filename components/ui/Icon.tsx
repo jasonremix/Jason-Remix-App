@@ -5,9 +5,10 @@ import { palette } from '@/constants/theme';
 /**
  * Hand-authored line icons.
  *
- * Drawn on a 24pt grid at a 1.25pt stroke — noticeably finer than the usual 2pt icon
- * set, which is what keeps the interface reading as machined rather than app-like.
- * Round caps and joins only; no fills except where a shape is meant to read as solid.
+ * Drawn on a 24pt grid at a 1.6pt stroke. On a light ground a hairline icon goes
+ * weak and grey, so these are set heavier than their dark-mode ancestors while
+ * staying geometric. Round caps and joins only; no fills except where a shape is
+ * meant to read as solid.
  */
 
 export type IconName =
@@ -64,7 +65,7 @@ type StrokeProps = {
   fill: 'none';
 };
 
-export function Icon({ name, size = 22, color = palette.brushed, strokeWidth = 1.25 }: IconProps) {
+export function Icon({ name, size = 22, color = palette.inkSoft, strokeWidth = 1.6 }: IconProps) {
   const stroke: StrokeProps = {
     stroke: color,
     strokeWidth,

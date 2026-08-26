@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -11,7 +10,7 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { useHaptics } from '@/hooks/useHaptics';
-import { alpha, gradients, motion, palette, radius, spacing } from '@/constants/theme';
+import { alpha, motion, palette, radius, spacing } from '@/constants/theme';
 
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
@@ -34,14 +33,14 @@ export type ButtonProps = {
   accessibilityHint?: string;
 };
 
-const HEIGHTS: Record<ButtonSize, number> = { sm: 38, md: 48, lg: 56 };
+const HEIGHTS: Record<ButtonSize, number> = { sm: 38, md: 50, lg: 56 };
 
 /**
- * The metallic button.
+ * The button.
  *
- * `primary` is a brushed-chrome plate with dark type — the only bright element on most
- * screens, so there is never more than one per view. Press lifts a faint sheen rather
- * than changing colour, which is what makes it read as metal instead of plastic.
+ * `primary` is a solid ultramarine plate — the loudest thing on any screen, so there
+ * is never more than one in view. Everything else is a white plate with a hairline.
+ * Press darkens rather than fading, which reads as ink rather than as a web link.
  */
 export function Button({
   label,
@@ -58,19 +57,19 @@ export function Button({
 }: ButtonProps) {
   const { tap } = useHaptics();
   const [pressed, setPressed] = useState(false);
-  const sheen = useSharedValue(0);
+  const wash = useSharedValue(0);
   const isDisabled = disabled || loading;
 
-  // Press state drives the sheen through an effect rather than being written from the
-  // handlers directly: the animation stays declarative and the sheen always settles,
-  // even if a press-out is swallowed by a gesture being cancelled.
+  // Press state drives the wash through an effect rather than being written from the
+  // handlers directly: the animation stays declarative and always settles, even if a
+  // press-out is swallowed by a gesture being cancelled.
   useEffect(() => {
-    sheen.value = withTiming(pressed ? 1 : 0, {
+    wash.value = withTiming(pressed ? 1 : 0, {
       duration: pressed ? motion.instant : motion.fast,
     });
-  }, [pressed, sheen]);
+  }, [pressed, wash]);
 
-  const sheenStyle = useAnimatedStyle(() => ({ opacity: sheen.value }));
+  const washStyle = useAnimatedStyle(() => ({ opacity: wash.value }));
 
   const handlePress = useCallback(() => {
     if (isDisabled) return;
@@ -99,23 +98,12 @@ export function Button({
         style,
       ]}
     >
-      {variant === 'primary' && !isDisabled && (
-        <LinearGradient
-          colors={[...gradients.chrome.colors]}
-          locations={[...gradients.chrome.locations]}
-          start={gradients.chrome.start}
-          end={gradients.chrome.end}
-          style={StyleSheet.absoluteFill}
-        />
-      )}
-
-      {/* Press feedback: a soft light wash over the whole plate. */}
       <Animated.View
         pointerEvents="none"
         style={[
           StyleSheet.absoluteFill,
-          { backgroundColor: variant === 'primary' ? 'rgba(255,255,255,0.35)' : alpha.press },
-          sheenStyle,
+          { backgroundColor: variant === 'primary' ? palette.accentDeep : alpha.press },
+          washStyle,
         ]}
       />
 
@@ -125,7 +113,7 @@ export function Button({
         ) : (
           <>
             {icon && !iconTrailing && (
-              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />
+              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.7} />
             )}
             <Text
               variant="label"
@@ -137,7 +125,7 @@ export function Button({
               {label}
             </Text>
             {icon && iconTrailing && (
-              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.4} />
+              <Icon name={icon} size={16} color={contentColor} strokeWidth={1.7} />
             )}
           </>
         )}
@@ -147,42 +135,42 @@ export function Button({
 }
 
 function resolveContentColor(variant: ButtonVariant, disabled: boolean): string {
-  if (disabled) return palette.titanium;
+  if (disabled) return palette.faint;
   switch (variant) {
     case 'primary':
-      return palette.obsidian;
+      return palette.onAccent;
     case 'danger':
       return palette.danger;
     case 'ghost':
-      return palette.silver;
+      return palette.accent;
     default:
-      return palette.chrome;
+      return palette.ink;
   }
 }
 
 function variantStyle(variant: ButtonVariant, disabled: boolean): ViewStyle {
   if (disabled) {
     return {
-      backgroundColor: palette.gunmetal,
-      borderColor: alpha.hairline,
+      backgroundColor: palette.paperSunk,
+      borderColor: palette.rule,
       borderWidth: StyleSheet.hairlineWidth,
     };
   }
   switch (variant) {
     case 'primary':
-      return { backgroundColor: palette.chrome };
+      return { backgroundColor: palette.accent };
     case 'danger':
       return {
-        backgroundColor: 'transparent',
-        borderColor: 'rgba(194,84,79,0.45)',
+        backgroundColor: palette.card,
+        borderColor: palette.danger,
         borderWidth: StyleSheet.hairlineWidth,
       };
     case 'ghost':
       return { backgroundColor: 'transparent' };
     default:
       return {
-        backgroundColor: palette.gunmetal,
-        borderColor: alpha.edge,
+        backgroundColor: palette.card,
+        borderColor: palette.ruleStrong,
         borderWidth: StyleSheet.hairlineWidth,
       };
   }
@@ -196,9 +184,5 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   fullWidth: { alignSelf: 'stretch' },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
+  content: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
 });

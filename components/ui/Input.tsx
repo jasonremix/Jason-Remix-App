@@ -9,7 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { alpha, palette, radius, spacing, type as typeScale } from '@/constants/theme';
+import { palette, radius, spacing, type as typeScale } from '@/constants/theme';
 
 import { Icon } from './Icon';
 import { Label, Text } from './Text';
@@ -53,9 +53,9 @@ export function Input({
       >
         <TextInput
           style={styles.input}
-          placeholderTextColor={palette.titanium}
-          selectionColor={palette.chrome}
-          cursorColor={palette.chrome}
+          placeholderTextColor={palette.faint}
+          selectionColor={palette.accent}
+          cursorColor={palette.accent}
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry={secure && !revealed}
@@ -79,7 +79,7 @@ export function Input({
             accessibilityLabel={revealed ? 'Hide password' : 'Show password'}
             style={styles.reveal}
           >
-            <Icon name={revealed ? 'eye-off' : 'eye'} size={16} color={palette.titanium} />
+            <Icon name={revealed ? 'eye-off' : 'eye'} size={17} color={palette.muted} />
           </Pressable>
         )}
       </View>
@@ -99,18 +99,19 @@ const styles = StyleSheet.create({
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 50,
+    minHeight: 52,
     borderRadius: radius.md,
-    backgroundColor: palette.well,
+    backgroundColor: palette.card,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edgeSoft,
+    borderColor: palette.ruleStrong,
     paddingHorizontal: spacing.base,
   },
-  fieldFocused: { borderColor: alpha.edgeStrong },
-  fieldError: { borderColor: 'rgba(194,84,79,0.5)' },
+  // Focus is shown by the accent taking the border, not by a glow.
+  fieldFocused: { borderColor: palette.accent, borderWidth: 1.5 },
+  fieldError: { borderColor: palette.danger },
   input: {
     flex: 1,
-    color: palette.offWhite,
+    color: palette.ink,
     fontFamily: typeScale.body.fontFamily,
     fontSize: typeScale.body.fontSize,
     letterSpacing: 0.2,
