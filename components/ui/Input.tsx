@@ -79,7 +79,7 @@ export function Input({
             accessibilityLabel={revealed ? 'Hide password' : 'Show password'}
             style={styles.reveal}
           >
-            <Icon name={revealed ? 'lock' : 'search'} size={16} color={palette.titanium} />
+            <Icon name={revealed ? 'eye-off' : 'eye'} size={16} color={palette.titanium} />
           </Pressable>
         )}
       </View>

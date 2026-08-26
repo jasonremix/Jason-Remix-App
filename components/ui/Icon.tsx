@@ -42,6 +42,8 @@ export type IconName =
   | 'apple'
   | 'link'
   | 'search'
+  | 'eye'
+  | 'eye-off'
   | 'edit'
   | 'clock'
   | 'info'
@@ -277,6 +279,22 @@ function renderPaths(name: IconName, s: StrokeProps, color: string) {
         <>
           <Circle {...s} cx={10.8} cy={10.8} r={6.4} />
           <Path {...s} d="M15.6 15.6 20.2 20.2" />
+        </>
+      );
+    case 'eye':
+      return (
+        <>
+          <Path {...s} d="M1.9 12S5.6 5.4 12 5.4 22.1 12 22.1 12 18.4 18.6 12 18.6 1.9 12 1.9 12Z" />
+          <Circle {...s} cx={12} cy={12} r={3.1} />
+        </>
+      );
+    case 'eye-off':
+      return (
+        <>
+          <Path {...s} d="M9.6 5.8a8.9 8.9 0 0 1 2.4-.4c6.4 0 10.1 6.6 10.1 6.6a17 17 0 0 1-2.9 3.7" />
+          <Path {...s} d="M6.3 7.4A17 17 0 0 0 1.9 12s3.7 6.6 10.1 6.6a9.4 9.4 0 0 0 3.9-.8" />
+          <Path {...s} d="M9.9 9.9a3.1 3.1 0 0 0 4.3 4.3" />
+          <Path {...s} d="M3.2 3.2 20.8 20.8" />
         </>
       );
     case 'edit':

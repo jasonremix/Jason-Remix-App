@@ -22,23 +22,29 @@ export function SectionHeader({
 }) {
   return (
     <View style={styles.root}>
-      <View style={styles.titleRow}>
-        <Overline tone="muted">{title}</Overline>
+      <Overline tone="muted">{title}</Overline>
+
+      {/*
+        The count sits at the far edge, not next to the title: both are tracked-out
+        uppercase in the same tone, so side by side they read as one phrase
+        ("DISCOGRAPHY 8 RELEASES") rather than a heading and its count.
+      */}
+      <View style={styles.trailing}>
         {meta && (
           <Text variant="labelWide" tone="muted" uppercase>
             {meta}
           </Text>
         )}
-      </View>
 
-      {actionLabel && onAction && (
-        <Pressable onPress={onAction} hitSlop={10} accessibilityRole="button" style={styles.action}>
-          <Text variant="labelWide" tone="tertiary" uppercase>
-            {actionLabel}
-          </Text>
-          <Icon name="chevron-right" size={12} color={palette.titanium} />
-        </Pressable>
-      )}
+        {actionLabel && onAction && (
+          <Pressable onPress={onAction} hitSlop={10} accessibilityRole="button" style={styles.action}>
+            <Text variant="labelWide" tone="tertiary" uppercase>
+              {actionLabel}
+            </Text>
+            <Icon name="chevron-right" size={12} color={palette.titanium} />
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }
@@ -50,6 +56,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.base,
   },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  trailing: { flexDirection: 'row', alignItems: 'center', gap: spacing.base },
   action: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
 });

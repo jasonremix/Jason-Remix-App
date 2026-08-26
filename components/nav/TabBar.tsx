@@ -54,10 +54,16 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+      {/*
+        iOS gets a real blur, so a translucent ground reads as glass. Everywhere else
+        there is no blur to do that work, and the same translucency just lets the
+        content behind the bar show through as ghost text — so those platforms get an
+        opaque ground instead. The hairline above keeps the edge defined either way.
+      */}
       {Platform.OS === 'ios' ? (
         <BlurView intensity={36} tint="dark" style={StyleSheet.absoluteFill} />
       ) : (
-        <View style={[StyleSheet.absoluteFill, styles.androidGround]} />
+        <View style={[StyleSheet.absoluteFill, styles.solidGround]} />
       )}
       <View style={styles.hairline} />
 
@@ -128,7 +134,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     overflow: 'hidden',
   },
-  androidGround: { backgroundColor: alpha.glass },
+  solidGround: { backgroundColor: palette.obsidian },
   hairline: {
     position: 'absolute',
     top: 0,

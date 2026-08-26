@@ -72,26 +72,43 @@ function GeneratedSleeve({ title }: { title: string }) {
   const seed = hash(title);
   const id = `sleeve-${seed}`;
 
-  // Every varying quantity is a bounded read from the same hash.
-  const angle = (seed % 40) - 20;
-  const bandY = 34 + (seed % 22);
-  const facetX = 26 + ((seed >> 3) % 46);
-  const facetSize = 16 + ((seed >> 7) % 14);
-  const lightX = ((seed >> 11) % 60) / 100;
+  // Every varying quantity is a bounded read from the same hash, so a title always
+  // produces the same sleeve. The ranges are deliberately wide: at a 64pt thumbnail
+  // a subtle variation is no variation at all, and the discography would read as one
+  // repeated tile.
+  const pick = (shift: number, range: number) => (seed >> shift) % range;
+
+  const angle = pick(0, 70) - 35;
+  const bandY = 22 + pick(3, 56);
+  const bandWeight = 6 + pick(6, 16);
+  const facetX = 18 + pick(9, 64);
+  const facetY = 30 + pick(13, 40);
+  const facetSize = 14 + pick(17, 34);
+  const lightX = pick(21, 80) / 100;
+  const ground = pick(25, 3);
+  const hasSecondFacet = pick(27, 2) === 1;
+
+  // Three ground ramps rather than one, so tiles differ in overall value and not
+  // only in the arrangement of their marks.
+  const grounds = [
+    ['#1E2126', '#111317', '#08090B'],
+    ['#15171B', '#0D0E11', '#050506'],
+    ['#232629', '#14161A', '#0A0B0D'],
+  ][ground];
 
   return (
     <Svg width="100%" height="100%" viewBox="0 0 100 100">
       <Defs>
         <LinearGradient id={`${id}-ground`} x1="0" y1="0" x2="0.7" y2="1">
-          <Stop offset="0" stopColor="#1A1C20" />
-          <Stop offset="0.6" stopColor="#101216" />
-          <Stop offset="1" stopColor="#08090B" />
+          <Stop offset="0" stopColor={grounds[0]} />
+          <Stop offset="0.6" stopColor={grounds[1]} />
+          <Stop offset="1" stopColor={grounds[2]} />
         </LinearGradient>
         <LinearGradient id={`${id}-metal`} x1={String(lightX)} y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#EDF0F3" stopOpacity="0.92" />
-          <Stop offset="0.3" stopColor="#B7BCC4" stopOpacity="0.62" />
-          <Stop offset="0.62" stopColor="#767C85" stopOpacity="0.4" />
-          <Stop offset="1" stopColor="#C9CED4" stopOpacity="0.24" />
+          <Stop offset="0" stopColor="#F2F5F8" stopOpacity="0.96" />
+          <Stop offset="0.3" stopColor="#BCC1C9" stopOpacity="0.72" />
+          <Stop offset="0.62" stopColor="#767C85" stopOpacity="0.46" />
+          <Stop offset="1" stopColor="#CDD2D8" stopOpacity="0.3" />
         </LinearGradient>
       </Defs>
 
@@ -99,25 +116,35 @@ function GeneratedSleeve({ title }: { title: string }) {
 
       {/* The band of light across the sleeve. */}
       <Path
-        d={`M-10 ${bandY} L110 ${bandY - 14} L110 ${bandY - 6} L-10 ${bandY + 8} Z`}
+        d={`M-20 ${bandY} L120 ${bandY - bandWeight} L120 ${bandY + 2} L-20 ${bandY + bandWeight + 2} Z`}
         fill={`url(#${id}-metal)`}
         transform={`rotate(${angle} 50 50)`}
-        opacity={0.55}
+        opacity={0.62}
       />
 
-      {/* The facet — the same figure as the brand mark, cropped by the sleeve edge. */}
+      {/* The facet — the brand mark, cropped by the sleeve edge as often as not. */}
       <Path
-        d={`M${facetX} ${50 - facetSize} L${facetX + facetSize} 50 L${facetX} ${50 + facetSize} L${facetX - facetSize} 50 Z`}
+        d={`M${facetX} ${facetY - facetSize} L${facetX + facetSize} ${facetY} L${facetX} ${facetY + facetSize} L${facetX - facetSize} ${facetY} Z`}
         fill={`url(#${id}-metal)`}
-        opacity={0.9}
       />
       <Path
-        d={`M${facetX} ${50 - facetSize} L${facetX + facetSize / 2} 50 L${facetX} ${50 + facetSize / 2} L${facetX - facetSize / 2} 50 Z`}
-        fill="rgba(8,9,11,0.55)"
+        d={`M${facetX} ${facetY - facetSize / 2} L${facetX + facetSize / 2} ${facetY} L${facetX} ${facetY + facetSize / 2} L${facetX - facetSize / 2} ${facetY} Z`}
+        fill={grounds[2]}
+        opacity={0.85}
       />
+
+      {hasSecondFacet && (
+        <Path
+          d={`M${100 - facetX} ${100 - facetY - facetSize / 3} L${100 - facetX + facetSize / 3} ${100 - facetY} L${100 - facetX} ${100 - facetY + facetSize / 3} L${100 - facetX - facetSize / 3} ${100 - facetY} Z`}
+          fill="none"
+          stroke="#FFFFFF"
+          strokeOpacity="0.22"
+          strokeWidth={0.8}
+        />
+      )}
 
       {/* Two hairlines to give the composition a horizon. */}
-      <Path d={`M0 ${bandY + 26} H100`} stroke="rgba(255,255,255,0.07)" strokeWidth={0.4} />
+      <Path d={`M0 ${bandY + 26} H100`} stroke="rgba(255,255,255,0.08)" strokeWidth={0.4} />
       <Path d={`M0 ${bandY + 30} H100`} stroke="rgba(255,255,255,0.04)" strokeWidth={0.4} />
     </Svg>
   );
