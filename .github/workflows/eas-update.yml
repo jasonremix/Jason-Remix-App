@@ -1,10 +1,19 @@
 name: EAS Update
 
-# Ships a JavaScript-only change to installed builds without a new binary.
+# Ships a JavaScript-only change without a new binary.
 #
-# Only what Metro bundles is updated. A change to a native module, a permission or
-# anything else that alters the runtime needs `version` bumped and a fresh build —
-# `runtimeVersion.policy: appVersion` in app.json is what enforces that boundary.
+# Two audiences, and they need different runtime versions:
+#
+#   preview     → sdkVersion policy (`exposdk:57.0.0`). That is Expo Go's own runtime,
+#                 so the update shows up under the project in Expo Go and opens there.
+#                 Nothing has to be installed to look at it.
+#
+#   production  → appVersion policy (`1.0.0`). Matches builds from `eas build --profile
+#                 production` and nothing else, so an update can never reach a binary
+#                 whose native code has moved on.
+#
+# Only what Metro bundles is updated either way. A change to a native module, a
+# permission or the SDK version always needs a fresh build.
 on:
   workflow_dispatch:
     inputs:
@@ -48,6 +57,10 @@ jobs:
       - run: npm test
 
       - name: Publish update
+        env:
+          # Leer für preview: app.config.js nimmt dann sdkVersion, und genau das
+          # kann Expo Go öffnen.
+          EAS_RUNTIME_POLICY: ${{ inputs.branch == 'production' && 'appVersion' || '' }}
         run: eas update --non-interactive
              --branch ${{ inputs.branch }}
              --message "${{ inputs.message }}"

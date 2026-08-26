@@ -37,7 +37,14 @@ const soft = (condition, label, fix) => {
 check(existsSync(resolve(root, 'eas.json')), 'eas.json vorhanden', 'eas init anlegen lassen');
 check(existsSync(resolve(root, 'app.json')), 'app.json vorhanden', '—');
 
-const app = readJson('app.json').expo;
+// Über app.config.js auflösen, nicht app.json direkt lesen: die runtimeVersion
+// entsteht erst dort, und genau die entscheidet, ob Expo Go ein Update öffnen kann.
+const { createRequire } = await import('node:module');
+const require_ = createRequire(import.meta.url);
+const base = readJson('app.json').expo;
+const app = existsSync(resolve(root, 'app.config.js'))
+  ? require_(resolve(root, 'app.config.js'))({ config: base })
+  : base;
 const pkg = readJson('package.json');
 
 // --- Identity ------------------------------------------------------------------------
@@ -63,6 +70,12 @@ check(
   'eas login && eas init   — legt das Projekt in deinem Expo-Konto an',
 );
 
+soft(
+  Boolean(app.owner),
+  `owner (${app.owner ?? 'nicht gesetzt — es gilt das eingeloggte Konto'})`,
+  'expo.owner in app.json setzen, wenn das Projekt einer Organisation gehört',
+);
+
 // --- Assets --------------------------------------------------------------------------
 
 for (const [label, path] of [
@@ -78,11 +91,18 @@ for (const [label, path] of [
 
 const hasUpdates = Boolean(pkg.dependencies?.['expo-updates']);
 check(hasUpdates, 'expo-updates installiert', 'npm install expo-updates');
-check(
-  Boolean(app.runtimeVersion),
-  'runtimeVersion gesetzt',
-  'expo.runtimeVersion in app.json setzen',
-);
+const policy = app.runtimeVersion?.policy ?? app.runtimeVersion;
+check(Boolean(policy), 'runtimeVersion gesetzt', 'runtimeVersion in app.config.js setzen');
+
+// Der Unterschied, der darüber entscheidet, ob auf dem Handy etwas ankommt.
+if (policy === 'sdkVersion') {
+  ok.push(`runtimeVersion: sdkVersion → exposdk:${pkg.dependencies?.expo?.replace(/[~^]/, '') ?? '?'} (Expo Go kann Updates öffnen)`);
+} else if (policy) {
+  warnings.push({
+    label: `runtimeVersion: ${policy} — Expo Go kann solche Updates NICHT öffnen`,
+    fix: 'Für Expo Go: EAS_RUNTIME_POLICY nicht setzen (Standard ist sdkVersion). Für Store-Builds ist appVersion richtig.',
+  });
+}
 soft(
   Boolean(app.updates?.url),
   'updates.url gesetzt',

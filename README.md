@@ -304,9 +304,21 @@ new binary. `runtimeVersion.policy: appVersion` draws the line: a change to nati
 a permission or an SDK version needs `version` bumped in `app.json` and a fresh build,
 and the policy stops an incompatible update from reaching an older binary.
 
-> **Expo Go cannot open an EAS Update.** Expo Go loads from a local dev server
-> (`npm start`); updates reach builds produced by `eas build`. Both are useful — the
-> first for iterating, the second for putting the app on someone else's phone.
+`runtimeVersion` is not fixed in `app.json` — it comes from `app.config.js`, because
+the right value differs by audience:
+
+| | policy | resolves to | opens in |
+| --- | --- | --- | --- |
+| default (`preview`) | `sdkVersion` | `exposdk:57.0.0` | **Expo Go** |
+| `production` | `appVersion` | `1.0.0` | builds from `eas build --profile production` |
+
+`eas.json` sets `EAS_RUNTIME_POLICY=appVersion` on the production profile; everything
+else falls through to the default. So an update pushed to the `preview` branch appears
+under the project in Expo Go and opens there, with nothing installed locally — while a
+production update can only ever reach a binary with matching native code.
+
+Hardcoding either one would be wrong half the time, and the mistake would only show up
+as an update that silently never arrives.
 
 ### Configuration per environment
 
@@ -323,6 +335,12 @@ internal build before the API is deployed.
 
 > The Spotify **client secret** is never part of a build. It belongs only in the API
 > server's environment.
+
+### Seeing it on a phone without installing anything
+
+Once the project id is committed and `EXPO_TOKEN` is a repository secret, the **EAS
+Update** workflow publishes to the `preview` branch. The branch then appears under the
+project in Expo Go, and opens there — no clone, no `npm install`, no dev server.
 
 ### Building from GitHub
 
