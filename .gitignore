@@ -31,7 +31,15 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+#
+# `.env` and `server/.env` hold real credentials — server/.env carries the Spotify
+# client secret. Only the `.env.example` templates are ever tracked.
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
 
 # typescript
 *.tsbuildinfo
