@@ -283,9 +283,12 @@ npm run eas:update     # ship a JS-only change, openable in Expo Go
 `eas:check` separately lists what should be done before a *store* release (Impressum
 details, the real discography) without treating those as build failures.
 
-> If `eas` reports that the config slug does not match the project, the slug on
-> expo.dev differs from `expo.slug` in `app.json`. The project id decides which project
-> is meant; align the slug to it and the message goes away.
+`expo.slug` must match the slug of the project the id points at — EAS refuses the
+build otherwise, naming both values.
+
+> **To look at the app on a phone, use EAS Update, not EAS Build.** An update needs no
+> build and opens in Expo Go. A build is for putting an installable app on a device,
+> and an iOS one additionally needs Apple Developer credentials on the EAS account.
 
 ### Builds versus updates
 
