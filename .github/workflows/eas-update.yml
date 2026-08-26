@@ -1,0 +1,53 @@
+name: EAS Update
+
+# Ships a JavaScript-only change to installed builds without a new binary.
+#
+# Only what Metro bundles is updated. A change to a native module, a permission or
+# anything else that alters the runtime needs `version` bumped and a fresh build —
+# `runtimeVersion.policy: appVersion` in app.json is what enforces that boundary.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Update branch (matches the build's channel)
+        type: choice
+        options: [preview, production]
+        default: preview
+      message:
+        description: What changed
+        type: string
+        required: true
+
+jobs:
+  update:
+    name: ${{ inputs.branch }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          # Settings → Secrets and variables → Actions → EXPO_TOKEN
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Preflight
+        run: npm run eas:check
+
+      # An update reaches real devices, so it goes out only from code that passes
+      # the same checks as any other change.
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+      - name: Publish update
+        run: eas update --non-interactive
+             --branch ${{ inputs.branch }}
+             --message "${{ inputs.message }}"

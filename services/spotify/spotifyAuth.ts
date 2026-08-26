@@ -86,19 +86,19 @@ export async function connectSpotify(): Promise<SpotifyConnectResult> {
     if (result.type === 'cancel' || result.type === 'dismiss') return { outcome: 'cancelled' };
     if (result.type !== 'success') {
       logger.warn('spotify authorization did not complete', { type: result.type });
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const returnedState = result.params.state;
     const storedState = await secureStorage.get(SecureKeys.spotifyState);
     if (!storedState || typeof returnedState !== 'string' || !safeEquals(storedState, returnedState)) {
       // A mismatched state means the response did not come from the request we made.
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const code = result.params.code;
     if (typeof code !== 'string' || code.length === 0) {
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const response = await getBackend().exchangeSpotifyCode({

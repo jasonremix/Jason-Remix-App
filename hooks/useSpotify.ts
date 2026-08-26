@@ -88,7 +88,7 @@ export function useConnectSpotify() {
       const result = await connectSpotify();
 
       if (result.outcome === 'not-configured') {
-        setError('Spotify is not available yet.');
+        setError('Spotify steht noch nicht zur Verfügung.');
         showToast('SPOTIFY NOT CONFIGURED', 'neutral');
         return result;
       }

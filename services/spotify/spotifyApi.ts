@@ -45,7 +45,7 @@ export async function cached<T>(key: string, ttlMs: number, loader: () => Promis
 
   if (isRateLimited(now)) {
     if (hit) return hit.value;
-    throw new AppError('RATE_LIMITED', 'Too many requests to Spotify. Please wait a moment.');
+    throw new AppError('RATE_LIMITED', 'Zu viele Anfragen an Spotify. Bitte warte einen Moment.');
   }
 
   try {
@@ -72,6 +72,6 @@ export const SPOTIFY_TTL = {
 export function assertSpotifyConfigured(): void {
   if (!config.isSpotifyConfigured) {
     logger.debug('spotify request attempted while unconfigured');
-    throw new AppError('SPOTIFY_NOT_CONFIGURED', 'Spotify is not available yet.');
+    throw new AppError('SPOTIFY_NOT_CONFIGURED', 'Spotify steht noch nicht zur Verfügung.');
   }
 }

@@ -266,18 +266,47 @@ unnoticed.
 
 ---
 
-## Building for the stores (EAS)
+## expo.dev (EAS)
 
-`eas.json` defines three profiles: `development` (dev client, iOS simulator + Android
-APK), `preview` (internal distribution) and `production` (store-ready, auto-incrementing
-build numbers).
+Everything that does not require an Expo account is already in place: bundle identifier
+and package name, icons, `eas.json`, `expo-updates`, a `runtimeVersion` policy, an
+`.easignore` that keeps the API server out of the upload, and two GitHub Actions.
+
+The one missing piece is the project id, because only your account can create it:
 
 ```bash
 npm i -g eas-cli
 eas login
-eas init            # writes extra.eas.projectId into app.json
-eas build --profile preview --platform all
+npm run eas:setup      # eas init + eas update:configure, then re-checks
 ```
+
+`eas init` registers the project in your Expo account — from that moment it is visible
+on expo.dev — and writes `extra.eas.projectId` into `app.json`. Commit that change.
+
+```bash
+npm run eas:check      # what is still missing, before a build burns 20 minutes
+npm run eas:build      # preview APK for Android
+npm run eas:update     # ship a JS-only change to installed builds
+```
+
+`npm run eas:check` is the thing to run first. It reports exactly one blocker until
+`eas init` has run, and separately lists what should be done before a *store* release
+(Impressum details, the real discography) without treating those as build failures.
+
+### Builds versus updates
+
+`eas.json` defines three build profiles: `development` (dev client, iOS simulator +
+Android APK), `preview` (internal distribution) and `production` (store-ready,
+auto-incrementing build numbers).
+
+Once a build is installed, `eas update` ships JavaScript-only changes to it without a
+new binary. `runtimeVersion.policy: appVersion` draws the line: a change to native code,
+a permission or an SDK version needs `version` bumped in `app.json` and a fresh build,
+and the policy stops an incompatible update from reaching an older binary.
+
+> **Expo Go cannot open an EAS Update.** Expo Go loads from a local dev server
+> (`npm start`); updates reach builds produced by `eas build`. Both are useful — the
+> first for iterating, the second for putting the app on someone else's phone.
 
 ### Configuration per environment
 
@@ -294,6 +323,18 @@ internal build before the API is deployed.
 
 > The Spotify **client secret** is never part of a build. It belongs only in the API
 > server's environment.
+
+### Building from GitHub
+
+`.github/workflows/eas-build.yml` and `eas-update.yml` both run on demand, so a build
+never starts by accident and never spends EAS minutes on a push. Both need one
+repository secret:
+
+**Settings → Secrets and variables → Actions → `EXPO_TOKEN`**, from
+<https://expo.dev/settings/access-tokens>.
+
+A workflow only appears in the Actions tab once its file is on the **default branch** —
+until this branch is merged, the two buttons will not be there.
 
 ### CI
 
@@ -317,6 +358,10 @@ or a message.
 | `npm run start:clear` | Expo dev server with a cleared Metro cache (after editing `.env`) |
 | `npm run expo-go` / `expo-go:write` | Show / write your LAN address into both `.env` files |
 | `npm run tunnel` | Expo dev server over a tunnel, when the LAN is not usable |
+| `npm run eas:check` | Preflight: what would stop a build, and what to do before a store release |
+| `npm run eas:setup` | `eas init` + `eas update:configure` (needs `eas login` first) |
+| `npm run eas:build` | Preview APK for Android |
+| `npm run eas:update` | Ship a JS-only change to installed builds |
 | `npm run android` / `ios` / `web` | Start on a platform |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |

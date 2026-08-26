@@ -48,7 +48,7 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  title = 'Something went wrong.',
+  title = 'Da ist etwas schiefgelaufen.',
   message,
   onRetry,
   retryLabel = 'TRY AGAIN',

@@ -134,7 +134,7 @@ export function installSessionExpiryHandler(): void {
       status: 'signed-out',
       user: null,
       profile: null,
-      expiredNotice: 'Your session expired. Please sign in again.',
+      expiredNotice: 'Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
     });
   });
 }

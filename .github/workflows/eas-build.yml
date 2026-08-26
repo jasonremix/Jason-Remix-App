@@ -37,6 +37,11 @@ jobs:
 
       - run: npm ci
 
+      # Fails in seconds on a missing project id or bundle identifier, rather than
+      # twenty minutes into a build that was never going to succeed.
+      - name: Preflight
+        run: npm run eas:check
+
       - name: Build
         run: eas build --non-interactive --no-wait
              --profile ${{ inputs.profile }}

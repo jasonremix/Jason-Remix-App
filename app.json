@@ -3,6 +3,13 @@
     "name": "Jason Remix",
     "slug": "jason-remix",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
     "orientation": "portrait",
     "scheme": "jasonremix",
     "userInterfaceStyle": "light",

@@ -20,7 +20,11 @@
     "server:seed": "npm --prefix server run seed",
     "expo-go": "node scripts/expo-go.mjs",
     "expo-go:write": "node scripts/expo-go.mjs --write",
-    "tunnel": "expo start --tunnel"
+    "tunnel": "expo start --tunnel",
+    "eas:check": "node scripts/eas-check.mjs",
+    "eas:setup": "eas init && eas update:configure && node scripts/eas-check.mjs",
+    "eas:build": "eas build --profile preview --platform android",
+    "eas:update": "eas update --branch preview"
   },
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.4.2",
@@ -47,6 +51,7 @@
     "expo-splash-screen": "~57.0.8",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.2",
+    "expo-updates": "~57.0.17",
     "expo-web-browser": "~57.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
