@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { alpha, layout, motion, palette, radius, spacing } from '@/constants/theme';
+import { layout, motion, palette, radius, spacing } from '@/constants/theme';
 import { useUiStore, type Toast } from '@/store/uiStore';
 
 import { Text } from './Text';
@@ -51,16 +51,16 @@ function ToastRow({ toast }: { toast: Toast }) {
 
   const accent =
     toast.tone === 'positive'
-      ? palette.chrome
+      ? palette.success
       : toast.tone === 'negative'
         ? palette.danger
-        : palette.titanium;
+        : palette.accent;
 
   return (
     <Animated.View style={animatedStyle} exiting={FadeOut.duration(motion.fast)}>
       <Pressable onPress={() => dismiss(toast.id)} accessibilityRole="button" style={styles.toast}>
         <View style={[styles.accent, { backgroundColor: accent }]} />
-        <Text variant="bodySmall" tone="secondary" numberOfLines={2} style={styles.message}>
+        <Text variant="bodySmall" tone="primary" numberOfLines={2} style={styles.message}>
           {toast.message}
         </Text>
       </Pressable>
@@ -78,12 +78,12 @@ const styles = StyleSheet.create({
   toast: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: palette.gunmetal,
+    backgroundColor: palette.card,
     borderRadius: radius.md,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edge,
+    borderColor: palette.ruleStrong,
     overflow: 'hidden',
   },
-  accent: { width: 2, alignSelf: 'stretch' },
+  accent: { width: 3, alignSelf: 'stretch' },
   message: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.base },
 });

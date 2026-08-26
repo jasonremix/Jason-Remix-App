@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Input } from '@/components/ui/Input';
 import { Row } from '@/components/ui/Row';
@@ -13,6 +14,7 @@ import { Hairline, Surface } from '@/components/ui/Surface';
 import { Text } from '@/components/ui/Text';
 import { config } from '@/constants/config';
 import { spacing } from '@/constants/theme';
+import { useEmailVerified, useResendVerification } from '@/hooks/useEmailVerification';
 import { useMe } from '@/hooks/useMe';
 import { toAppError } from '@/lib/errors';
 import { authService } from '@/services/auth.service';
@@ -20,30 +22,48 @@ import { useAuthStore } from '@/store/authStore';
 import { useUiStore } from '@/store/uiStore';
 
 /**
- * Account management, including the two irreversible operations.
+ * Kontoverwaltung, einschließlich der beiden unumkehrbaren Vorgänge.
  *
- * Data export and account deletion are first-class controls here rather than something
- * a member has to email about — both are obligations under GDPR and both are one tap
- * plus one confirmation away.
+ * Datenexport und Kontolöschung stehen hier als gleichwertige Schaltflächen, statt dass
+ * ein Mitglied dafür eine E-Mail schreiben müsste — beides ist DSGVO-Pflicht, und beides
+ * ist einen Fingertipp plus eine Bestätigung entfernt.
  */
 export default function AccountSettings() {
   const me = useMe();
+  const { verified, emailConfigured } = useEmailVerified();
+  const resend = useResendVerification();
+  // Der Auth-Store hat die Sitzung schon beim Start; die Query kommt später nach.
+  const sessionUser = useAuthStore((state) => state.user);
+  const sessionProfile = useAuthStore((state) => state.profile);
   const signOut = useAuthStore((state) => state.signOut);
   const showToast = useUiStore((state) => state.showToast);
 
-  const [username, setUsername] = useState(me.data?.profile?.username ?? '');
+  /**
+   * Der angezeigte Benutzername wird abgeleitet, nicht gespiegelt.
+   *
+   * `draft` ist `null`, solange nichts getippt wurde — dann gilt der geladene Wert, und
+   * der darf beim Kaltstart auch später noch eintreffen. Sobald jemand tippt, gewinnt
+   * der Entwurf und wird von keiner nachkommenden Antwort mehr überschrieben.
+   */
+  const [draft, setDraft] = useState<string | null>(null);
+  const loadedUsername = me.data?.profile?.username ?? sessionProfile?.username ?? '';
+  const username = draft ?? loadedUsername;
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const email = me.data?.user.email ?? sessionUser?.email ?? '';
+
   const saveProfile = useCallback(async () => {
     setSavingProfile(true);
     setProfileError(null);
     try {
       await authService.updateProfile({ username: username.trim() });
-      showToast('PROFILE UPDATED', 'positive');
+      showToast('PROFIL AKTUALISIERT', 'positive');
+      // Entwurf verwerfen: ab jetzt ist der Serverwert der richtige.
+      setDraft(null);
       void me.refetch();
     } catch (error) {
       setProfileError(toAppError(error).message);
@@ -55,9 +75,9 @@ export default function AccountSettings() {
   const exportData = useCallback(async () => {
     try {
       const data = await authService.exportData();
-      // The export is surfaced in-app rather than emailed: fewer moving parts, and the
-      // data never leaves the device unless the member chooses to share it.
-      showToast(`EXPORT READY — ${Object.keys(data).length} SECTIONS`, 'positive');
+      // Der Export wird in der App gezeigt statt per E-Mail verschickt: weniger bewegliche
+      // Teile, und die Daten verlassen das Gerät nur, wenn das Mitglied es selbst will.
+      showToast(`EXPORT BEREIT — ${Object.keys(data).length} BEREICHE`, 'positive');
     } catch (error) {
       showToast(toAppError(error).message, 'negative');
     }
@@ -78,41 +98,78 @@ export default function AccountSettings() {
   }, [showToast, signOut]);
 
   return (
-    <Screen header={<ScreenHeader title="ACCOUNT" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="KONTO" />} contentStyle={styles.content}>
       <View style={styles.section}>
-        <SectionHeader title="PROFILE" />
+        <SectionHeader title="PROFIL" />
         <Surface style={styles.card}>
           <Input
-            label="USERNAME"
+            label="BENUTZERNAME"
             value={username}
-            onChangeText={setUsername}
+            onChangeText={setDraft}
             error={profileError}
             maxLength={20}
-            placeholder="your_name"
+            placeholder="dein_name"
           />
           <Button
-            label="SAVE"
+            label="SPEICHERN"
             variant="secondary"
             loading={savingProfile}
-            disabled={!username.trim() || username.trim() === me.data?.profile?.username}
+            disabled={!username.trim() || username.trim() === loadedUsername}
             onPress={() => void saveProfile()}
           />
         </Surface>
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="YOUR DATA" />
+        <SectionHeader title="E-MAIL-ADRESSE" />
+        <Surface style={styles.card}>
+          <View style={styles.statusRow}>
+            <Text variant="bodySmall" tone="secondary" numberOfLines={1} style={styles.grow}>
+              {email}
+            </Text>
+            {/* Solange der Stand unbekannt ist, steht hier kein Etikett — lieber nichts
+                als eine falsche Behauptung über das Konto. */}
+            {verified !== null && (
+              <Chip
+                label={verified ? 'BESTÄTIGT' : 'NICHT BESTÄTIGT'}
+                tone={verified ? 'success' : 'warning'}
+              />
+            )}
+          </View>
+
+          {verified === false && (
+            <>
+              <Hairline style={styles.divider} />
+              <Text variant="caption" tone="muted">
+                {emailConfigured === false
+                  ? 'Auf diesem Server ist noch kein E-Mail-Versand eingerichtet, deshalb konnte keine Bestätigungsmail zugestellt werden.'
+                  : 'Tippe auf den Link in der Bestätigungsmail. Nichts angekommen? Fordere hier eine neue an.'}
+              </Text>
+              <Button
+                label="BESTÄTIGUNGSMAIL SENDEN"
+                variant="secondary"
+                loading={resend.isPending}
+                disabled={emailConfigured === false}
+                onPress={() => resend.mutate()}
+              />
+            </>
+          )}
+        </Surface>
+      </View>
+
+      <View style={styles.section}>
+        <SectionHeader title="DEINE DATEN" />
         <View>
           <Row
-            title="EXPORT MY DATA"
-            subtitle="Everything stored about your account, in one file"
+            title="MEINE DATEN EXPORTIEREN"
+            subtitle="Alles, was zu deinem Konto gespeichert ist, in einer Datei"
             icon="document"
             onPress={() => void exportData()}
           />
           <Hairline />
           <Row
-            title="DISCONNECT SPOTIFY"
-            subtitle="Removes the link and deletes the stored tokens"
+            title="SPOTIFY TRENNEN"
+            subtitle="Löst die Verbindung und löscht die gespeicherten Tokens"
             icon="spotify"
             onPress={() => router.push('/settings/spotify')}
           />
@@ -120,15 +177,15 @@ export default function AccountSettings() {
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="DELETE ACCOUNT" />
+        <SectionHeader title="KONTO LÖSCHEN" />
         <Surface style={styles.card}>
           <Text variant="bodySmall" tone="tertiary">
-            Deleting your account permanently removes your profile, credit balance, ledger,
-            achievements, redemptions and giveaway entries. Credits and entries cannot be
-            restored afterwards, and any open giveaway entries are voided without refund.
+            Beim Löschen deines Kontos werden Profil, Guthaben, Kontobuch, Erfolge,
+            Einlösungen und Gewinnspiel-Lose endgültig entfernt. Credits und Lose lassen
+            sich danach nicht wiederherstellen, und laufende Lose verfallen ohne Erstattung.
           </Text>
           <Button
-            label="DELETE MY ACCOUNT"
+            label="MEIN KONTO LÖSCHEN"
             variant="danger"
             icon="trash"
             onPress={() => setConfirmingDelete(true)}
@@ -138,17 +195,18 @@ export default function AccountSettings() {
 
       {config.isDemoMode && (
         <Text variant="caption" tone="muted">
-          In demo mode this clears the local sample data only — no real account exists.
+          Im Demo-Modus werden nur die lokalen Beispieldaten gelöscht — ein echtes Konto
+          gibt es hier nicht.
         </Text>
       )}
 
       <ConfirmDialog
         visible={confirmingDelete}
-        eyebrow="DELETE ACCOUNT"
-        title="This cannot be undone."
-        message="Your account and everything associated with it will be permanently deleted."
-        detail={`Balance, ledger, achievements and giveaway entries for ${me.data?.user.email ?? 'this account'} will be erased.`}
-        confirmLabel="DELETE"
+        eyebrow="KONTO LÖSCHEN"
+        title="Das lässt sich nicht rückgängig machen."
+        message="Dein Konto und alles, was daran hängt, wird endgültig gelöscht."
+        detail={`Guthaben, Kontobuch, Erfolge und Gewinnspiel-Lose von ${me.data?.user.email ?? 'diesem Konto'} werden gelöscht.`}
+        confirmLabel="LÖSCHEN"
         destructive
         loading={deleting}
         onConfirm={() => void deleteAccount()}
@@ -162,4 +220,7 @@ const styles = StyleSheet.create({
   content: { gap: spacing.xxl, paddingTop: spacing.lg },
   section: { gap: spacing.base },
   card: { padding: spacing.lg, gap: spacing.lg },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  grow: { flex: 1 },
+  divider: { marginVertical: 0 },
 });

@@ -20,15 +20,15 @@ export function CreditCounter({
   animate?: boolean;
 }) {
   const displayed = useCountUp(animate ? amount : amount, animate ? 620 : 0);
-  const fontSize = size === 'lg' ? 44 : 30;
+  const fontSize = size === 'lg' ? 56 : 34;
 
   return (
-    <View style={styles.root} accessibilityRole="text" accessibilityLabel={`${formatCredits(amount)} credits`}>
-      <Monogram size={size === 'lg' ? 26 : 18} />
+    <View style={styles.root} accessibilityRole="text" accessibilityLabel={`${formatCredits(amount)} Credits`}>
+      <Monogram size={size === 'lg' ? 30 : 20} />
       <Text
         variant="numeric"
         tone="primary"
-        style={{ fontSize, lineHeight: fontSize * 1.1 }}
+        style={{ fontSize, lineHeight: fontSize * 1.02, fontVariant: ['tabular-nums'] }}
         maxFontSizeMultiplier={1.2}
       >
         {formatCredits(displayed)}

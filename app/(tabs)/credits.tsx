@@ -6,7 +6,7 @@ import { CreditCounter } from '@/components/credits/CreditCounter';
 import { TransactionRow } from '@/components/credits/TransactionRow';
 import { MissionRow } from '@/components/missions/MissionRow';
 import { LevelBar } from '@/components/profile/LevelBar';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Screen } from '@/components/ui/Screen';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -23,8 +23,8 @@ import { formatCredits } from '@/lib/format';
 /**
  * Credits.
  *
- * The balance, how to earn more, and the full ledger. Every figure here comes from the
- * server: the app displays the ledger, it never computes it.
+ * Guthaben, Wege zu mehr davon und das vollständige Kontobuch. Jede Zahl hier kommt
+ * vom Server: die App zeigt das Kontobuch an, sie rechnet es nicht aus.
  */
 export default function Credits() {
   const credits = useCredits();
@@ -62,17 +62,19 @@ export default function Credits() {
       contentStyle={styles.content}
     >
       <View style={styles.head}>
-        <Text variant="display" tone="primary" style={styles.heading}>
-          CREDITS
+        <Text variant="display" tone="primary">
+          Credits
         </Text>
         <Text variant="bodySmall" tone="muted">
-          {brand.creditsName} — earned through missions, spent on rewards and giveaways.
+          {brand.creditsName} — verdient über Missionen, ausgegeben für Prämien und
+          Gewinnspiele.
         </Text>
       </View>
 
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Balance and level ------------------------------------------------ */}
@@ -84,7 +86,10 @@ export default function Credits() {
             <Skeleton height={10} width="40%" />
           </View>
         ) : credits.isError ? (
-          <ErrorState message="Your balance could not be loaded." onRetry={() => void credits.refetch()} />
+          <ErrorState
+            message="Dein Guthaben konnte nicht geladen werden."
+            onRetry={() => void credits.refetch()}
+          />
         ) : balance ? (
           <>
             <CreditCounter amount={balance.balance} />
@@ -92,7 +97,7 @@ export default function Credits() {
             <View style={styles.lifetime}>
               <View style={styles.lifetimeItem}>
                 <Text variant="labelWide" tone="muted" uppercase>
-                  EARNED
+                  VERDIENT
                 </Text>
                 <Text variant="body" tone="secondary" style={styles.tabular}>
                   {formatCredits(balance.lifetimeEarned)}
@@ -100,7 +105,7 @@ export default function Credits() {
               </View>
               <View style={styles.lifetimeItem}>
                 <Text variant="labelWide" tone="muted" uppercase>
-                  SPENT
+                  EINGESETZT
                 </Text>
                 <Text variant="body" tone="secondary" style={styles.tabular}>
                   {formatCredits(balance.lifetimeSpent)}
@@ -123,7 +128,7 @@ export default function Credits() {
 
       {/* --- Missions ---------------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="EARN CREDITS" meta="MISSIONS" />
+        <SectionHeader title="CREDITS VERDIENEN" meta="MISSIONEN" />
 
         {missions.isPending ? (
           <View style={styles.list}>
@@ -131,14 +136,21 @@ export default function Credits() {
             <Skeleton height={64} rounded="md" />
           </View>
         ) : missions.isError ? (
-          <ErrorState message="Missions could not be loaded." onRetry={() => void missions.refetch()} />
+          <ErrorState
+            message="Die Missionen konnten nicht geladen werden."
+            onRetry={() => void missions.refetch()}
+          />
         ) : (missions.data?.missions ?? []).length === 0 ? (
-          <EmptyState icon="token" title="No missions right now." message="New missions appear with each release." />
+          <EmptyState
+            icon="token"
+            title="Gerade keine Missionen."
+            message="Mit jeder Veröffentlichung kommen neue dazu."
+          />
         ) : (
           <View>
             {(missions.data?.missions ?? []).map((mission, index, all) => {
-              // The Spotify mission cannot be claimed until Spotify is actually linked,
-              // and that is the server's judgement — the row only explains why.
+              // Die Spotify-Mission lässt sich erst einlösen, wenn Spotify wirklich
+              // verbunden ist — das entscheidet der Server, die Zeile erklärt es nur.
               const spotifyBlocked =
                 mission.type === 'CONNECT_SPOTIFY' && !config.isSpotifyConfigured;
 
@@ -150,7 +162,7 @@ export default function Credits() {
                     disabled={spotifyBlocked}
                     disabledReason={
                       spotifyBlocked
-                        ? 'Available once Spotify is configured for this build.'
+                        ? 'Verfügbar, sobald Spotify für diesen Build eingerichtet ist.'
                         : undefined
                     }
                     onClaim={() => void onClaim(mission.id)}
@@ -166,8 +178,8 @@ export default function Credits() {
       {/* --- Ledger ------------------------------------------------------------ */}
       <View style={styles.section}>
         <SectionHeader
-          title="ACTIVITY"
-          actionLabel={transactions.length > 0 ? 'PROFILE' : undefined}
+          title="AKTIVITÄT"
+          actionLabel={transactions.length > 0 ? 'PROFIL' : undefined}
           onAction={() => router.push('/(tabs)/profile')}
         />
 
@@ -180,8 +192,8 @@ export default function Credits() {
         ) : transactions.length === 0 ? (
           <EmptyState
             icon="clock"
-            title="No activity yet."
-            message="Complete your first mission to start your ledger."
+            title="Noch keine Aktivität."
+            message="Erledige deine erste Mission, dann beginnt dein Kontobuch."
           />
         ) : (
           <View>
@@ -196,7 +208,8 @@ export default function Credits() {
       </View>
 
       <Text variant="caption" tone="muted" align="center" style={styles.footnote}>
-        Credits have no cash value and cannot be bought, sold or transferred.
+        Credits haben keinen Geldwert und können nicht gekauft, verkauft oder übertragen
+        werden.
       </Text>
     </Screen>
   );
@@ -205,7 +218,6 @@ export default function Credits() {
 const styles = StyleSheet.create({
   content: { gap: spacing.xxl },
   head: { gap: spacing.sm },
-  heading: { letterSpacing: 3 },
   notices: { gap: spacing.md },
   balanceCard: { padding: spacing.lg, gap: spacing.lg },
   balanceSkeleton: { gap: spacing.base },

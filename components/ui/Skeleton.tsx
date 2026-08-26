@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 
 /**
  * Loading placeholder — a slow luminance breathe rather than a sliding shimmer, which
@@ -28,11 +28,11 @@ export function Skeleton({
   rounded?: keyof typeof radius;
   style?: StyleProp<ViewStyle>;
 }) {
-  const pulse = useSharedValue(0.45);
+  const pulse = useSharedValue(0.55);
 
   useEffect(() => {
     pulse.value = withRepeat(
-      withTiming(0.85, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+      withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }),
       -1,
       true,
     );
@@ -47,9 +47,9 @@ export function Skeleton({
           width: width ?? '100%',
           height,
           borderRadius: radius[rounded],
-          backgroundColor: palette.gunmetal,
+          backgroundColor: palette.paperSunk,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: alpha.hairline,
+          borderColor: palette.rule,
         },
         animatedStyle,
         style,

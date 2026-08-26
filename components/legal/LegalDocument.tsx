@@ -17,10 +17,10 @@ export type LegalSection = {
 };
 
 /**
- * Shared frame for the legal pages.
+ * Gemeinsamer Rahmen für die Rechtstexte.
  *
- * Long-form text gets a wider measure and looser leading than the rest of the app —
- * these are documents to be read, not interface.
+ * Fließtext bekommt hier mehr Zeilenhöhe und ein schmaleres Satzmaß als der Rest der
+ * App — das hier sind Dokumente zum Lesen, keine Bedienoberfläche.
  */
 export function LegalDocument({
   title,
@@ -46,10 +46,10 @@ export function LegalDocument({
   return (
     <Screen header={<ScreenHeader title={title} />} contentStyle={styles.content}>
       {showOperatorWarning && (
-        <Surface elevation="inset" style={styles.notice}>
-          <Icon name="alert" size={15} color={palette.warning} />
+        <Surface elevation="sunk" style={styles.notice}>
+          <Icon name="alert" size={16} color={palette.warning} />
           <View style={styles.noticeText}>
-            <Text variant="label" tone="secondary" uppercase>
+            <Text variant="label" tone="primary" uppercase>
               VOR VERÖFFENTLICHUNG AUSFÜLLEN
             </Text>
             <Text variant="caption" tone="muted">
@@ -62,8 +62,8 @@ export function LegalDocument({
       )}
 
       {notice && (
-        <Surface elevation="inset" style={styles.notice}>
-          <Icon name="info" size={15} color={palette.titanium} />
+        <Surface elevation="sunk" style={styles.notice}>
+          <Icon name="info" size={16} color={palette.accent} />
           <Text variant="caption" tone="muted" style={styles.noticeText}>
             {notice}
           </Text>
@@ -80,7 +80,7 @@ export function LegalDocument({
         <View key={section.heading} style={styles.section}>
           {index > 0 && <Hairline style={styles.rule} />}
 
-          <Text variant="label" tone="chrome" uppercase>
+          <Text variant="label" tone="accent" uppercase>
             {section.heading}
           </Text>
 
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     width: 3,
     height: 3,
     borderRadius: 2,
-    backgroundColor: palette.titanium,
+    backgroundColor: palette.accent,
     marginTop: 9,
   },
   bulletText: { flex: 1, lineHeight: 22 },

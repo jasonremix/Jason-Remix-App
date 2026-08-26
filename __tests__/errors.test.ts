@@ -3,24 +3,30 @@ import { logger, redact } from '@/lib/logger';
 
 describe('error wording', () => {
   it('gives every code member-safe copy', () => {
-    expect(messageForCode('INSUFFICIENT_CREDITS')).toBe('You do not have enough credits for this.');
+    expect(messageForCode('INSUFFICIENT_CREDITS')).toBe('Dafür reicht dein Guthaben nicht aus.');
     expect(messageForCode('OFFLINE')).toMatch(/offline/i);
-    expect(messageForCode('SERVER_ERROR')).toBe('Something went wrong.');
+    expect(messageForCode('SERVER_ERROR')).toBe('Da ist etwas schiefgelaufen.');
   });
 
   it('never surfaces a status code or internal detail to a member', () => {
     const error = fromApiPayload({ error: { code: 'SERVER_ERROR', message: 'SQLITE_CONSTRAINT' } }, 500);
-    expect(error.message).toBe('Something went wrong.');
+    expect(error.message).toBe('Da ist etwas schiefgelaufen.');
     expect(error.message).not.toContain('SQLITE');
   });
 
   it('does pass through validation copy, which is written for members', () => {
     const error = fromApiPayload(
-      { error: { code: 'BAD_REQUEST', message: 'Use at least 10 characters.', details: { password: 'Too short.' } } },
+      {
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'Verwende mindestens 10 Zeichen.',
+          details: { password: 'Zu kurz.' },
+        },
+      },
       400,
     );
-    expect(error.message).toBe('Use at least 10 characters.');
-    expect(error.details?.password).toBe('Too short.');
+    expect(error.message).toBe('Verwende mindestens 10 Zeichen.');
+    expect(error.details?.password).toBe('Zu kurz.');
   });
 
   it('falls back to the status when the payload has no code', () => {
@@ -42,7 +48,7 @@ describe('error wording', () => {
   });
 
   it('passes an AppError through unchanged', () => {
-    const original = new AppError('GIVEAWAY_CLOSED', 'This giveaway is closed.');
+    const original = new AppError('GIVEAWAY_CLOSED', 'Dieses Gewinnspiel ist beendet.');
     expect(toAppError(original)).toBe(original);
   });
 });
@@ -54,7 +60,7 @@ describe('log redaction', () => {
       refreshToken: 'another-secret',
       codeVerifier: 'pkce-verifier',
       password: 'hunter2',
-      username: 'demo_member',
+      username: 'demo_mitglied',
     }) as Record<string, unknown>;
 
     expect(result.accessToken).toBe('[redacted]');
@@ -62,7 +68,7 @@ describe('log redaction', () => {
     expect(result.codeVerifier).toBe('[redacted]');
     expect(result.password).toBe('[redacted]');
     // Non-sensitive fields survive, or the logs would be useless.
-    expect(result.username).toBe('demo_member');
+    expect(result.username).toBe('demo_mitglied');
   });
 
   it('masks a bearer header found inside a string', () => {
@@ -87,10 +93,10 @@ describe('log redaction', () => {
 
   it('recurses through ordinary keys and arrays', () => {
     const result = redact({
-      entries: [{ label: 'Daily check-in', accessToken: 'secret-value' }],
+      entries: [{ label: 'Täglicher Besuch', accessToken: 'secret-value' }],
     }) as { entries: Record<string, unknown>[] };
 
-    expect(result.entries[0].label).toBe('Daily check-in');
+    expect(result.entries[0].label).toBe('Täglicher Besuch');
     expect(result.entries[0].accessToken).toBe('[redacted]');
   });
 

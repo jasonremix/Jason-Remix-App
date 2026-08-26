@@ -1,14 +1,15 @@
 // Imported per weight rather than from the package root: the root re-exports every
-// weight and italic, which would pull roughly 6 MB of unused typefaces into the bundle.
-import { Inter_300Light } from '@expo-google-fonts/inter/300Light';
-import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
-import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
-import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
-import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
-import { Sora_300Light } from '@expo-google-fonts/sora/300Light';
-import { Sora_400Regular } from '@expo-google-fonts/sora/400Regular';
-import { Sora_500Medium } from '@expo-google-fonts/sora/500Medium';
-import { Sora_600SemiBold } from '@expo-google-fonts/sora/600SemiBold';
+// weight and italic, which would pull several MB of unused typefaces into the bundle.
+import { Manrope_300Light } from '@expo-google-fonts/manrope/300Light';
+import { Manrope_400Regular } from '@expo-google-fonts/manrope/400Regular';
+import { Manrope_500Medium } from '@expo-google-fonts/manrope/500Medium';
+import { Manrope_600SemiBold } from '@expo-google-fonts/manrope/600SemiBold';
+import { Manrope_700Bold } from '@expo-google-fonts/manrope/700Bold';
+import { Manrope_800ExtraBold } from '@expo-google-fonts/manrope/800ExtraBold';
+import { Syne_500Medium } from '@expo-google-fonts/syne/500Medium';
+import { Syne_600SemiBold } from '@expo-google-fonts/syne/600SemiBold';
+import { Syne_700Bold } from '@expo-google-fonts/syne/700Bold';
+import { Syne_800ExtraBold } from '@expo-google-fonts/syne/800ExtraBold';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -20,6 +21,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BootScreen } from '@/components/system/BootScreen';
+import { VerificationLinkHandler } from '@/components/system/VerificationLinkHandler';
 import { CreditPulse } from '@/components/credits/CreditPulse';
 import { ToastHost } from '@/components/ui/ToastHost';
 import { palette } from '@/constants/theme';
@@ -45,19 +47,20 @@ export default function RootLayout() {
   const onboardingReady = useOnboardingStore((state) => state.ready);
 
   const [fontsLoaded, fontError] = useFonts({
-    Inter_300Light,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-    Sora_300Light,
-    Sora_400Regular,
-    Sora_500Medium,
-    Sora_600SemiBold,
+    Manrope_300Light,
+    Manrope_400Regular,
+    Manrope_500Medium,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+    Syne_500Medium,
+    Syne_600SemiBold,
+    Syne_700Bold,
+    Syne_800ExtraBold,
   });
 
   useEffect(() => {
-    void SystemUI.setBackgroundColorAsync(palette.black);
+    void SystemUI.setBackgroundColorAsync(palette.paper);
     installSessionExpiryHandler();
     void hydrateAuth();
     void hydrateOnboarding();
@@ -75,17 +78,17 @@ export default function RootLayout() {
   if (!assetsReady) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette.black }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette.paper }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
 
           <Stack
             screenOptions={{
               headerShown: false,
               animation: 'fade',
               animationDuration: 220,
-              contentStyle: { backgroundColor: palette.black },
+              contentStyle: { backgroundColor: palette.paper },
             }}
           >
             <Stack.Screen name="index" />
@@ -102,6 +105,7 @@ export default function RootLayout() {
 
           <CreditPulse />
           <ToastHost />
+          <VerificationLinkHandler />
 
           {/* The brand moment: holds over the app until state is ready, then dissolves. */}
           {!bootComplete && (

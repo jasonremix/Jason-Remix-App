@@ -1,5 +1,6 @@
 import type {
   AdminAuditResponse,
+  AdminEmailLogResponse,
   AdminDrawResponse,
   AdminUsersResponse,
   CatalogResponse,
@@ -10,9 +11,11 @@ import type {
   MeResponse,
   MissionsResponse,
   RedeemRewardResponse,
+  ResendVerificationResult,
   RewardsResponse,
   SessionPayload,
   SpotifyExchangeResponse,
+  VerificationState,
 } from '@/types/api';
 import type {
   Giveaway,
@@ -46,6 +49,14 @@ export interface Backend {
   deleteAccount(input: { password?: string }): Promise<void>;
   /** Exports everything held about the member (GDPR Art. 15/20). */
   exportData(): Promise<Record<string, unknown>>;
+
+  // --- Email confirmation -------------------------------------------------
+  /** The server's own answer, so a stale session cannot show the wrong state. */
+  verificationStatus(): Promise<VerificationState>;
+  /** Issues a fresh link, invalidating any earlier one. */
+  resendVerification(): Promise<ResendVerificationResult>;
+  /** Confirms an address from a token the app captured out of a deep link. */
+  verifyEmail(token: string): Promise<{ verified: boolean; alreadyVerified: boolean }>;
 
   // --- Catalog ------------------------------------------------------------
   getCatalog(): Promise<CatalogResponse>;
@@ -102,6 +113,8 @@ export interface Backend {
   adminDrawGiveaway(giveawayId: string): Promise<AdminDrawResponse>;
   adminSendPush(input: AdminPushInput): Promise<void>;
   adminAuditLog(cursor?: string): Promise<AdminAuditResponse>;
+  /** The email delivery log, so a claimed send can be checked. */
+  adminEmailLog(): Promise<AdminEmailLogResponse>;
 }
 
 export type RegisterInput = {

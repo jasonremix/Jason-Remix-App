@@ -9,14 +9,14 @@
 export type LevelDefinition = { level: number; threshold: number; title: string };
 
 export const LEVELS: readonly LevelDefinition[] = [
-  { level: 1, threshold: 0, title: 'LISTENER' },
+  { level: 1, threshold: 0, title: 'HÖRER' },
   { level: 2, threshold: 500, title: 'FOLLOWER' },
-  { level: 3, threshold: 1_500, title: 'SUPPORTER' },
+  { level: 3, threshold: 1_500, title: 'UNTERSTÜTZER' },
   { level: 4, threshold: 3_000, title: 'INSIDER' },
-  { level: 5, threshold: 5_000, title: 'COLLECTOR' },
-  { level: 6, threshold: 10_000, title: 'CURATOR' },
+  { level: 5, threshold: 5_000, title: 'SAMMLER' },
+  { level: 6, threshold: 10_000, title: 'KURATOR' },
   { level: 7, threshold: 20_000, title: 'VIP' },
-  { level: 8, threshold: 50_000, title: 'LEGEND' },
+  { level: 8, threshold: 50_000, title: 'LEGENDE' },
 ];
 
 export type LevelProgress = {

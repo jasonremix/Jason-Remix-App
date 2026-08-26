@@ -60,7 +60,7 @@ type ConnectionRow = {
 
 function requireConfigured(): void {
   if (!isSpotifyConfigured) {
-    throw new ApiError('SPOTIFY_NOT_CONFIGURED', 'Spotify is not available yet.');
+    throw new ApiError('SPOTIFY_NOT_CONFIGURED', 'Spotify steht noch nicht zur Verfügung.');
   }
 }
 
@@ -121,7 +121,7 @@ export async function exchangeCode(
   const tokens = await postToken(body);
   if (!tokens.refresh_token) {
     // Without a refresh token the connection would silently die within the hour.
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
   }
 
   const profile = await fetchProfile(tokens.access_token);
@@ -167,7 +167,7 @@ async function postToken(body: URLSearchParams): Promise<TokenResponse> {
   if (!response.ok) {
     // The response body can contain the submitted parameters — never log or forward it.
     logger.warn('spotify token exchange rejected', { status: response.status });
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
   }
 
   return (await response.json()) as TokenResponse;
@@ -184,7 +184,7 @@ async function accessTokenFor(userId: string): Promise<string> {
   const row = db.prepare(`SELECT * FROM spotify_connections WHERE user_id = ?`).get(userId) as
     | ConnectionRow
     | undefined;
-  if (!row) throw new ApiError('BAD_REQUEST', 'Connect Spotify first.');
+  if (!row) throw new ApiError('BAD_REQUEST', 'Verbinde zuerst Spotify.');
 
   const expiresAt = new Date(row.access_token_expires_at).getTime();
   if (Number.isFinite(expiresAt) && Date.now() < expiresAt - 60_000) {
@@ -219,7 +219,7 @@ async function accessTokenFor(userId: string): Promise<string> {
     return tokens.access_token;
   } catch {
     disconnect(userId);
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Your Spotify connection needs to be renewed.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Deine Spotify-Verbindung muss erneuert werden.');
   }
 }
 
@@ -237,17 +237,17 @@ async function spotifyGet<T>(userId: string, path: string): Promise<T | null> {
   if (response.status === 429) {
     const retryAfter = Number(response.headers.get('retry-after') ?? '5');
     logger.warn('spotify rate limited', { retryAfter });
-    throw new ApiError('RATE_LIMITED', 'Too many requests to Spotify. Please wait a moment.');
+    throw new ApiError('RATE_LIMITED', 'Zu viele Anfragen an Spotify. Bitte warte einen Moment.');
   }
 
   if (response.status === 401) {
     disconnect(userId);
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Your Spotify connection needs to be renewed.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Deine Spotify-Verbindung muss erneuert werden.');
   }
 
   if (!response.ok) {
     logger.warn('spotify request failed', { status: response.status, path });
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify could not be reached right now.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify ist gerade nicht erreichbar.');
   }
 
   return (await response.json()) as T;
@@ -276,7 +276,7 @@ async function fetchProfile(accessToken: string): Promise<SpotifyProfile> {
     headers: { authorization: `Bearer ${accessToken}` },
   });
   if (!response.ok) {
-    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+    throw new ApiError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
   }
   return (await response.json()) as SpotifyProfile;
 }

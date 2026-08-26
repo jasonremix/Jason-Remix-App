@@ -17,22 +17,22 @@ import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { brand } from '@/constants/brand';
 import { config } from '@/constants/config';
-import { alpha, layout, palette, spacing } from '@/constants/theme';
+import { layout, palette, spacing } from '@/constants/theme';
 import { useOnboardingStore } from '@/store/onboardingStore';
 
 /**
- * The five-panel introduction.
+ * Die Einführung in fünf Tafeln.
  *
- * A paged scroll rather than five routes: the horizontal movement is the whole point,
- * and the panels share one persistent brand mark that never re-mounts.
+ * Ein seitlicher Pager statt fünf Routen: die Bewegung ist der Punkt, und die Tafeln
+ * teilen sich eine Markenzeile, die nie neu aufgebaut wird.
  */
 
 type Panel = {
   eyebrow?: string;
-  /** Rendered as the wordmark instead of plain type. */
+  /** Wird als Wortmarke gesetzt statt als normale Schrift. */
   wordmark?: boolean;
   title?: string;
-  /** Stacked list of large single words. */
+  /** Gestapelte Liste großer Einzelwörter. */
   words?: string[];
   body?: string;
 };
@@ -43,24 +43,24 @@ const PANELS: Panel[] = [
     body: brand.tagline,
   },
   {
-    eyebrow: 'WHAT THIS IS',
-    words: ['LISTEN', 'DISCOVER', 'COLLECT', 'WIN'],
+    eyebrow: 'DARUM GEHT ES',
+    words: ['HÖREN', 'ENTDECKEN', 'SAMMELN', 'GEWINNEN'],
   },
   {
-    eyebrow: 'STEP ONE',
-    title: 'CREATE YOUR ACCOUNT',
-    body: 'Your credits, rewards and giveaway entries are tied to your member account and follow you across devices.',
+    eyebrow: 'SCHRITT EINS',
+    title: 'Konto anlegen',
+    body: 'Deine Credits, Prämien und Gewinnspiel-Lose hängen an deinem Mitgliedskonto und begleiten dich über alle Geräte hinweg.',
   },
   {
-    eyebrow: 'STEP TWO',
-    title: 'CONNECT SPOTIFY',
+    eyebrow: 'SCHRITT ZWEI',
+    title: 'Spotify verbinden',
     body: config.isSpotifyConfigured
-      ? 'Linking Spotify personalises your experience and earns your first credits. You choose exactly what is shared, and you can disconnect at any time.'
-      : 'Spotify linking becomes available once credentials are configured for this build. Everything else works today.',
+      ? 'Mit Spotify wird die App persönlicher — und du verdienst deine ersten Credits. Du entscheidest genau, was geteilt wird, und kannst die Verbindung jederzeit trennen.'
+      : 'Die Spotify-Verbindung steht bereit, sobald für diesen Build Zugangsdaten hinterlegt sind. Alles andere funktioniert schon heute.',
   },
   {
-    eyebrow: 'READY',
-    title: 'WELCOME TO THE JASON REMIX EXPERIENCE',
+    eyebrow: 'BEREIT',
+    title: 'Willkommen bei Jason Remix',
     body: brand.taglineAlt,
   },
 ];
@@ -102,10 +102,10 @@ export default function Onboarding() {
           onPress={() => void finish('/(auth)/login')}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Skip introduction"
+          accessibilityLabel="Einführung überspringen"
         >
           <Text variant="labelWide" tone="muted" uppercase>
-            SKIP
+            ÜBERSPRINGEN
           </Text>
         </Pressable>
       </View>
@@ -131,14 +131,25 @@ export default function Onboarding() {
               <Wordmark size="hero" />
             ) : panel.words ? (
               <View style={styles.words}>
-                {panel.words.map((word) => (
-                  <Text key={word} variant="hero" tone="primary" style={styles.word}>
+                {panel.words.map((word, wordIndex, all) => (
+                  // Das letzte Wort ist die Pointe — es bekommt als einziges Pigment.
+                  // Eine Zeile pro Wort: „ENTDECKEN“ ist breit, und ein umgebrochenes
+                  // Wort würde den Stapel als Liste unlesbar machen.
+                  <Text
+                    key={word}
+                    variant="hero"
+                    tone={wordIndex === all.length - 1 ? 'accent' : 'primary'}
+                    style={styles.word}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    maxFontSizeMultiplier={1.1}
+                  >
                     {word}
                   </Text>
                 ))}
               </View>
             ) : (
-              <Text variant="display" tone="primary" style={styles.title}>
+              <Text variant="display" tone="primary">
                 {panel.title}
               </Text>
             )}
@@ -165,20 +176,20 @@ export default function Onboarding() {
         {isLast ? (
           <View style={styles.actions}>
             <Button
-              label="CREATE ACCOUNT"
+              label="KONTO ANLEGEN"
               variant="primary"
               fullWidth
               onPress={() => void finish('/(auth)/register')}
             />
             <Button
-              label="I ALREADY HAVE AN ACCOUNT"
+              label="ICH HABE SCHON EIN KONTO"
               variant="ghost"
               fullWidth
               onPress={() => void finish('/(auth)/login')}
             />
           </View>
         ) : (
-          <Button label="CONTINUE" variant="secondary" fullWidth onPress={advance} />
+          <Button label="WEITER" variant="secondary" fullWidth onPress={advance} />
         )}
       </View>
     </View>
@@ -186,7 +197,7 @@ export default function Onboarding() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.obsidian },
+  root: { flex: 1, backgroundColor: palette.paper },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -201,9 +212,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.gutter,
     gap: spacing.xl,
   },
-  words: { gap: spacing.xs },
-  word: { letterSpacing: 4 },
-  title: { letterSpacing: 1.6 },
+  words: { gap: spacing.xxs },
+  // Kleiner als `hero`, damit das längste deutsche Wort auch auf einem schmalen
+  // Gerät in eine Zeile passt.
+  word: { fontSize: 30, lineHeight: 33, letterSpacing: -1 },
   body: { maxWidth: 380 },
   footer: {
     paddingHorizontal: layout.gutter,
@@ -213,10 +225,9 @@ const styles = StyleSheet.create({
   indicator: { flexDirection: 'row', gap: spacing.sm },
   segment: {
     flex: 1,
-    height: 1.5,
-    backgroundColor: alpha.edge,
-    borderRadius: 1,
+    height: 2,
+    backgroundColor: palette.rule,
   },
-  segmentActive: { backgroundColor: palette.chrome },
+  segmentActive: { backgroundColor: palette.accent },
   actions: { gap: spacing.sm },
 });

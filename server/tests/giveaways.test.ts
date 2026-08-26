@@ -147,7 +147,7 @@ describe('giveaway draw', () => {
       .set({ ...auth(admin), 'idempotency-key': idempotencyKey() })
       .expect(400);
 
-    expect(response.body.error.message).toMatch(/close the giveaway/i);
+    expect(response.body.error.message).toMatch(/Schließe das Gewinnspiel/i);
   });
 
   it('selects winners from the recorded entries and records the draw', async () => {
@@ -194,7 +194,7 @@ describe('giveaway draw', () => {
     db.prepare(`UPDATE giveaways SET status = 'CLOSED' WHERE id = 'gwy-open'`).run();
     drawGiveaway('gwy-open', admin.userId);
 
-    expect(() => drawGiveaway('gwy-open', admin.userId)).toThrowError(/already been drawn/i);
+    expect(() => drawGiveaway('gwy-open', admin.userId)).toThrowError(/bereits gezogen/i);
   });
 
   it('never gives one member two prizes', async () => {

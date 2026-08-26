@@ -1,0 +1,25 @@
+# What EAS does NOT need to upload when building the app.
+#
+# Without this file EAS uploads everything git tracks, which here would include the
+# whole API server — several hundred files that play no part in a mobile build and
+# only make every upload slower.
+
+# The API server is deployed separately (see server/README.md).
+server/
+
+# Build output and local artefacts.
+dist/
+web-build/
+*.tsbuildinfo
+
+# Tests and CI never run inside the build.
+__tests__/
+.github/
+
+# Local tooling.
+scripts/
+docker-compose.yml
+
+# Documentation.
+*.md
+!README.md

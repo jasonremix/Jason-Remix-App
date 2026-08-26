@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { AchievementBadge } from '@/components/profile/AchievementBadge';
+import { RequireSession } from '@/components/system/RequireSession';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -12,15 +13,23 @@ import { spacing } from '@/constants/theme';
 import { useMe } from '@/hooks/useMe';
 import { formatDateTime } from '@/lib/format';
 
-/** The full badge collection: unlocked plaques first, then what is still to come. */
+/** Die vollständige Sammlung: freigeschaltete Plaketten zuerst, dann was noch aussteht. */
 export default function Achievements() {
+  return (
+    <RequireSession>
+      <AchievementsContent />
+    </RequireSession>
+  );
+}
+
+function AchievementsContent() {
   const me = useMe();
   const achievements = me.data?.achievements ?? [];
   const unlocked = achievements.filter((achievement) => achievement.unlockedAt);
   const locked = achievements.filter((achievement) => !achievement.unlockedAt);
 
   return (
-    <Screen header={<ScreenHeader title="ACHIEVEMENTS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="ERFOLGE" />} contentStyle={styles.content}>
       {me.isPending ? (
         <View style={styles.grid}>
           {Array.from({ length: 6 }, (_, index) => (
@@ -28,14 +37,21 @@ export default function Achievements() {
           ))}
         </View>
       ) : achievements.length === 0 ? (
-        <EmptyState icon="star" title="No achievements yet." message="They unlock as you take part." />
+        <EmptyState
+          icon="star"
+          title="Noch keine Erfolge."
+          message="Sie schalten sich frei, während du mitmachst."
+        />
       ) : (
         <>
           <View style={styles.section}>
-            <SectionHeader title="UNLOCKED" meta={`${unlocked.length} / ${achievements.length}`} />
+            <SectionHeader
+              title="FREIGESCHALTET"
+              meta={`${unlocked.length} / ${achievements.length}`}
+            />
             {unlocked.length === 0 ? (
               <Text variant="bodySmall" tone="muted">
-                Nothing unlocked yet — your first mission will change that.
+                Noch nichts freigeschaltet — deine erste Mission ändert das.
               </Text>
             ) : (
               <View style={styles.grid}>
@@ -49,7 +65,7 @@ export default function Achievements() {
           <Hairline />
 
           <View style={styles.section}>
-            <SectionHeader title="STILL TO EARN" />
+            <SectionHeader title="NOCH ZU HOLEN" />
             <View style={styles.grid}>
               {locked.map((achievement) => (
                 <AchievementBadge key={achievement.id} achievement={achievement} />
@@ -58,13 +74,13 @@ export default function Achievements() {
           </View>
 
           <View style={styles.section}>
-            <SectionHeader title="DETAIL" />
+            <SectionHeader title="IM EINZELNEN" />
             <View>
               {achievements.map((achievement, index) => (
                 <View key={achievement.id}>
                   <View style={styles.detailRow}>
                     <View style={styles.detailText}>
-                      <Text variant="label" tone={achievement.unlockedAt ? 'chrome' : 'muted'} uppercase>
+                      <Text variant="label" tone={achievement.unlockedAt ? 'accent' : 'muted'} uppercase>
                         {achievement.title}
                       </Text>
                       <Text variant="bodySmall" tone="muted">

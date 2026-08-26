@@ -16,16 +16,26 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Hairline, Surface } from '@/components/ui/Surface';
 import { EmptyState } from '@/components/ui/States';
 import { Text } from '@/components/ui/Text';
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 import { useCredits } from '@/hooks/useCredits';
 import { useEnterGiveaway, useGiveaways } from '@/hooks/useGiveaways';
 import { formatCredits, formatDateTime, formatTimeRemaining } from '@/lib/format';
 
+/** Der Server liefert den Status englisch; angezeigt wird er deutsch. */
+const GIVEAWAY_STATUS: Record<string, string> = {
+  DRAFT: 'ENTWURF',
+  SCHEDULED: 'GEPLANT',
+  OPEN: 'OFFEN',
+  CLOSED: 'GESCHLOSSEN',
+  DRAWN: 'GEZOGEN',
+  CANCELLED: 'ABGESAGT',
+};
+
 /**
- * A single giveaway.
+ * Ein einzelnes Gewinnspiel.
  *
- * Entering always passes through the confirmation dialog with the exact cost spelled
- * out. The entry itself is created server-side; nothing about the outcome is decided here.
+ * Die Teilnahme läuft immer über die Rückfrage, in der die Kosten genau stehen. Das Los
+ * selbst entsteht auf dem Server; über den Ausgang wird hier nichts entschieden.
  */
 export default function GiveawayDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -59,7 +69,7 @@ export default function GiveawayDetail() {
 
   if (giveaways.isPending) {
     return (
-      <Screen header={<ScreenHeader title="GIVEAWAY" />} contentStyle={styles.content}>
+      <Screen header={<ScreenHeader title="GEWINNSPIEL" />} contentStyle={styles.content}>
         <Skeleton height={220} rounded="lg" />
         <Skeleton height={22} width="70%" />
         <Skeleton height={12} width="45%" />
@@ -69,12 +79,12 @@ export default function GiveawayDetail() {
 
   if (!giveaway) {
     return (
-      <Screen header={<ScreenHeader title="GIVEAWAY" />}>
+      <Screen header={<ScreenHeader title="GEWINNSPIEL" />}>
         <EmptyState
           icon="ticket"
-          title="Giveaway not found."
-          message="It may have closed or been withdrawn."
-          actionLabel="ALL GIVEAWAYS"
+          title="Gewinnspiel nicht gefunden."
+          message="Möglicherweise ist es beendet oder wurde zurückgezogen."
+          actionLabel="ALLE GEWINNSPIELE"
           onAction={() => router.replace('/giveaways')}
         />
       </Screen>
@@ -85,23 +95,40 @@ export default function GiveawayDetail() {
     giveaway.totalEntries === null ? null : giveaway.entriesUsed / Math.max(1, giveaway.totalEntries);
 
   return (
-    <Screen header={<ScreenHeader title="GIVEAWAY" />} contentStyle={styles.content} tabBarInset={false}>
+    <Screen
+      header={<ScreenHeader title="GEWINNSPIEL" />}
+      contentStyle={styles.content}
+      tabBarInset={false}
+    >
       <CoverArt uri={giveaway.imageUrl} title={giveaway.title} showTitle={false} rounded="lg" />
 
       <View style={styles.tags}>
         <Chip
-          label={giveaway.status === 'OPEN' ? formatTimeRemaining(giveaway.endsAt) : giveaway.status}
+          label={
+            giveaway.status === 'OPEN'
+              ? formatTimeRemaining(giveaway.endsAt)
+              : (GIVEAWAY_STATUS[giveaway.status] ?? giveaway.status)
+          }
           tone={giveaway.status === 'OPEN' ? 'active' : 'muted'}
         />
-        <Chip label={giveaway.winnerCount === 1 ? '1 WINNER' : `${giveaway.winnerCount} WINNERS`} />
+        <Chip
+          label={
+            giveaway.winnerCount === 1
+              ? '1 GEWINNER'
+              : `${giveaway.winnerCount} GEWINNER`
+          }
+        />
         {giveaway.myEntries > 0 && (
-          <Chip label={`${giveaway.myEntries} ${giveaway.myEntries === 1 ? 'ENTRY' : 'ENTRIES'}`} tone="success" />
+          <Chip
+            label={`${giveaway.myEntries} ${giveaway.myEntries === 1 ? 'LOS' : 'LOSE'}`}
+            tone="success"
+          />
         )}
       </View>
 
       <View style={styles.titleBlock}>
-        <Text variant="display" tone="primary" style={styles.title}>
-          {giveaway.title.toLocaleUpperCase('en-US')}
+        <Text variant="display" tone="primary">
+          {giveaway.title}
         </Text>
         {giveaway.subtitle && (
           <Text variant="labelWide" tone="tertiary" uppercase>
@@ -116,10 +143,10 @@ export default function GiveawayDetail() {
 
       {filled !== null && (
         <View style={styles.progress}>
-          <ProgressBar progress={filled} accessibilityLabel="Entries taken" />
+          <ProgressBar progress={filled} accessibilityLabel="Vergebene Lose" />
           <Text variant="caption" tone="muted">
-            {giveaway.entriesUsed.toLocaleString('en-US')} of{' '}
-            {(giveaway.totalEntries ?? 0).toLocaleString('en-US')} entries taken
+            {formatCredits(giveaway.entriesUsed)} von{' '}
+            {formatCredits(giveaway.totalEntries ?? 0)} Losen vergeben
           </Text>
         </View>
       )}
@@ -129,10 +156,10 @@ export default function GiveawayDetail() {
         <Surface style={styles.entryCard}>
           <View style={styles.entryHead}>
             <Text variant="labelWide" tone="muted" uppercase>
-              ENTRIES
+              LOSE
             </Text>
             <Text variant="caption" tone="muted">
-              {remainingForMe} of {giveaway.maxEntriesPerUser} remaining for you
+              Noch {remainingForMe} von {giveaway.maxEntriesPerUser} für dich
             </Text>
           </View>
 
@@ -141,21 +168,21 @@ export default function GiveawayDetail() {
               icon="minus"
               disabled={entryCount <= 1}
               onPress={() => setEntryCount((value) => Math.max(1, value - 1))}
-              label="Fewer entries"
+              label="Weniger Lose"
             />
             <View style={styles.stepperValue}>
               <Text variant="title" tone="primary" style={styles.stepperNumber}>
                 {entryCount}
               </Text>
               <Text variant="labelWide" tone="muted" uppercase>
-                {entryCount === 1 ? 'ENTRY' : 'ENTRIES'}
+                {entryCount === 1 ? 'LOS' : 'LOSE'}
               </Text>
             </View>
             <Stepper
               icon="plus"
               disabled={entryCount >= remainingForMe}
               onPress={() => setEntryCount((value) => Math.min(remainingForMe, value + 1))}
-              label="More entries"
+              label="Mehr Lose"
             />
           </View>
 
@@ -163,7 +190,7 @@ export default function GiveawayDetail() {
 
           <View style={styles.costRow}>
             <Text variant="labelWide" tone="muted" uppercase>
-              TOTAL COST
+              GESAMTKOSTEN
             </Text>
             <CreditPill amount={cost} />
           </View>
@@ -171,10 +198,10 @@ export default function GiveawayDetail() {
           <Button
             label={
               remainingForMe <= 0
-                ? 'ENTRY LIMIT REACHED'
+                ? 'LOS-LIMIT ERREICHT'
                 : !affordable
-                  ? 'NOT ENOUGH CREDITS'
-                  : 'ENTER GIVEAWAY'
+                  ? 'GUTHABEN REICHT NICHT'
+                  : 'JETZT TEILNEHMEN'
             }
             variant="primary"
             fullWidth
@@ -184,27 +211,27 @@ export default function GiveawayDetail() {
           />
 
           <Text variant="caption" tone="muted">
-            Your balance: {formatCredits(balance)} credits
+            Dein Guthaben: {formatCredits(balance)} Credits
           </Text>
         </Surface>
       )}
 
       {/* --- Terms -------------------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="CONDITIONS" />
+        <SectionHeader title="BEDINGUNGEN" />
         <Text variant="bodySmall" tone="tertiary">
           {giveaway.terms}
         </Text>
         <View style={styles.dates}>
           <Text variant="caption" tone="muted">
-            Opens {formatDateTime(giveaway.startsAt)}
+            Beginn {formatDateTime(giveaway.startsAt)}
           </Text>
           <Text variant="caption" tone="muted">
-            Closes {formatDateTime(giveaway.endsAt)}
+            Ende {formatDateTime(giveaway.endsAt)}
           </Text>
         </View>
         <Button
-          label="FULL GIVEAWAY TERMS"
+          label="VOLLSTÄNDIGE TEILNAHMEBEDINGUNGEN"
           variant="ghost"
           size="sm"
           icon="chevron-right"
@@ -215,11 +242,11 @@ export default function GiveawayDetail() {
 
       <ConfirmDialog
         visible={confirming}
-        eyebrow="CONFIRM ENTRY"
+        eyebrow="TEILNAHME BESTÄTIGEN"
         title={giveaway.title}
-        message={`You are entering ${entryCount === 1 ? 'once' : `${entryCount} times`}. Entries cannot be withdrawn once the draw has taken place.`}
-        detail={`You are spending ${formatCredits(cost)} credits for this giveaway. Your balance afterwards will be ${formatCredits(Math.max(0, balance - cost))}.`}
-        confirmLabel="CONFIRM"
+        message={`Du nimmst mit ${entryCount === 1 ? 'einem Los' : `${entryCount} Losen`} teil. Nach der Ziehung lassen sich Lose nicht mehr zurückziehen.`}
+        detail={`Du gibst dafür ${formatCredits(cost)} Credits aus. Danach hast du noch ${formatCredits(Math.max(0, balance - cost))}.`}
+        confirmLabel="TEILNEHMEN"
         loading={enter.isPending}
         onConfirm={() => void submit()}
         onCancel={() => setConfirming(false)}
@@ -248,7 +275,7 @@ function Stepper({
       accessibilityState={{ disabled }}
       style={[styles.stepperButton, disabled && styles.stepperDisabled]}
     >
-      <Icon name={icon} size={16} color={disabled ? palette.titanium : palette.chrome} />
+      <Icon name={icon} size={16} color={disabled ? palette.faint : palette.accent} />
     </Pressable>
   );
 }
@@ -257,7 +284,6 @@ const styles = StyleSheet.create({
   content: { gap: spacing.xl, paddingTop: spacing.lg },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   titleBlock: { gap: spacing.sm },
-  title: { letterSpacing: 2 },
   progress: { gap: spacing.sm },
   entryCard: { padding: spacing.lg, gap: spacing.lg },
   entryHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -268,9 +294,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.gunmetal,
+    backgroundColor: palette.paperSunk,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edge,
+    borderColor: palette.rule,
   },
   stepperDisabled: { opacity: 0.45 },
   stepperValue: { alignItems: 'center', gap: spacing.xs },

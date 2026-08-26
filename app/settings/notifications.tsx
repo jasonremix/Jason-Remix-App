@@ -16,13 +16,16 @@ import { notificationsService, type PushPermission } from '@/services/notificati
 import { useUiStore } from '@/store/uiStore';
 
 const CATEGORIES = [
-  { title: 'NEW RELEASE', example: '“Zeitgeist is available now.”' },
-  { title: 'NEW GIVEAWAY', example: '“A new giveaway has started.”' },
-  { title: 'REWARD UNLOCKED', example: '“You have enough credits for a new reward.”' },
-  { title: 'SPECIAL DROP', example: '“An exclusive Jason Remix drop is available.”' },
+  { title: 'NEUE VERÖFFENTLICHUNG', example: '„Zeitgeist ist jetzt verfügbar.“' },
+  { title: 'NEUES GEWINNSPIEL', example: '„Ein neues Gewinnspiel hat begonnen.“' },
+  { title: 'PRÄMIE FREIGESCHALTET', example: '„Dein Guthaben reicht für eine neue Prämie.“' },
+  { title: 'SPECIAL DROP', example: '„Ein exklusiver Jason-Remix-Drop ist da.“' },
 ];
 
-/** Push preferences. Opt-in, with the system permission state shown honestly. */
+/**
+ * Push-Einstellungen. Standardmäßig aus, und der Systemstatus wird ehrlich angezeigt
+ * statt beschönigt.
+ */
 export default function NotificationSettings() {
   const me = useMe();
   const showToast = useUiStore((state) => state.showToast);
@@ -30,9 +33,9 @@ export default function NotificationSettings() {
   const [permission, setPermission] = useState<PushPermission>('undetermined');
   const [busy, setBusy] = useState(false);
   /**
-   * Set only while a toggle is in flight, so the switch responds immediately without
-   * the server value being mirrored into local state — once the refetch lands, the
-   * server's answer is what shows.
+   * Nur gesetzt, solange ein Umschalten läuft: der Schalter reagiert sofort, ohne dass
+   * der Serverwert dauerhaft in lokalen Zustand kopiert wird — sobald neu geladen ist,
+   * zählt wieder die Antwort des Servers.
    */
   const [optimistic, setOptimistic] = useState<boolean | null>(null);
 
@@ -52,7 +55,7 @@ export default function NotificationSettings() {
           setPermission(result);
           setOptimistic(result === 'granted');
           if (result !== 'granted') {
-            showToast('NOTIFICATIONS ARE BLOCKED IN SYSTEM SETTINGS', 'neutral');
+            showToast('BENACHRICHTIGUNGEN SIND IN DEN SYSTEMEINSTELLUNGEN GESPERRT', 'neutral');
           }
         } else {
           await notificationsService.disable();
@@ -61,7 +64,7 @@ export default function NotificationSettings() {
       } catch (error) {
         showToast(toAppError(error).message, 'negative');
       } finally {
-        // Hand control back to the server value now that it has been refetched.
+        // Zurück an den Serverwert, der inzwischen neu geladen wurde.
         setOptimistic(null);
         setBusy(false);
       }
@@ -70,26 +73,27 @@ export default function NotificationSettings() {
   );
 
   return (
-    <Screen header={<ScreenHeader title="NOTIFICATIONS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="BENACHRICHTIGUNGEN" />} contentStyle={styles.content}>
       <DemoBanner />
 
       <Surface style={styles.card}>
         <View style={styles.toggleRow}>
           <View style={styles.toggleText}>
             <Text variant="heading" tone="primary">
-              Push notifications
+              Push-Benachrichtigungen
             </Text>
             <Text variant="bodySmall" tone="muted">
-              Releases, giveaways and drops. Off by default — you decide.
+              Veröffentlichungen, Gewinnspiele und Drops. Standardmäßig aus — du
+              entscheidest.
             </Text>
           </View>
           <Switch
             value={enabled}
             onValueChange={(next) => void toggle(next)}
             disabled={busy}
-            trackColor={{ false: palette.steel, true: palette.brushed }}
-            thumbColor={enabled ? palette.offWhite : palette.titanium}
-            ios_backgroundColor={palette.steel}
+            trackColor={{ false: palette.ruleStrong, true: palette.inkSoft }}
+            thumbColor={enabled ? palette.ink : palette.faint}
+            ios_backgroundColor={palette.ruleStrong}
           />
         </View>
 
@@ -97,10 +101,11 @@ export default function NotificationSettings() {
           <>
             <Hairline style={styles.divider} />
             <Text variant="bodySmall" tone="muted">
-              Notifications are turned off for this app in your device settings.
+              Benachrichtigungen sind für diese App in deinen Geräteeinstellungen
+              deaktiviert.
             </Text>
             <Button
-              label="OPEN SYSTEM SETTINGS"
+              label="SYSTEMEINSTELLUNGEN ÖFFNEN"
               variant="secondary"
               size="sm"
               icon="external"
@@ -111,7 +116,7 @@ export default function NotificationSettings() {
       </Surface>
 
       <View style={styles.section}>
-        <SectionHeader title="WHAT YOU WOULD RECEIVE" />
+        <SectionHeader title="DAS WÜRDEST DU BEKOMMEN" />
         <View>
           {CATEGORIES.map((category, index) => (
             <View key={category.title}>
@@ -123,8 +128,9 @@ export default function NotificationSettings() {
       </View>
 
       <Text variant="caption" tone="muted">
-        Notification tokens are stored only while notifications are switched on and are
-        deleted when you turn them off or delete your account.
+        Benachrichtigungs-Tokens werden nur gespeichert, solange Benachrichtigungen
+        eingeschaltet sind, und gelöscht, sobald du sie ausschaltest oder dein Konto
+        löschst.
       </Text>
     </Screen>
   );

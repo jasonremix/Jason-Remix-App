@@ -10,10 +10,10 @@ import { formatCooldown } from '@/lib/format';
 import type { Mission } from '@/types/models';
 
 /**
- * One mission.
+ * Eine Mission.
  *
- * The claim button is the only affordance; whether a claim is actually allowed is
- * decided by the server, so a stale row simply fails cleanly rather than paying out.
+ * Der Abholen-Button ist die einzige Aktion; ob eine Gutschrift zulässig ist, entscheidet
+ * der Server — eine veraltete Zeile scheitert also sauber, statt auszuzahlen.
  */
 export function MissionRow({
   mission,
@@ -34,7 +34,7 @@ export function MissionRow({
     <View style={styles.root}>
       <View style={styles.head}>
         <View style={styles.text}>
-          <Text variant="label" tone={claimable ? 'chrome' : 'tertiary'} uppercase>
+          <Text variant="heading" tone={claimable ? 'primary' : 'tertiary'}>
             {mission.title}
           </Text>
           <Text variant="bodySmall" tone="muted">
@@ -47,18 +47,18 @@ export function MissionRow({
       <View style={styles.foot}>
         {mission.status === 'COMPLETED' ? (
           <View style={styles.done}>
-            <Icon name="check" size={14} color={palette.success} strokeWidth={1.4} />
+            <Icon name="check" size={15} color={palette.success} strokeWidth={2} />
             <Text variant="labelWide" tone="muted" uppercase>
-              COMPLETED
+              ERLEDIGT
             </Text>
           </View>
         ) : mission.status === 'COOLDOWN' && mission.availableAt ? (
           <Chip label={formatCooldown(mission.availableAt)} tone="muted" />
         ) : mission.status === 'EXPIRED' ? (
-          <Chip label="ENDED" tone="muted" />
+          <Chip label="BEENDET" tone="muted" />
         ) : (
           <Button
-            label="CLAIM"
+            label="ABHOLEN"
             size="sm"
             variant={claimable ? 'primary' : 'secondary'}
             onPress={onClaim}

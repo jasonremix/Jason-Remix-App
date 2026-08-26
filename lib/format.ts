@@ -1,19 +1,19 @@
 import { brand } from '@/constants/brand';
 
-/** Number and date formatting. German locale for dates, grouped digits for credits. */
+/** Zahlen- und Datumsformate. Durchgehend deutsches Format. */
 
-const creditFormatter = new Intl.NumberFormat('en-US');
+const creditFormatter = new Intl.NumberFormat('de-DE');
 
 export function formatCredits(amount: number): string {
   return creditFormatter.format(Math.trunc(amount));
 }
 
-/** `◈ 12,450` — the canonical way a balance is written anywhere in the app. */
+/** `◈ 12.450` — so wird ein Guthaben überall in der App geschrieben. */
 export function formatCreditsWithGlyph(amount: number): string {
   return `${brand.creditGlyph} ${formatCredits(amount)}`;
 }
 
-/** `+250` / `−1,000`. Uses a true minus sign so it aligns with the digits. */
+/** `+250` / `−1.000`. Echtes Minuszeichen, damit es mit den Ziffern fluchtet. */
 export function formatSignedCredits(amount: number): string {
   const sign = amount < 0 ? '−' : '+';
   return `${sign}${formatCredits(Math.abs(amount))}`;
@@ -48,44 +48,43 @@ export function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-/** `2 DAYS LEFT`, `4 HOURS LEFT`, `ENDED` — used on giveaway cards. */
+/** `NOCH 2 TAGE`, `NOCH 4 STUNDEN`, `BEENDET` — steht auf den Gewinnspiel-Karten. */
 export function formatTimeRemaining(endsAtIso: string, now: number = Date.now()): string {
   const remaining = new Date(endsAtIso).getTime() - now;
-  if (Number.isNaN(remaining) || remaining <= 0) return 'ENDED';
+  if (Number.isNaN(remaining) || remaining <= 0) return 'BEENDET';
 
   const minutes = Math.floor(remaining / 60_000);
-  if (minutes < 60) return `${Math.max(1, minutes)} MIN LEFT`;
+  if (minutes < 60) return `NOCH ${Math.max(1, minutes)} MIN`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 48) return `${hours} ${hours === 1 ? 'HOUR' : 'HOURS'} LEFT`;
+  if (hours < 48) return `NOCH ${hours} ${hours === 1 ? 'STUNDE' : 'STUNDEN'}`;
   const days = Math.floor(hours / 24);
-  return `${days} DAYS LEFT`;
+  return `NOCH ${days} TAGE`;
 }
 
-/** `READY IN 6H 12M` — mission cooldowns. */
+/** `WIEDER IN 6 STD 12 MIN` — Abklingzeit einer Mission. */
 export function formatCooldown(availableAtIso: string, now: number = Date.now()): string {
   const remaining = new Date(availableAtIso).getTime() - now;
-  if (Number.isNaN(remaining) || remaining <= 0) return 'READY';
+  if (Number.isNaN(remaining) || remaining <= 0) return 'BEREIT';
   const totalMinutes = Math.ceil(remaining / 60_000);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (hours === 0) return `READY IN ${minutes}M`;
-  return `READY IN ${hours}H ${minutes.toString().padStart(2, '0')}M`;
+  if (hours === 0) return `WIEDER IN ${minutes} MIN`;
+  return `WIEDER IN ${hours} STD ${minutes.toString().padStart(2, '0')} MIN`;
 }
 
 export function formatRelative(iso: string, now: number = Date.now()): string {
   const elapsed = now - new Date(iso).getTime();
   if (Number.isNaN(elapsed)) return '';
   const minutes = Math.floor(elapsed / 60_000);
-  if (minutes < 1) return 'JUST NOW';
-  if (minutes < 60) return `${minutes}M AGO`;
+  if (minutes < 1) return 'GERADE EBEN';
+  if (minutes < 60) return `VOR ${minutes} MIN`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}H AGO`;
+  if (hours < 24) return `VOR ${hours} STD`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}D AGO`;
+  if (days < 30) return `VOR ${days} TAGEN`;
   return formatReleaseDate(iso);
 }
 
-/** Letter-spaced brand rendering, e.g. `JASON REMIX`. */
 export function upper(value: string): string {
-  return value.toLocaleUpperCase('en-US');
+  return value.toLocaleUpperCase('de-DE');
 }

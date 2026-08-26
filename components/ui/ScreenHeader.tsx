@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { alpha, layout, palette, spacing } from '@/constants/theme';
+import { layout, palette, spacing } from '@/constants/theme';
 
 import { Icon } from './Icon';
 import { Text } from './Text';
@@ -31,14 +31,14 @@ export function ScreenHeader({
           onPress={onBack ?? (() => router.back())}
           hitSlop={14}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel="Zurück"
           style={styles.back}
         >
-          <Icon name="chevron-left" size={18} color={palette.brushed} />
+          <Icon name="chevron-left" size={20} color={palette.ink} />
         </Pressable>
 
         <View style={styles.titles}>
-          <Text variant="label" tone="secondary" uppercase numberOfLines={1}>
+          <Text variant="label" tone="primary" uppercase numberOfLines={1}>
             {title}
           </Text>
           {subtitle && (
@@ -50,7 +50,7 @@ export function ScreenHeader({
 
         {action ? (
           <Pressable onPress={action.onPress} hitSlop={14} accessibilityRole="button">
-            <Text variant="labelWide" tone="tertiary" uppercase>
+            <Text variant="labelWide" tone="accent" uppercase>
               {action.label}
             </Text>
           </Pressable>
@@ -65,7 +65,7 @@ export function ScreenHeader({
 }
 
 const styles = StyleSheet.create({
-  root: { backgroundColor: palette.black },
+  root: { backgroundColor: palette.paper },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -75,5 +75,5 @@ const styles = StyleSheet.create({
   },
   back: { width: 24, alignItems: 'flex-start' },
   titles: { flex: 1, alignItems: 'center', gap: 2 },
-  hairline: { height: StyleSheet.hairlineWidth, backgroundColor: alpha.hairline },
+  hairline: { height: StyleSheet.hairlineWidth, backgroundColor: palette.rule },
 });

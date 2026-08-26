@@ -31,7 +31,7 @@ export function LevelBar({
   return (
     <View style={styles.root}>
       <View style={styles.head}>
-        <Text variant="label" tone="chrome" uppercase>
+        <Text variant="label" tone="accent" uppercase>
           {formatLevel(level)}
         </Text>
         <Text variant="labelWide" tone="muted" uppercase>
@@ -43,8 +43,8 @@ export function LevelBar({
 
       <Text variant="caption" tone="muted">
         {remaining === null
-          ? `${formatCredits(lifetimeEarned)} credits earned — highest level reached`
-          : `${formatCredits(remaining)} more earned credits to ${formatLevel(level + 1)}`}
+          ? `${formatCredits(lifetimeEarned)} Credits verdient — höchstes Level erreicht`
+          : `Noch ${formatCredits(remaining)} verdiente Credits bis ${formatLevel(level + 1)}`}
       </Text>
     </View>
   );

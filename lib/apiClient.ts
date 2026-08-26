@@ -45,7 +45,7 @@ export function createIdempotencyKey(): string {
 function requireBaseUrl(): string {
   if (!config.apiBaseUrl) {
     // Reaching here means a real network call was attempted while in demo mode.
-    throw new AppError('SERVER_ERROR', 'Something went wrong.');
+    throw new AppError('SERVER_ERROR', 'Da ist etwas schiefgelaufen.');
   }
   return config.apiBaseUrl.replace(/\/+$/, '');
 }
@@ -176,7 +176,7 @@ async function execute<T>(path: string, options: RequestOptions, isRetry: boolea
       if (refreshed) return execute<T>(path, options, true);
       await clearTokens();
       onSessionExpired?.();
-      throw new AppError('TOKEN_EXPIRED', 'Your session expired. Please sign in again.', {
+      throw new AppError('TOKEN_EXPIRED', 'Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.', {
         status: 401,
       });
     }

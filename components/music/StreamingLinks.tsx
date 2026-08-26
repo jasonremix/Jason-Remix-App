@@ -15,10 +15,10 @@ const PLATFORM_ICONS: Partial<Record<(typeof PLATFORM_ORDER)[number], IconName>>
 };
 
 /**
- * Outbound platform links.
+ * Links zu den Plattformen.
  *
- * The app never plays or stores audio itself: every listen happens on the platform that
- * licenses it, opened in that platform's own app or the browser.
+ * Die App spielt und speichert selbst kein Audio: Gehört wird immer auf der Plattform,
+ * die den Titel lizenziert — in deren App oder im Browser.
  */
 export function StreamingLinks({
   links,
@@ -41,12 +41,12 @@ export function StreamingLinks({
       {shown.map((platform) => (
         <Button
           key={platform}
-          label={layout === 'inline' ? PLATFORM_LABELS[platform] : `OPEN ON ${PLATFORM_LABELS[platform]}`}
+          label={layout === 'inline' ? PLATFORM_LABELS[platform] : `BEI ${PLATFORM_LABELS[platform]} ÖFFNEN`}
           variant="secondary"
           size={layout === 'inline' ? 'sm' : 'md'}
           icon={PLATFORM_ICONS[platform] ?? 'external'}
           onPress={() => openExternal(links[platform] as string)}
-          accessibilityHint={`Opens ${title} on ${PLATFORM_LABELS[platform]}`}
+          accessibilityHint={`Öffnet ${title} bei ${PLATFORM_LABELS[platform]}`}
           style={layout === 'inline' ? undefined : styles.stacked}
         />
       ))}

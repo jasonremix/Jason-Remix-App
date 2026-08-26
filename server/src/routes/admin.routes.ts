@@ -6,11 +6,13 @@ import { recordAdminAction } from '../lib/audit.ts';
 import { newId } from '../lib/crypto.ts';
 import { notFound } from '../lib/errors.ts';
 import { routeParam } from '../lib/params.ts';
+import { activeTransport, isEmailConfigured, maskEmail } from '../lib/mailer.ts';
 import { limits } from '../lib/rateLimit.ts';
 import { parse } from '../lib/validate.ts';
 import { authenticate, requireAdmin } from '../middleware/authenticate.ts';
 import { evaluateStandingAchievements } from '../services/achievements.service.ts';
 import { applyLedgerEntry, toIso } from '../services/credits.service.ts';
+import { listDeliveries } from '../services/email.service.ts';
 import { cancelGiveaway, closeGiveaway, drawGiveaway } from '../services/giveaways.service.ts';
 import { listUsersForAdmin, setUserStatus } from '../services/users.service.ts';
 
@@ -148,7 +150,7 @@ adminRoutes.post('/tracks', limits.mutation(), (req, res) => {
 
 adminRoutes.delete('/tracks/:trackId', limits.mutation(), (req, res) => {
   const result = db.prepare(`DELETE FROM tracks WHERE id = ?`).run(routeParam(req, 'trackId'));
-  if (result.changes === 0) throw notFound('That release no longer exists.');
+  if (result.changes === 0) throw notFound('Diese Veröffentlichung gibt es nicht mehr.');
   audit(req, 'track.delete', routeParam(req, 'trackId'));
   res.status(204).end();
 });
@@ -387,7 +389,7 @@ adminRoutes.post('/redemptions/:redemptionId/status', limits.mutation(), (req, r
     )
     .run(status, note ?? null, status, routeParam(req, 'redemptionId'));
 
-  if (result.changes === 0) throw notFound('That redemption no longer exists.');
+  if (result.changes === 0) throw notFound('Diese Einlösung gibt es nicht mehr.');
   audit(req, 'redemption.status', routeParam(req, 'redemptionId'), { status });
   res.status(204).end();
 });
@@ -431,6 +433,28 @@ adminRoutes.post('/notifications', limits.mutation(), (req, res) => {
 });
 
 // --- Audit log ----------------------------------------------------------------------------
+
+/**
+ * The email delivery log.
+ *
+ * Recipients are masked: an admin needs to see that a message went out and to whom
+ * roughly, not to read the whole member list off this screen.
+ */
+adminRoutes.get('/email-log', (req, res) => {
+  const { limit } = parse(
+    z.object({ limit: z.coerce.number().int().min(1).max(200).default(50) }),
+    req.query,
+  );
+
+  res.json({
+    transport: activeTransport(),
+    configured: isEmailConfigured(),
+    entries: listDeliveries(limit).map((entry) => ({
+      ...entry,
+      recipient: maskEmail(entry.recipient),
+    })),
+  });
+});
 
 adminRoutes.get('/audit', (req, res) => {
   const { cursor, limit } = parse(

@@ -8,7 +8,7 @@ export default function OnboardingLayout() {
       screenOptions={{
         headerShown: false,
         animation: 'fade',
-        contentStyle: { backgroundColor: palette.obsidian },
+        contentStyle: { backgroundColor: palette.paper },
       }}
     />
   );

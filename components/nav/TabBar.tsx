@@ -1,13 +1,12 @@
 import type { BottomTabBarProps } from 'expo-router/build/layouts/Tabs';
-import { BlurView } from 'expo-blur';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { Text } from '@/components/ui/Text';
-import { alpha, layout, motion, palette, spacing } from '@/constants/theme';
+import { layout, motion, palette, spacing } from '@/constants/theme';
 import { useHaptics } from '@/hooks/useHaptics';
 
 const ICONS: Record<string, IconName> = {
@@ -19,18 +18,19 @@ const ICONS: Record<string, IconName> = {
 };
 
 const LABELS: Record<string, string> = {
-  index: 'HOME',
-  music: 'MUSIC',
-  rewards: 'REWARDS',
+  index: 'START',
+  music: 'MUSIK',
+  rewards: 'PRÄMIEN',
   credits: 'CREDITS',
-  profile: 'PROFILE',
+  profile: 'PROFIL',
 };
 
 /**
  * The navigation bar.
  *
- * Glass over black with a single hairline above it. The active tab is marked by a short
- * chrome rule that slides between positions — no pill, no fill, no colour.
+ * A white plate with one hairline above it. The active tab is the only place the
+ * accent appears at rest: icon, label and a short rule that slides between positions.
+ * No pill, no fill.
  */
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -54,11 +54,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
-      {Platform.OS === 'ios' ? (
-        <BlurView intensity={36} tint="dark" style={StyleSheet.absoluteFill} />
-      ) : (
-        <View style={[StyleSheet.absoluteFill, styles.androidGround]} />
-      )}
+      {/* Opaque on every platform: a translucent bar without a blur behind it just
+          lets list content show through as ghost text. */}
+      <View style={[StyleSheet.absoluteFill, styles.ground]} />
       <View style={styles.hairline} />
 
       <View style={styles.row} onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}>
@@ -100,12 +98,12 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               <Icon
                 name={ICONS[route.name] ?? 'home'}
                 size={20}
-                color={focused ? palette.chrome : palette.titanium}
-                strokeWidth={focused ? 1.4 : 1.1}
+                color={focused ? palette.accent : palette.muted}
+                strokeWidth={focused ? 2 : 1.6}
               />
               <Text
                 variant="labelWide"
-                tone={focused ? 'secondary' : 'muted'}
+                tone={focused ? 'accent' : 'tertiary'}
                 style={styles.label}
                 maxFontSizeMultiplier={1.2}
               >
@@ -128,18 +126,18 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     overflow: 'hidden',
   },
-  androidGround: { backgroundColor: alpha.glass },
+  ground: { backgroundColor: palette.card },
   hairline: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: alpha.edge,
+    backgroundColor: palette.rule,
   },
   row: { flexDirection: 'row', alignItems: 'flex-end', height: layout.tabBarHeight },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: spacing.sm },
-  label: { fontSize: 8.5, letterSpacing: 1.6 },
+  label: { fontSize: 9, letterSpacing: 0.8 },
   indicatorSlot: {
     position: 'absolute',
     top: 0,
@@ -147,9 +145,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   indicator: {
-    width: 18,
-    height: 1.5,
-    backgroundColor: palette.chrome,
-    borderRadius: 1,
+    width: 22,
+    height: 2.5,
+    backgroundColor: palette.accent,
   },
 });

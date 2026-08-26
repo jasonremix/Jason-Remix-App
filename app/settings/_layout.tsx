@@ -1,15 +1,18 @@
 import { Stack } from 'expo-router';
 
+import { RequireSession } from '@/components/system/RequireSession';
 import { palette } from '@/constants/theme';
 
 export default function SettingsLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: 'slide_from_right',
-        contentStyle: { backgroundColor: palette.black },
-      }}
-    />
+    <RequireSession>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+          contentStyle: { backgroundColor: palette.paper },
+        }}
+      />
+    </RequireSession>
   );
 }

@@ -15,7 +15,7 @@ import { formatDateTime } from '@/lib/format';
 import { queryKeys } from '@/lib/queryClient';
 import { adminService } from '@/services/admin.service';
 
-/** The audit log: append-only, newest first. */
+/** Das Prüfprotokoll: nur anfügbar, neueste Einträge zuerst. */
 export default function AdminAudit() {
   const audit = useQuery({
     queryKey: queryKeys.adminAudit,
@@ -27,13 +27,13 @@ export default function AdminAudit() {
 
   return (
     <Screen
-      header={<ScreenHeader title="AUDIT LOG" />}
+      header={<ScreenHeader title="PRÜFPROTOKOLL" />}
       contentStyle={styles.content}
       onRefresh={() => void audit.refetch()}
       refreshing={audit.isRefetching}
     >
       <SectionHeader
-        title="ADMINISTRATIVE ACTIONS"
+        title="VERWALTUNGSAKTIONEN"
         meta={audit.isPending ? undefined : `${entries.length}`}
       />
 
@@ -48,8 +48,8 @@ export default function AdminAudit() {
       ) : entries.length === 0 ? (
         <EmptyState
           icon="shield"
-          title="Nothing recorded yet."
-          message="Administrative actions appear here as they happen."
+          title="Noch nichts protokolliert."
+          message="Verwaltungsaktionen erscheinen hier, sobald sie passieren."
         />
       ) : (
         <View>
@@ -75,8 +75,8 @@ export default function AdminAudit() {
       )}
 
       <Text variant="caption" tone="muted">
-        This log is append-only — there is no path in the app or the API to edit or delete
-        an entry.
+        Dieses Protokoll lässt sich nur ergänzen — weder über die App noch über die API
+        gibt es einen Weg, einen Eintrag zu ändern oder zu löschen.
       </Text>
     </Screen>
   );

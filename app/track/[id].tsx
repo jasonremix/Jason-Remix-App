@@ -17,7 +17,7 @@ import { useTrack } from '@/hooks/useCatalog';
 import { formatDuration, formatReleaseDate } from '@/lib/format';
 import { openExternal } from '@/lib/openExternal';
 
-/** A single release: artwork, credits, and every platform it is available on. */
+/** Eine einzelne Veröffentlichung: Cover, Angaben und jede Plattform, auf der es sie gibt. */
 export default function TrackDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const track = useTrack(id);
@@ -26,7 +26,10 @@ export default function TrackDetail() {
     track.data?.links.spotify ?? track.data?.links.youtube ?? track.data?.links.appleMusic;
 
   return (
-    <Screen header={<ScreenHeader title="RELEASE" />} contentStyle={styles.content}>
+    <Screen
+      header={<ScreenHeader title="VERÖFFENTLICHUNG" />}
+      contentStyle={styles.content}
+    >
       {track.isPending ? (
         <View style={styles.skeleton}>
           <Skeleton height={300} rounded="lg" />
@@ -34,16 +37,23 @@ export default function TrackDetail() {
           <Skeleton height={12} width="35%" />
         </View>
       ) : track.isError ? (
-        <ErrorState message="This release could not be loaded." onRetry={() => void track.refetch()} />
+        <ErrorState
+          message="Diese Veröffentlichung konnte nicht geladen werden."
+          onRetry={() => void track.refetch()}
+        />
       ) : !track.data ? (
-        <EmptyState icon="disc" title="Release not found." message="It may have been removed." />
+        <EmptyState
+          icon="disc"
+          title="Veröffentlichung nicht gefunden."
+          message="Möglicherweise wurde sie entfernt."
+        />
       ) : (
         <>
           <CoverArt uri={track.data.coverUrl} title={track.data.title} showTitle={false} rounded="lg" />
 
           <View style={styles.titleBlock}>
-            <Text variant="display" tone="primary" style={styles.title}>
-              {track.data.title.toLocaleUpperCase('en-US')}
+            <Text variant="display" tone="primary">
+              {track.data.title}
             </Text>
             <Text variant="labelWide" tone="tertiary" uppercase>
               {track.data.artist}
@@ -57,32 +67,41 @@ export default function TrackDetail() {
           </View>
 
           {primaryLink && (
-            <Button label="PLAY" variant="primary" icon="play" fullWidth onPress={() => openExternal(primaryLink)} />
+            <Button
+              label="ABSPIELEN"
+              variant="primary"
+              icon="play"
+              fullWidth
+              onPress={() => openExternal(primaryLink)}
+            />
           )}
 
           <View style={styles.section}>
-            <SectionHeader title="LISTEN ON" />
+            <SectionHeader title="HÖREN AUF" />
             <StreamingLinks links={track.data.links} title={track.data.title} />
           </View>
 
           <Hairline />
 
           <View style={styles.section}>
-            <SectionHeader title="DETAILS" />
+            <SectionHeader title="ANGABEN" />
             <View style={styles.details}>
-              <DetailRow label="ARTIST" value={track.data.artist} />
-              <DetailRow label="RELEASE DATE" value={formatReleaseDate(track.data.releaseDate)} />
+              <DetailRow label="KÜNSTLER" value={track.data.artist} />
+              <DetailRow
+                label="VERÖFFENTLICHT"
+                value={formatReleaseDate(track.data.releaseDate)}
+              />
               {track.data.genre && <DetailRow label="GENRE" value={track.data.genre} />}
               {track.data.durationMs && (
-                <DetailRow label="LENGTH" value={formatDuration(track.data.durationMs)} />
+                <DetailRow label="LÄNGE" value={formatDuration(track.data.durationMs)} />
               )}
               {track.data.isrc && <DetailRow label="ISRC" value={track.data.isrc} />}
             </View>
           </View>
 
           <Text variant="caption" tone="muted" align="center">
-            Playback opens on the platform you choose. No audio is stored or reproduced by
-            this app.
+            Die Wiedergabe öffnet sich auf der Plattform deiner Wahl. Diese App speichert
+            und gibt keine Audiodateien wieder.
           </Text>
         </>
       )}
@@ -107,7 +126,6 @@ const styles = StyleSheet.create({
   content: { gap: spacing.xl, paddingTop: spacing.lg },
   skeleton: { gap: spacing.base },
   titleBlock: { gap: spacing.sm },
-  title: { letterSpacing: 2 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   section: { gap: spacing.base },
   details: { gap: spacing.md },

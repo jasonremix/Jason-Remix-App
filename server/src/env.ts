@@ -69,6 +69,35 @@ export const env = {
   spotifyClientId: optional('SPOTIFY_CLIENT_ID'),
   spotifyClientSecret: optional('SPOTIFY_CLIENT_SECRET'),
 
+  /**
+   * Outbound email.
+   *
+   * Either a Resend API key or an SMTP host enables sending; with neither, the API
+   * says plainly that no message was sent rather than implying one was.
+   */
+  email: {
+    resendApiKey: optional('RESEND_API_KEY'),
+    smtpHost: optional('SMTP_HOST'),
+    smtpPort: number('SMTP_PORT', 587),
+    smtpUser: optional('SMTP_USER'),
+    smtpPassword: optional('SMTP_PASSWORD'),
+    fromAddress: process.env.EMAIL_FROM_ADDRESS ?? 'noreply@jasonremix.de',
+    fromName: process.env.EMAIL_FROM_NAME ?? 'Jason Remix',
+    replyTo: optional('EMAIL_REPLY_TO'),
+    /** How long a verification link stays valid. */
+    verificationTtlSeconds: number('EMAIL_VERIFICATION_TTL_SECONDS', 24 * 60 * 60),
+  },
+
+  /**
+   * Public base URL of this API, used to build the verification link that goes into
+   * an email. It must be reachable from the member's phone — a `localhost` value
+   * works only in a simulator on the same machine.
+   */
+  publicBaseUrl: process.env.PUBLIC_BASE_URL ?? `http://localhost:${number('PORT', 4000)}`,
+
+  /** The app's deep-link scheme, used to hand a verified member back to the app. */
+  appScheme: process.env.APP_SCHEME ?? 'jasonremix',
+
   /** Comma-separated list of allowed origins, or `*` in development. */
   corsOrigins: (process.env.CORS_ORIGINS ?? '*').split(',').map((origin) => origin.trim()),
 

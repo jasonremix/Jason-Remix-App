@@ -1,96 +1,63 @@
 /**
  * JASON REMIX — Design tokens.
  *
- * The visual language is obsidian + machined metal: deep black grounds, graphite
- * surfaces separated by hairlines rather than shadows, and titanium/chrome type.
- * Colour is used almost nowhere; hierarchy comes from luminance, weight and space.
+ * The visual language is paper and pigment: a cool off-white ground, near-black type
+ * set large, crisp hairlines instead of shadows, and one saturated ultramarine used
+ * decisively and almost nowhere else. Release artwork carries the colour; the
+ * interface stays quiet around it.
+ *
+ * Ultramarine rather than a screen blue: it is an artist's pigment, and it places the
+ * app in a gallery rather than in a dashboard.
  */
 
 export const palette = {
-  /** Deepest ground — behind everything. */
-  obsidian: '#050506',
-  /** Default screen background. */
-  black: '#0A0A0C',
-  /** Raised surface (cards, sheets). */
-  graphite: '#121316',
-  /** Second-level surface / pressed state. */
-  gunmetal: '#191B1F',
-  /** Inset wells, inputs. */
-  well: '#0E0F12',
-  /** Structural metal — borders, dividers at full strength. */
-  steel: '#26292F',
-  /** Muted metal — disabled type, tertiary icons. */
-  titanium: '#565B64',
-  /** Secondary type. */
-  silver: '#8D939C',
-  /** Primary metal type — labels, icons. */
-  brushed: '#BFC4CB',
-  /** Highlight metal — active states, key numerals. */
-  chrome: '#E4E7EB',
-  /** Highest-contrast type. Never pure white. */
-  offWhite: '#F4F5F7',
+  /** The ground. Cool off-white — never pure screen white, which reads as unfinished. */
+  paper: '#F0F1F3',
+  /** A shade below the ground, for wells and inset areas. */
+  paperSunk: '#E7E9EC',
+  /** Raised surfaces. Pure white, so a card lifts off the paper without a shadow. */
+  card: '#FFFFFF',
 
-  /** Sparingly used semantic tones — desaturated to stay inside the palette. */
-  danger: '#C2544F',
-  dangerDim: '#3A2220',
-  success: '#7FA184',
-  successDim: '#1E2A20',
-  warning: '#B79A63',
-  warningDim: '#2E2718',
+  /** Primary type. Near-black with a cool cast, so it sits with the accent. */
+  ink: '#0D0E11',
+  /** Secondary type and active icons. */
+  inkSoft: '#3A3E45',
+  /** Tertiary type, metadata. */
+  muted: '#6B7078',
+  /** Disabled type, inactive icons. */
+  faint: '#9BA1A9',
+
+  /** Hairlines and borders. */
+  rule: '#D9DCE1',
+  ruleStrong: '#BFC4CC',
+
+  /** The one accent. Used for active state, key figures and nothing decorative. */
+  accent: '#001EC8',
+  /** Type and icons placed on the accent. */
+  onAccent: '#FFFFFF',
+  /** A wash of the accent for fills and selected rows. */
+  accentWash: '#E4E8FA',
+  /** A darker accent for pressed states. */
+  accentDeep: '#00169A',
+
+  /** Semantic tones, kept separate from the accent. */
+  success: '#1F6B3A',
+  successWash: '#E3F1E8',
+  danger: '#B3261E',
+  dangerWash: '#FBE7E5',
+  warning: '#8A5A00',
+  warningWash: '#FAEFDC',
+
+  /** Used only where a surface must sit on the accent or on artwork. */
+  onDark: '#FFFFFF',
 } as const;
 
-/** Transparent metal — used for hairlines, glass and light edges. */
+/** Transparencies. Used sparingly — this design draws lines rather than layering veils. */
 export const alpha = {
-  edgeStrong: 'rgba(255,255,255,0.14)',
-  edge: 'rgba(255,255,255,0.08)',
-  edgeSoft: 'rgba(255,255,255,0.05)',
-  hairline: 'rgba(255,255,255,0.06)',
-  scrim: 'rgba(5,5,6,0.82)',
-  scrimSoft: 'rgba(5,5,6,0.55)',
-  press: 'rgba(255,255,255,0.04)',
-  glass: 'rgba(18,19,22,0.72)',
-} as const;
-
-/**
- * Gradients. Metal is described by an uneven light ramp — a bright band, a fast
- * fall-off and a second weak return — not by a smooth two-stop fade.
- */
-export const gradients = {
-  /** Brushed chrome for primary buttons and the credit token. */
-  chrome: {
-    colors: ['#F2F4F6', '#C6CBD2', '#8F959D', '#D3D8DE', '#A2A8B0'] as const,
-    locations: [0, 0.26, 0.52, 0.76, 1] as const,
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  },
-  /** Darker machined metal for secondary surfaces. */
-  gunmetal: {
-    colors: ['#24272C', '#171A1E', '#101215', '#1B1E22'] as const,
-    locations: [0, 0.4, 0.72, 1] as const,
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  },
-  /** Card face — a barely-there sheen from the top-left. */
-  surface: {
-    colors: ['#191B1F', '#131418', '#0F1013'] as const,
-    locations: [0, 0.55, 1] as const,
-    start: { x: 0, y: 0 },
-    end: { x: 0.6, y: 1 },
-  },
-  /** Vertical scrim laid over hero artwork so type stays legible. */
-  heroScrim: {
-    colors: ['rgba(5,5,6,0)', 'rgba(5,5,6,0.55)', 'rgba(10,10,12,0.97)'] as const,
-    locations: [0, 0.5, 1] as const,
-    start: { x: 0.5, y: 0 },
-    end: { x: 0.5, y: 1 },
-  },
-  /** Fine light edge drawn along the top of raised elements. */
-  lightEdge: {
-    colors: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.24)', 'rgba(255,255,255,0)'] as const,
-    locations: [0, 0.5, 1] as const,
-    start: { x: 0, y: 0.5 },
-    end: { x: 1, y: 0.5 },
-  },
+  press: 'rgba(13,14,17,0.05)',
+  pressAccent: 'rgba(0,30,200,0.08)',
+  scrim: 'rgba(13,14,17,0.32)',
+  hairline: 'rgba(13,14,17,0.10)',
 } as const;
 
 export const spacing = {
@@ -106,59 +73,62 @@ export const spacing = {
   huge: 64,
 } as const;
 
+/**
+ * Corners are nearly square. A large radius is what makes an interface read as generic;
+ * a 4pt corner reads as printed matter.
+ */
 export const radius = {
   none: 0,
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 18,
+  sm: 3,
+  md: 4,
+  lg: 6,
+  xl: 10,
   pill: 999,
 } as const;
 
 export const fonts = {
-  /** Display / wordmark — geometric, slightly futurist. */
-  displayLight: 'Sora_300Light',
-  display: 'Sora_400Regular',
-  displayMedium: 'Sora_500Medium',
-  displaySemi: 'Sora_600SemiBold',
-  /** Interface — neutral grotesque. */
-  light: 'Inter_300Light',
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semibold: 'Inter_600SemiBold',
-  bold: 'Inter_700Bold',
+  /** Display — Syne. Geometric and slightly odd; carries the personality of the app. */
+  display: 'Syne_600SemiBold',
+  displayBold: 'Syne_700Bold',
+  displayHeavy: 'Syne_800ExtraBold',
+  displayRegular: 'Syne_500Medium',
+  /** Interface — Manrope. Calm and highly legible, so Syne can be the loud one. */
+  light: 'Manrope_300Light',
+  regular: 'Manrope_400Regular',
+  medium: 'Manrope_500Medium',
+  semibold: 'Manrope_600SemiBold',
+  bold: 'Manrope_700Bold',
+  extrabold: 'Manrope_800ExtraBold',
 } as const;
 
 /**
- * Type scale. Tracking is the main expressive lever: brand terms and labels are
- * set wide and uppercase, body copy stays neutral.
+ * Type scale. Display sizes are set tight and heavy; interface text stays calm.
+ * Tracking is negative on the big sizes — at this weight, default spacing looks loose.
  */
 export const type = {
-  hero: { fontFamily: fonts.displayLight, fontSize: 44, lineHeight: 48, letterSpacing: 1.5 },
-  display: { fontFamily: fonts.displayLight, fontSize: 34, lineHeight: 40, letterSpacing: 1.2 },
-  title: { fontFamily: fonts.display, fontSize: 24, lineHeight: 30, letterSpacing: 0.6 },
-  heading: { fontFamily: fonts.medium, fontSize: 18, lineHeight: 24, letterSpacing: 0.2 },
-  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, letterSpacing: 0.1 },
-  bodySmall: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, letterSpacing: 0.1 },
-  label: { fontFamily: fonts.medium, fontSize: 11, lineHeight: 14, letterSpacing: 2.2 },
-  labelWide: { fontFamily: fonts.medium, fontSize: 10, lineHeight: 13, letterSpacing: 3.2 },
-  caption: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, letterSpacing: 0.2 },
-  numeric: { fontFamily: fonts.displayLight, fontSize: 40, lineHeight: 46, letterSpacing: -0.5 },
+  hero: { fontFamily: fonts.displayHeavy, fontSize: 46, lineHeight: 46, letterSpacing: -1.8 },
+  display: { fontFamily: fonts.displayHeavy, fontSize: 34, lineHeight: 36, letterSpacing: -1.2 },
+  title: { fontFamily: fonts.displayBold, fontSize: 23, lineHeight: 27, letterSpacing: -0.6 },
+  heading: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 23, letterSpacing: -0.2 },
+  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 23, letterSpacing: 0 },
+  bodySmall: { fontFamily: fonts.regular, fontSize: 13.5, lineHeight: 20, letterSpacing: 0 },
+  label: { fontFamily: fonts.bold, fontSize: 11, lineHeight: 14, letterSpacing: 0.9 },
+  labelWide: { fontFamily: fonts.bold, fontSize: 10, lineHeight: 13, letterSpacing: 1.4 },
+  caption: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, letterSpacing: 0 },
+  numeric: { fontFamily: fonts.displayHeavy, fontSize: 44, lineHeight: 46, letterSpacing: -2 },
 } as const;
 
-/** Motion. Everything is short and eased — nothing bounces. */
+/** Motion. Short and eased — the design is still, movement only confirms an action. */
 export const motion = {
   instant: 90,
   fast: 160,
-  base: 240,
-  slow: 380,
-  deliberate: 620,
-  /** Standard ease — matches the platform "decelerate" feel. */
-  easing: [0.22, 0.61, 0.36, 1] as const,
+  base: 220,
+  slow: 340,
+  deliberate: 560,
 } as const;
 
 export const layout = {
-  gutter: spacing.xl,
+  gutter: 22,
   maxContentWidth: 560,
   tabBarHeight: 58,
   hairlineWidth: 1,
@@ -167,7 +137,6 @@ export const layout = {
 export const theme = {
   palette,
   alpha,
-  gradients,
   spacing,
   radius,
   fonts,

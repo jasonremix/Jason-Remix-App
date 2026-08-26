@@ -125,28 +125,28 @@ export type ClaimResult = {
 export function claimMission(userId: string, missionId: string): ClaimResult {
   return transaction(() => {
     const row = getMissionRow(missionId, userId);
-    if (!row) throw notFound('This mission is no longer available.');
+    if (!row) throw notFound('Diese Mission gibt es nicht mehr.');
 
     const mission = toMission(row);
 
     switch (mission.status) {
       case 'COMPLETED':
-        throw new ApiError('MISSION_ALREADY_COMPLETED', 'You have already completed this mission.');
+        throw new ApiError('MISSION_ALREADY_COMPLETED', 'Diese Mission hast du schon abgeschlossen.');
       case 'COOLDOWN':
-        throw new ApiError('MISSION_ON_COOLDOWN', 'This mission is not ready yet. Come back soon.');
+        throw new ApiError('MISSION_ON_COOLDOWN', 'Diese Mission ist noch nicht wieder bereit. Schau bald wieder rein.');
       case 'LOCKED':
-        throw new ApiError('BAD_REQUEST', 'This mission has not started yet.');
+        throw new ApiError('BAD_REQUEST', 'Diese Mission hat noch nicht begonnen.');
       case 'EXPIRED':
-        throw new ApiError('BAD_REQUEST', 'This mission has ended.');
+        throw new ApiError('BAD_REQUEST', 'Diese Mission ist beendet.');
       default:
         break;
     }
 
     if (mission.type === 'CONNECT_SPOTIFY' && !hasSpotifyConnection(userId)) {
-      throw new ApiError('BAD_REQUEST', 'Connect Spotify first to complete this mission.');
+      throw new ApiError('BAD_REQUEST', 'Verbinde zuerst Spotify, um diese Mission abzuschließen.');
     }
     if (mission.type === 'COMPLETE_PROFILE' && !hasCompletedProfile(userId)) {
-      throw new ApiError('BAD_REQUEST', 'Finish setting up your profile to complete this mission.');
+      throw new ApiError('BAD_REQUEST', 'Vervollständige dein Profil, um diese Mission abzuschließen.');
     }
 
     const { transaction: ledgerEntry, balance } = applyLedgerEntry({

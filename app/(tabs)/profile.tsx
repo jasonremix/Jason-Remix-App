@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { CreditPill } from '@/components/credits/CreditPill';
 import { AchievementBadge } from '@/components/profile/AchievementBadge';
 import { LevelBar } from '@/components/profile/LevelBar';
-import { DemoBanner, OfflineBanner } from '@/components/system/Banners';
+import { DemoBanner, OfflineBanner, UnverifiedEmailBanner } from '@/components/system/Banners';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip } from '@/components/ui/Chip';
 import { Row } from '@/components/ui/Row';
@@ -26,10 +26,10 @@ import { formatLevel } from '@/lib/levels';
 import { useAuthStore, useIsAdmin } from '@/store/authStore';
 
 /**
- * Profile.
+ * Profil.
  *
- * Identity, standing, and every list a member might want to check on themselves —
- * achievements, activity, rewards won, giveaway entries.
+ * Identität, Stand und jede Liste, die ein Mitglied über sich selbst nachschlagen
+ * möchte — Erfolge, Aktivität, eingelöste Prämien, Gewinnspiel-Lose.
  */
 export default function Profile() {
   const me = useMe();
@@ -65,6 +65,7 @@ export default function Profile() {
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Identity ---------------------------------------------------------- */}
@@ -77,7 +78,10 @@ export default function Profile() {
           </View>
         </View>
       ) : me.isError ? (
-        <ErrorState message="Your profile could not be loaded." onRetry={() => void me.refetch()} />
+        <ErrorState
+          message="Dein Profil konnte nicht geladen werden."
+          onRetry={() => void me.refetch()}
+        />
       ) : (
         <View style={styles.identity}>
           <Avatar uri={profile?.avatarUrl} name={profile?.username ?? me.data?.user.email} size={72} />
@@ -86,7 +90,7 @@ export default function Profile() {
               {brand.memberTitle}
             </Text>
             <Text variant="title" tone="primary" numberOfLines={1}>
-              {profile?.username ?? 'Member'}
+              {profile?.username ?? 'Mitglied'}
             </Text>
             <View style={styles.identityMeta}>
               <Chip label={formatLevel(balance?.level ?? 1)} tone="active" />
@@ -100,7 +104,7 @@ export default function Profile() {
       <Surface style={styles.card}>
         <View style={styles.balanceRow}>
           <Text variant="labelWide" tone="muted" uppercase>
-            BALANCE
+            GUTHABEN
           </Text>
           <CreditPill amount={balance?.balance ?? 0} onPress={() => router.push('/(tabs)/credits')} />
         </View>
@@ -128,10 +132,10 @@ export default function Profile() {
           <Chip
             label={
               !config.isSpotifyConfigured
-                ? 'NOT CONFIGURED'
+                ? 'NICHT EINGERICHTET'
                 : spotify?.connected
-                  ? 'CONNECTED'
-                  : 'NOT CONNECTED'
+                  ? 'VERBUNDEN'
+                  : 'NICHT VERBUNDEN'
             }
             tone={spotify?.connected ? 'success' : 'muted'}
           />
@@ -145,7 +149,7 @@ export default function Profile() {
 
         <Hairline style={styles.divider} />
         <Row
-          title={spotify?.connected ? 'MANAGE CONNECTION' : 'CONNECT SPOTIFY'}
+          title={spotify?.connected ? 'VERBINDUNG VERWALTEN' : 'SPOTIFY VERBINDEN'}
           icon="spotify"
           onPress={() => router.push('/settings/spotify')}
         />
@@ -154,9 +158,9 @@ export default function Profile() {
       {/* --- Achievements ------------------------------------------------------- */}
       <View style={styles.section}>
         <SectionHeader
-          title="ACHIEVEMENTS"
+          title="ERFOLGE"
           meta={achievements.length ? `${unlocked} / ${achievements.length}` : undefined}
-          actionLabel="ALL"
+          actionLabel="ALLE"
           onAction={() => router.push('/achievements')}
         />
         <ScrollView
@@ -173,27 +177,27 @@ export default function Profile() {
 
       {/* --- Lists -------------------------------------------------------------- */}
       <View style={styles.section}>
-        <SectionHeader title="YOUR RECORD" />
+        <SectionHeader title="DEINE ÜBERSICHT" />
         <View>
           <Row
-            title="ACTIVITY"
-            subtitle="Every credit movement on your account"
+            title="AKTIVITÄT"
+            subtitle="Jede Credit-Bewegung auf deinem Konto"
             value={credits.data ? String(credits.data.transactions.length) : undefined}
             icon="clock"
             onPress={() => router.push('/(tabs)/credits')}
           />
           <Hairline />
           <Row
-            title="REWARDS WON"
-            subtitle="Redemptions and their status"
+            title="EINGELÖSTE PRÄMIEN"
+            subtitle="Einlösungen und ihr Status"
             value={rewards.data ? String(rewards.data.redemptions.length) : undefined}
             icon="gift"
             onPress={() => router.push('/(tabs)/rewards')}
           />
           <Hairline />
           <Row
-            title="GIVEAWAY ENTRIES"
-            subtitle="Entries you hold and their outcome"
+            title="GEWINNSPIEL-LOSE"
+            subtitle="Deine Lose und ihr Ergebnis"
             value={giveaways.data ? String(giveaways.data.entries.length) : undefined}
             icon="ticket"
             onPress={() => router.push('/giveaways')}
@@ -203,21 +207,25 @@ export default function Profile() {
 
       {/* --- Account ------------------------------------------------------------ */}
       <View style={styles.section}>
-        <SectionHeader title="ACCOUNT" />
+        <SectionHeader title="KONTO" />
         <View>
-          <Row title="SETTINGS" icon="settings" onPress={() => router.push('/settings')} />
+          <Row title="EINSTELLUNGEN" icon="settings" onPress={() => router.push('/settings')} />
           <Hairline />
-          <Row title="NOTIFICATIONS" icon="bell" onPress={() => router.push('/settings/notifications')} />
+          <Row
+            title="BENACHRICHTIGUNGEN"
+            icon="bell"
+            onPress={() => router.push('/settings/notifications')}
+          />
           <Hairline />
-          <Row title="LEGAL & PRIVACY" icon="shield" onPress={() => router.push('/legal/privacy')} />
+          <Row title="RECHTLICHES" icon="shield" onPress={() => router.push('/legal/privacy')} />
           {isAdmin && (
             <>
               <Hairline />
-              <Row title="ADMIN DASHBOARD" icon="lock" onPress={() => router.push('/admin')} />
+              <Row title="ADMIN-BEREICH" icon="lock" onPress={() => router.push('/admin')} />
             </>
           )}
           <Hairline />
-          <Row title="SIGN OUT" icon="logout" onPress={() => void onSignOut()} showChevron={false} />
+          <Row title="ABMELDEN" icon="logout" onPress={() => void onSignOut()} showChevron={false} />
         </View>
       </View>
 

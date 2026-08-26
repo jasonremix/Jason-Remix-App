@@ -121,18 +121,18 @@ export type RedeemResult = {
 export function redeemReward(userId: string, rewardId: string): RedeemResult {
   return transaction(() => {
     const row = db.prepare(`SELECT * FROM rewards WHERE id = ?`).get(rewardId) as RewardRow | undefined;
-    if (!row) throw notFound('This reward is no longer available.');
+    if (!row) throw notFound('Diese Prämie gibt es nicht mehr.');
 
     const reward = toReward(row);
     if (!reward.active) {
-      throw new ApiError('REWARD_UNAVAILABLE', 'This reward is currently unavailable.');
+      throw new ApiError('REWARD_UNAVAILABLE', 'Diese Prämie ist gerade nicht verfügbar.');
     }
 
     if (reward.minLevel !== null) {
       const balance = getBalance(userId);
       const level = resolveLevel(balance.lifetimeEarned);
       if (level.level < reward.minLevel) {
-        throw new ApiError('FORBIDDEN', `This reward unlocks at level ${reward.minLevel}.`);
+        throw new ApiError('FORBIDDEN', `Diese Prämie schaltet sich frei ab Level ${reward.minLevel}.`);
       }
     }
 
@@ -143,7 +143,7 @@ export function redeemReward(userId: string, rewardId: string): RedeemResult {
         .prepare(`UPDATE rewards SET remaining = remaining - 1 WHERE id = ? AND remaining > 0`)
         .run(rewardId);
       if (result.changes === 0) {
-        throw new ApiError('REWARD_UNAVAILABLE', 'This reward is sold out.');
+        throw new ApiError('REWARD_UNAVAILABLE', 'Diese Prämie ist vergriffen.');
       }
     }
 

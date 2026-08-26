@@ -74,5 +74,5 @@ export const unauthorized = (message = 'Please sign in again to continue.') =>
   new ApiError('UNAUTHORIZED', message);
 export const forbidden = (message = 'You do not have access to this area.') =>
   new ApiError('FORBIDDEN', message);
-export const notFound = (message = 'This is no longer available.') =>
+export const notFound = (message = 'Das ist nicht mehr verfügbar.') =>
   new ApiError('NOT_FOUND', message);

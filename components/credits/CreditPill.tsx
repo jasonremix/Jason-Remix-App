@@ -2,13 +2,14 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { Monogram } from '@/components/brand/Monogram';
 import { Text } from '@/components/ui/Text';
-import { alpha, palette, radius, spacing } from '@/constants/theme';
+import { palette, radius, spacing } from '@/constants/theme';
 import { formatCredits } from '@/lib/format';
 
 /**
  * A compact balance readout: the facet mark and a grouped figure.
  *
- * Reads as a struck token rather than a game currency — no coin, no colour, no glow.
+ * Reads as a stamped token rather than a game currency — no coin, no glow. The mark
+ * carries the accent so the figure itself can stay ink.
  */
 export function CreditPill({
   amount,
@@ -33,8 +34,8 @@ export function CreditPill({
     >
       <Monogram size={glyphSize} />
       <Text
-        variant={size === 'sm' ? 'bodySmall' : 'body'}
-        tone="chrome"
+        variant={size === 'sm' ? 'bodySmall' : 'heading'}
+        tone="primary"
         style={styles.value}
         maxFontSizeMultiplier={1.3}
       >
@@ -49,7 +50,7 @@ export function CreditPill({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${formatCredits(amount)} credits`}
+      accessibilityLabel={`${formatCredits(amount)} Credits`}
       hitSlop={8}
     >
       {content}
@@ -63,11 +64,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     borderRadius: radius.sm,
-    backgroundColor: palette.gunmetal,
+    backgroundColor: palette.accentWash,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edge,
+    borderColor: palette.accentWash,
   },
   pillSmall: { paddingHorizontal: spacing.sm + 2, paddingVertical: 5 },
   pillMedium: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  value: { letterSpacing: 0.6, fontVariant: ['tabular-nums'] },
+  value: { letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
 });

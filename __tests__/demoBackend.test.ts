@@ -162,4 +162,43 @@ describe('demo backend', () => {
     const exported = await demoBackend.exportData();
     expect(String(exported.note)).toMatch(/demo/i);
   });
+
+  // --- Email: demo mode must never imply a message was sent ---------------------
+
+  it('registers without claiming a confirmation email went out', async () => {
+    const session = await demoBackend.register({
+      email: 'neu@beispiel.de',
+      password: 'passwort12345',
+      username: 'neu',
+      acceptedTerms: true,
+    });
+
+    expect(session.emailVerification?.sent).toBe(false);
+    expect(session.emailVerification?.reason).toMatch(/demo/i);
+    // An account that was never confirmed must not present itself as confirmed.
+    expect(session.user.emailVerifiedAt).toBeNull();
+  });
+
+  it('reports that no email transport exists', async () => {
+    const status = await demoBackend.verificationStatus();
+    expect(status.emailConfigured).toBe(false);
+  });
+
+  it('does not pretend a resend succeeded', async () => {
+    const result = await demoBackend.resendVerification();
+    expect(result.sent).toBe(false);
+    expect(result.reason).toMatch(/demo/i);
+  });
+
+  it('refuses to mark an address verified without a real token', async () => {
+    await expect(demoBackend.verifyEmail('any-token-value')).rejects.toMatchObject({
+      code: 'SERVER_ERROR',
+    });
+  });
+
+  it('has an empty email log, because nothing was ever sent', async () => {
+    const log = await demoBackend.adminEmailLog();
+    expect(log.configured).toBe(false);
+    expect(log.entries).toEqual([]);
+  });
 });

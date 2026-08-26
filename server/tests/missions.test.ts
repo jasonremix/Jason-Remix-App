@@ -71,7 +71,7 @@ describe('mission completion', () => {
     const session = await registerMember();
 
     const response = await claim(session, 'msn-spotify').expect(400);
-    expect(response.body.error.message).toMatch(/connect spotify/i);
+    expect(response.body.error.message).toMatch(/Verbinde zuerst Spotify/i);
 
     const credits = await request(app()).get('/credits').set(auth(session)).expect(200);
     expect(credits.body.balance.balance).toBe(0);

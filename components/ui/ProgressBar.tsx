@@ -1,9 +1,8 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { alpha, gradients, motion, palette } from '@/constants/theme';
+import { motion, palette } from '@/constants/theme';
 
 /**
  * A thin machined track with a chrome fill. Used for level progress and Spotify
@@ -11,7 +10,7 @@ import { alpha, gradients, motion, palette } from '@/constants/theme';
  */
 export function ProgressBar({
   progress,
-  height = 3,
+  height = 4,
   animated = true,
   style,
   accessibilityLabel,
@@ -41,24 +40,21 @@ export function ProgressBar({
       accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
       style={[styles.track, { height, borderRadius: height }, style]}
     >
-      <Animated.View style={[{ height: '100%', borderRadius: height, overflow: 'hidden' }, fillStyle]}>
-        <LinearGradient
-          colors={[...gradients.chrome.colors]}
-          locations={[...gradients.chrome.locations]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={StyleSheet.absoluteFill}
-        />
-      </Animated.View>
+      <Animated.View
+        style={[
+          { height: '100%', borderRadius: height, backgroundColor: palette.accent },
+          fillStyle,
+        ]}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   track: {
-    backgroundColor: palette.steel,
+    backgroundColor: palette.paperSunk,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.hairline,
+    borderColor: palette.rule,
   },
 });

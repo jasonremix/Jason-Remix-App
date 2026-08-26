@@ -1,0 +1,66 @@
+name: EAS Update
+
+# Ships a JavaScript-only change without a new binary.
+#
+# Two audiences, and they need different runtime versions:
+#
+#   preview     → sdkVersion policy (`exposdk:57.0.0`). That is Expo Go's own runtime,
+#                 so the update shows up under the project in Expo Go and opens there.
+#                 Nothing has to be installed to look at it.
+#
+#   production  → appVersion policy (`1.0.0`). Matches builds from `eas build --profile
+#                 production` and nothing else, so an update can never reach a binary
+#                 whose native code has moved on.
+#
+# Only what Metro bundles is updated either way. A change to a native module, a
+# permission or the SDK version always needs a fresh build.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Update branch (matches the build's channel)
+        type: choice
+        options: [preview, production]
+        default: preview
+      message:
+        description: What changed
+        type: string
+        required: true
+
+jobs:
+  update:
+    name: ${{ inputs.branch }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          # Settings → Secrets and variables → Actions → EXPO_TOKEN
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Preflight
+        run: npm run eas:check
+
+      # An update reaches real devices, so it goes out only from code that passes
+      # the same checks as any other change.
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+      - name: Publish update
+        env:
+          # Leer für preview: app.config.js nimmt dann sdkVersion, und genau das
+          # kann Expo Go öffnen.
+          EAS_RUNTIME_POLICY: ${{ inputs.branch == 'production' && 'appVersion' || '' }}
+        run: eas update --non-interactive
+             --branch ${{ inputs.branch }}
+             --message "${{ inputs.message }}"

@@ -4,7 +4,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { CoverArt } from '@/components/music/CoverArt';
 import { TrackCard } from '@/components/music/TrackCard';
-import { DemoBanner, OfflineBanner, SpotifyUnavailableNotice } from '@/components/system/Banners';
+import {
+  DemoBanner,
+  OfflineBanner,
+  SpotifyUnavailableNotice,
+  UnverifiedEmailBanner,
+} from '@/components/system/Banners';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -27,10 +32,11 @@ import { formatDuration, formatRelative } from '@/lib/format';
 import { useSpotifyStore } from '@/store/spotifyStore';
 
 /**
- * Music.
+ * Musik.
  *
- * The discography, plus — when Spotify is linked — what is playing right now. Nothing
- * here streams or stores audio: every play opens the platform that licenses the track.
+ * Die Diskografie und — wenn Spotify verbunden ist — was gerade läuft. Nichts hiervon
+ * streamt oder speichert Audio: jedes Abspielen öffnet die Plattform, die den Titel
+ * lizenziert.
  */
 export default function Music() {
   const catalog = useCatalog();
@@ -63,17 +69,18 @@ export default function Music() {
       contentStyle={styles.content}
     >
       <View style={styles.head}>
-        <Text variant="display" tone="primary" style={styles.heading}>
-          MUSIC
+        <Text variant="display" tone="primary">
+          Musik
         </Text>
-        <Text variant="bodySmall" tone="muted">
-          Every Jason Remix release, with links to the platform you listen on.
+        <Text variant="body" tone="tertiary">
+          Jede Veröffentlichung von Jason Remix, mit Links zu der Plattform, auf der du hörst.
         </Text>
       </View>
 
       <View style={styles.notices}>
         <OfflineBanner />
         <DemoBanner />
+        <UnverifiedEmailBanner />
       </View>
 
       {/* --- Spotify ---------------------------------------------------------- */}
@@ -84,15 +91,15 @@ export default function Music() {
           <Text variant="labelWide" tone="muted" uppercase>
             SPOTIFY
           </Text>
-          <Text variant="heading" tone="primary">
-            Connect Spotify
+          <Text variant="title" tone="primary">
+            Spotify verbinden
           </Text>
           <Text variant="bodySmall" tone="tertiary">
-            See what you are playing right now inside the app, and earn credits for linking
-            your account. You can disconnect whenever you like.
+            Sieh in der App, was du gerade hörst, und verdiene Credits fürs Verbinden.
+            Du kannst die Verbindung jederzeit wieder trennen.
           </Text>
           <Button
-            label="CONNECT SPOTIFY"
+            label="SPOTIFY VERBINDEN"
             variant="secondary"
             icon="spotify"
             loading={connecting}
@@ -102,7 +109,7 @@ export default function Music() {
       ) : (
         <View style={styles.section}>
           <SectionHeader
-            title="CONNECTED TO SPOTIFY"
+            title="MIT SPOTIFY VERBUNDEN"
             meta={connection?.displayName ?? undefined}
           />
 
@@ -126,9 +133,9 @@ export default function Music() {
                   />
                   <View style={styles.nowPlayingText}>
                     <Text variant="labelWide" tone="muted" uppercase>
-                      {nowPlaying.data.isPlaying ? 'CURRENTLY PLAYING' : 'PAUSED'}
+                      {nowPlaying.data.isPlaying ? 'LÄUFT GERADE' : 'PAUSIERT'}
                     </Text>
-                    <Text variant="heading" tone="primary" numberOfLines={1}>
+                    <Text variant="title" tone="primary" numberOfLines={1}>
                       {nowPlaying.data.title}
                     </Text>
                     <Text variant="caption" tone="tertiary" numberOfLines={1}>
@@ -146,7 +153,7 @@ export default function Music() {
                         : 0
                     }
                     animated={false}
-                    accessibilityLabel="Playback position"
+                    accessibilityLabel="Wiedergabeposition"
                   />
                   <View style={styles.timings}>
                     <Text variant="caption" tone="muted">
@@ -159,15 +166,15 @@ export default function Music() {
                 </View>
               </>
             ) : (
-              <Text variant="bodySmall" tone="muted">
-                Nothing is playing on Spotify right now.
+              <Text variant="bodySmall" tone="tertiary">
+                Auf Spotify läuft gerade nichts.
               </Text>
             )}
           </Surface>
 
           {(recentlyPlayed.data?.length ?? 0) > 0 && (
             <View style={styles.recent}>
-              <SectionHeader title="RECENTLY PLAYED" />
+              <SectionHeader title="ZULETZT GEHÖRT" />
               {(recentlyPlayed.data ?? []).slice(0, 5).map((item) => (
                 <View key={`${item.trackId}-${item.playedAt}`}>
                   <View style={styles.recentRow}>
@@ -194,7 +201,10 @@ export default function Music() {
 
       {/* --- Discography ------------------------------------------------------ */}
       <View style={styles.section}>
-        <SectionHeader title="DISCOGRAPHY" meta={tracks.length ? `${tracks.length} RELEASES` : undefined} />
+        <SectionHeader
+          title="DISKOGRAFIE"
+          meta={tracks.length ? `${tracks.length} TITEL` : undefined}
+        />
 
         {catalog.isPending ? (
           <View style={styles.list}>
@@ -209,9 +219,9 @@ export default function Music() {
             ))}
           </View>
         ) : catalog.isError ? (
-          <ErrorState message="The discography could not be loaded." onRetry={() => void catalog.refetch()} />
+          <ErrorState message="Die Diskografie konnte nicht geladen werden." onRetry={() => void catalog.refetch()} />
         ) : tracks.length === 0 ? (
-          <EmptyState icon="disc" title="No releases yet." message="New music will appear here first." />
+          <EmptyState icon="disc" title="Noch keine Veröffentlichungen." message="Neue Musik erscheint zuerst hier." />
         ) : (
           <View>
             {tracks.map((track, index) => (
@@ -225,8 +235,8 @@ export default function Music() {
       </View>
 
       <Text variant="caption" tone="muted" align="center" style={styles.disclaimer}>
-        Playback happens on the streaming platform you choose. This app does not store,
-        download or reproduce any audio.
+        Die Wiedergabe findet auf der von dir gewählten Streaming-Plattform statt. Diese
+        App speichert, lädt und vervielfältigt keine Audioinhalte.
       </Text>
     </Screen>
   );
@@ -235,7 +245,6 @@ export default function Music() {
 const styles = StyleSheet.create({
   content: { gap: spacing.xxl },
   head: { gap: spacing.sm },
-  heading: { letterSpacing: 3 },
   notices: { gap: spacing.md },
   section: { gap: spacing.base },
   connectCard: { padding: spacing.lg, gap: spacing.md },
@@ -250,5 +259,5 @@ const styles = StyleSheet.create({
   list: { gap: spacing.lg },
   skeletonRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.base },
   skeletonText: { flex: 1, gap: spacing.sm },
-  disclaimer: { marginTop: spacing.base, color: palette.titanium },
+  disclaimer: { marginTop: spacing.base, color: palette.faint },
 });

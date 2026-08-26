@@ -66,9 +66,9 @@ export function Screen({
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                tintColor={palette.titanium}
-                colors={[palette.titanium]}
-                progressBackgroundColor={palette.graphite}
+                tintColor={palette.accent}
+                colors={[palette.accent]}
+                progressBackgroundColor={palette.card}
               />
             ) : undefined
           }
@@ -83,7 +83,7 @@ export function Screen({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.black },
+  root: { flex: 1, backgroundColor: palette.paper },
   scroll: { flex: 1 },
   flex: { flex: 1 },
 });

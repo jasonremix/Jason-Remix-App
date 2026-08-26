@@ -15,7 +15,7 @@ export default function TabsLayout() {
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        sceneStyle: { backgroundColor: palette.black },
+        sceneStyle: { backgroundColor: palette.paper },
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'HOME' }} />

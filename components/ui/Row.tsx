@@ -34,7 +34,7 @@ export function Row({
   style?: StyleProp<ViewStyle>;
 }) {
   const chevron = showChevron ?? Boolean(onPress);
-  const tone = destructive ? 'danger' : disabled ? 'muted' : 'secondary';
+  const tone = destructive ? 'danger' : disabled ? 'muted' : 'primary';
 
   const content = (
     <View style={[styles.row, style]}>
@@ -42,7 +42,7 @@ export function Row({
         <Icon
           name={icon}
           size={18}
-          color={destructive ? palette.danger : palette.titanium}
+          color={destructive ? palette.danger : palette.muted}
         />
       )}
 
@@ -63,7 +63,7 @@ export function Row({
         </Text>
       )}
       {trailing}
-      {chevron && <Icon name="chevron-right" size={14} color={palette.titanium} />}
+      {chevron && <Icon name="chevron-right" size={15} color={palette.faint} />}
     </View>
   );
 

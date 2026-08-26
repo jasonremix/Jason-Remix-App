@@ -55,9 +55,55 @@ export type AuthTokens = {
   expiresIn: number;
 };
 
+/**
+ * What actually happened to the confirmation email.
+ *
+ * `sent` is the server's report of a real delivery, not an assumption: when no email
+ * transport is configured, or the provider refused the message, it is false and
+ * `reason` says why. The app shows that instead of pointing at an empty inbox.
+ */
+export type EmailVerificationStatus = {
+  required: boolean;
+  sent: boolean;
+  reason: string | null;
+};
+
 export type SessionPayload = AuthTokens & {
   user: User;
   profile: UserProfile | null;
+  /** Present on registration; absent on sign-in and refresh. */
+  emailVerification?: EmailVerificationStatus;
+};
+
+export type VerificationState = {
+  verified: boolean;
+  verifiedAt: string | null;
+  /** False when this deployment cannot send email at all. */
+  emailConfigured: boolean;
+};
+
+export type EmailLogEntry = {
+  id: string;
+  /** Masked by the server — an admin sees that a message went out, not the address book. */
+  recipient: string;
+  kind: string;
+  subject: string;
+  transport: string;
+  status: string;
+  error: string | null;
+  createdAt: string;
+};
+
+export type AdminEmailLogResponse = {
+  transport: string;
+  configured: boolean;
+  entries: EmailLogEntry[];
+};
+
+export type ResendVerificationResult = {
+  sent: boolean;
+  alreadyVerified: boolean;
+  reason: string | null;
 };
 
 export type MeResponse = {

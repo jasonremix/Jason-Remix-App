@@ -24,8 +24,8 @@ export function resolveAvailability(reward: Reward, balance: number, level: numb
 }
 
 /**
- * A reward tile. Locked rewards stay fully visible rather than being hidden or blurred —
- * seeing what is further up the ladder is the point of the ladder.
+ * Eine Prämien-Kachel. Gesperrte Prämien bleiben sichtbar statt ausgeblendet zu werden —
+ * zu sehen, was weiter oben auf der Leiter wartet, ist der Sinn der Leiter.
  */
 export function RewardCard({
   reward,
@@ -45,13 +45,13 @@ export function RewardCard({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${reward.title}, ${reward.cost} credits`}
+      accessibilityLabel={`${reward.title}, ${reward.cost} Credits`}
       style={({ pressed }) => [pressed && styles.pressed]}
     >
       <Surface style={styles.card}>
         <View style={styles.header}>
           <View style={styles.headerText}>
-            <Text variant="heading" tone={locked ? 'tertiary' : 'primary'} numberOfLines={1}>
+            <Text variant="title" tone={locked ? 'tertiary' : 'primary'} numberOfLines={1}>
               {reward.title}
             </Text>
             {reward.subtitle && (
@@ -60,7 +60,7 @@ export function RewardCard({
               </Text>
             )}
           </View>
-          {locked && <Icon name="lock" size={16} color={palette.titanium} />}
+          {locked && <Icon name="lock" size={16} color={palette.faint} />}
         </View>
 
         <Text variant="bodySmall" tone="tertiary" numberOfLines={2}>
@@ -72,13 +72,13 @@ export function RewardCard({
 
           <View style={styles.tags}>
             {!levelMet && reward.minLevel !== null && (
-              <Chip label={formatLevel(reward.minLevel)} tone="muted" />
+              <Chip label={`AB ${formatLevel(reward.minLevel)}`} tone="muted" />
             )}
-            {!inStock && <Chip label="SOLD OUT" tone="muted" />}
-            {levelMet && inStock && !affordable && <Chip label="KEEP EARNING" tone="muted" />}
-            {levelMet && inStock && affordable && <Chip label="AVAILABLE" tone="active" />}
+            {!inStock && <Chip label="VERGRIFFEN" tone="muted" />}
+            {levelMet && inStock && !affordable && <Chip label="NOCH SAMMELN" tone="muted" />}
+            {levelMet && inStock && affordable && <Chip label="VERFÜGBAR" tone="active" />}
             {reward.remaining !== null && reward.remaining > 0 && reward.remaining <= 10 && (
-              <Chip label={`${reward.remaining} LEFT`} tone="warning" />
+              <Chip label={`NOCH ${reward.remaining}`} tone="warning" />
             )}
           </View>
         </View>

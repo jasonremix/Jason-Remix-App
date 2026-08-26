@@ -23,7 +23,7 @@ import { adminService } from '@/services/admin.service';
 import { useUiStore } from '@/store/uiStore';
 import type { AdminUserSummary } from '@/types/models';
 
-/** Member lookup, suspension and restoration. */
+/** Mitglieder nachschlagen, sperren und wieder freigeben. */
 export default function AdminUsers() {
   const queryClient = useQueryClient();
   const showToast = useUiStore((state) => state.showToast);
@@ -32,7 +32,7 @@ export default function AdminUsers() {
   const [search, setSearch] = useState('');
   const [pending, setPending] = useState<AdminUserSummary | null>(null);
 
-  // Debounced so typing a search does not fire a request per keystroke.
+  // Entprellt, damit beim Tippen nicht pro Tastendruck eine Anfrage rausgeht.
   useEffect(() => {
     const timer = setTimeout(() => setSearch(query.trim()), 300);
     return () => clearTimeout(timer);
@@ -48,7 +48,10 @@ export default function AdminUsers() {
     mutationFn: ({ userId, status }: { userId: string; status: 'ACTIVE' | 'BANNED' }) =>
       adminService.setUserStatus(userId, status),
     onSuccess: (_result, variables) => {
-      showToast(variables.status === 'BANNED' ? 'MEMBER SUSPENDED' : 'MEMBER RESTORED', 'neutral');
+      showToast(
+        variables.status === 'BANNED' ? 'MITGLIED GESPERRT' : 'MITGLIED FREIGEGEBEN',
+        'neutral',
+      );
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminAudit });
     },
@@ -60,21 +63,21 @@ export default function AdminUsers() {
 
   return (
     <Screen
-      header={<ScreenHeader title="MEMBERS" />}
+      header={<ScreenHeader title="MITGLIEDER" />}
       contentStyle={styles.content}
       onRefresh={() => void users.refetch()}
       refreshing={users.isRefetching}
     >
       <Input
-        label="SEARCH"
+        label="SUCHE"
         value={query}
         onChangeText={setQuery}
-        placeholder="Email or username"
-        hint="Tap a member to suspend, restore, or copy their id for the credits screen."
+        placeholder="E-Mail oder Benutzername"
+        hint="Auf ein Mitglied tippen, um zu sperren, freizugeben oder die ID für den Credits-Bildschirm zu kopieren."
       />
 
       <View style={styles.section}>
-        <SectionHeader title="ACCOUNTS" meta={users.isPending ? undefined : `${rows.length}`} />
+        <SectionHeader title="KONTEN" meta={users.isPending ? undefined : `${rows.length}`} />
 
         {users.isPending ? (
           <View style={styles.list}>
@@ -85,7 +88,7 @@ export default function AdminUsers() {
         ) : users.isError ? (
           <ErrorState message={toAppError(users.error).message} onRetry={() => void users.refetch()} />
         ) : rows.length === 0 ? (
-          <EmptyState icon="user" title="No accounts match." />
+          <EmptyState icon="user" title="Keine Konten gefunden." />
         ) : (
           <View>
             {rows.map((user, index) => (
@@ -99,7 +102,7 @@ export default function AdminUsers() {
                   trailing={
                     <View style={styles.trailing}>
                       {user.role === 'ADMIN' && <Chip label="ADMIN" tone="warning" />}
-                      {user.status === 'BANNED' && <Chip label="SUSPENDED" tone="danger" />}
+                      {user.status === 'BANNED' && <Chip label="GESPERRT" tone="danger" />}
                       {user.spotifyConnected && <Chip label="SPOTIFY" tone="muted" />}
                       <CreditPill amount={user.balance} size="sm" />
                     </View>
@@ -113,22 +116,22 @@ export default function AdminUsers() {
       </View>
 
       <Text variant="caption" tone="muted">
-        Suspending a member blocks sign-in immediately and revokes every active session.
-        Credits and entries are preserved.
+        Eine Sperre verhindert die Anmeldung sofort und beendet alle aktiven Sitzungen.
+        Credits und Lose bleiben erhalten.
       </Text>
 
       <ConfirmDialog
         visible={pending !== null}
-        eyebrow={pending?.status === 'BANNED' ? 'RESTORE MEMBER' : 'SUSPEND MEMBER'}
+        eyebrow={pending?.status === 'BANNED' ? 'MITGLIED FREIGEBEN' : 'MITGLIED SPERREN'}
         title={pending?.username ?? pending?.email ?? ''}
         message={
           pending?.status === 'BANNED'
-            ? 'The member will be able to sign in again straight away.'
-            : 'The member will be signed out everywhere and blocked from signing in until restored.'
+            ? 'Das Mitglied kann sich sofort wieder anmelden.'
+            : 'Das Mitglied wird überall abgemeldet und kann sich bis zur Freigabe nicht mehr anmelden.'
         }
-        detail={pending ? `Member ${pending.id}` : undefined}
-        confirmLabel={pending?.status === 'BANNED' ? 'RESTORE' : 'SUSPEND'}
-        cancelLabel="COPY ID"
+        detail={pending ? `Mitglied ${pending.id}` : undefined}
+        confirmLabel={pending?.status === 'BANNED' ? 'FREIGEBEN' : 'SPERREN'}
+        cancelLabel="ID KOPIEREN"
         destructive={pending?.status !== 'BANNED'}
         loading={setStatus.isPending}
         onConfirm={() => {
@@ -139,11 +142,11 @@ export default function AdminUsers() {
           });
         }}
         onCancel={async () => {
-          // The cancel slot doubles as "copy id" — the credits screen needs it, and
-          // there is nowhere else in the interface to get it from.
+          // Die Abbrechen-Schaltfläche dient zugleich als „ID kopieren“ — der
+          // Credits-Bildschirm braucht sie, und woanders steht sie nirgends.
           if (pending) {
             await Clipboard.setStringAsync(pending.id);
-            showToast('MEMBER ID COPIED', 'neutral');
+            showToast('MITGLIEDS-ID KOPIERT', 'neutral');
           }
           setPending(null);
         }}

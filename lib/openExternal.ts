@@ -30,8 +30,8 @@ export async function openExternal(url: string): Promise<void> {
     }
 
     await WebBrowser.openBrowserAsync(url, {
-      controlsColor: palette.chrome,
-      toolbarColor: palette.black,
+      controlsColor: palette.accent,
+      toolbarColor: palette.paper,
       dismissButtonStyle: 'close',
       enableBarCollapsing: true,
     });

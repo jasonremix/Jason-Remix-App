@@ -43,7 +43,7 @@ spotifyRoutes.post(
   limits.mutation(),
   asyncRoute(async (req, res) => {
     if (!isSpotifyConfigured) {
-      throw new ApiError('SPOTIFY_NOT_CONFIGURED', 'Spotify is not available yet.');
+      throw new ApiError('SPOTIFY_NOT_CONFIGURED', 'Spotify steht noch nicht zur Verfügung.');
     }
 
     const input = parse(exchangeSchema, req.body);

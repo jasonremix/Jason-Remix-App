@@ -16,6 +16,7 @@ import type { NewsCategory } from '@/types/models';
 
 const CATEGORIES: NewsCategory[] = ['RELEASE', 'TOUR', 'REWARD', 'ANNOUNCEMENT'];
 
+/** Meldungen für die Startseite anlegen und nachschlagen. */
 export default function AdminNews() {
   const catalog = useCatalog();
 
@@ -39,30 +40,36 @@ export default function AdminNews() {
   );
 
   return (
-    <Screen header={<ScreenHeader title="NEWS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="AKTUELLES" />} contentStyle={styles.content}>
       <AdminForm
-        title="PUBLISH AN ANNOUNCEMENT"
-        description="Appears at the top of Home for every member."
-        submitLabel="PUBLISH"
+        title="MELDUNG VERÖFFENTLICHEN"
+        description="Erscheint für jedes Mitglied oben auf der Startseite."
+        submitLabel="VERÖFFENTLICHEN"
         onSubmit={publish}
         fields={[
-          { name: 'title', label: 'HEADLINE', required: true, placeholder: 'ZEITGEIST is out now' },
-          { name: 'body', label: 'BODY', type: 'multiline', required: true, placeholder: 'The new single is available on every major platform.' },
+          { name: 'title', label: 'ÜBERSCHRIFT', required: true, placeholder: 'ZEITGEIST ist da' },
+          {
+            name: 'body',
+            label: 'TEXT',
+            type: 'multiline',
+            required: true,
+            placeholder: 'Die neue Single ist auf allen großen Plattformen verfügbar.',
+          },
           {
             name: 'category',
-            label: 'CATEGORY',
+            label: 'KATEGORIE',
             initialValue: 'ANNOUNCEMENT',
             hint: CATEGORIES.join(' · '),
           },
-          { name: 'imageUrl', label: 'IMAGE URL', placeholder: 'https://…' },
-          { name: 'linkUrl', label: 'LINK URL', placeholder: 'https://…' },
+          { name: 'imageUrl', label: 'BILD-URL', placeholder: 'https://…' },
+          { name: 'linkUrl', label: 'LINK-URL', placeholder: 'https://…' },
         ]}
       />
 
       <View style={styles.section}>
-        <SectionHeader title="PUBLISHED" meta={`${catalog.data?.news.length ?? 0}`} />
+        <SectionHeader title="VERÖFFENTLICHT" meta={`${catalog.data?.news.length ?? 0}`} />
         {(catalog.data?.news ?? []).length === 0 ? (
-          <EmptyState icon="document" title="Nothing published yet." />
+          <EmptyState icon="document" title="Noch nichts veröffentlicht." />
         ) : (
           <View>
             {(catalog.data?.news ?? []).map((item, index, all) => (

@@ -16,6 +16,8 @@ export type User = {
   role: UserRole;
   status: UserStatus;
   createdAt: string;
+  /** Null until the member follows the link in the confirmation email. */
+  emailVerifiedAt: string | null;
 };
 
 export type UserProfile = {
@@ -37,6 +39,7 @@ type UserRow = {
   role: UserRole;
   status: UserStatus;
   created_at: string;
+  email_verified_at: string | null;
 };
 
 type ProfileRow = {
@@ -57,6 +60,7 @@ const toUser = (row: UserRow): User => ({
   role: row.role,
   status: row.status,
   createdAt: toIso(row.created_at),
+  emailVerifiedAt: row.email_verified_at ? toIso(row.email_verified_at) : null,
 });
 
 const toProfile = (row: ProfileRow): UserProfile => ({
@@ -97,11 +101,11 @@ export function createUser(input: {
     if (existingEmail) {
       // Deliberately the same wording as a username clash — this endpoint should not
       // become a way to test which addresses are registered.
-      throw new ApiError('CONFLICT', 'That email address or username is already taken.');
+      throw new ApiError('CONFLICT', 'Diese E-Mail-Adresse oder dieser Benutzername ist schon vergeben.');
     }
     const existingUsername = db.prepare(`SELECT 1 FROM user_profiles WHERE username = ?`).get(username);
     if (existingUsername) {
-      throw new ApiError('CONFLICT', 'That email address or username is already taken.');
+      throw new ApiError('CONFLICT', 'Diese E-Mail-Adresse oder dieser Benutzername ist schon vergeben.');
     }
 
     const userId = newId();
@@ -131,11 +135,11 @@ export function authenticate(email: string, password: string): User {
   const hash = row?.password_hash ?? '$scrypt$1$1$1$00$00';
   const valid = verifyPassword(password, hash);
 
-  if (!row || !valid) throw unauthorized('Those details do not match an account.');
+  if (!row || !valid) throw unauthorized('Diese Angaben passen zu keinem Konto.');
   if (row.status === 'BANNED') {
-    throw new ApiError('ACCOUNT_BANNED', 'This account has been suspended.');
+    throw new ApiError('ACCOUNT_BANNED', 'Dieses Konto ist gesperrt.');
   }
-  if (row.status === 'DELETED') throw unauthorized('Those details do not match an account.');
+  if (row.status === 'DELETED') throw unauthorized('Diese Angaben passen zu keinem Konto.');
 
   return toUser(row);
 }
@@ -145,13 +149,13 @@ export function updateProfile(
   input: Partial<Pick<UserProfile, 'username' | 'displayName' | 'avatarUrl' | 'bio' | 'country'>>,
 ): UserProfile {
   const existing = getProfile(userId);
-  if (!existing) throw notFound('Profile not found.');
+  if (!existing) throw notFound('Profil nicht gefunden.');
 
   if (input.username && input.username !== existing.username) {
     const clash = db
       .prepare(`SELECT 1 FROM user_profiles WHERE username = ? AND user_id <> ?`)
       .get(input.username, userId);
-    if (clash) throw new ApiError('CONFLICT', 'That username is already taken.');
+    if (clash) throw new ApiError('CONFLICT', 'Dieser Benutzername ist schon vergeben.');
   }
 
   db.prepare(
@@ -181,7 +185,7 @@ export function changePassword(userId: string, currentPassword: string, newPassw
     | { password_hash: string }
     | undefined;
   if (!row || !verifyPassword(currentPassword, row.password_hash)) {
-    throw unauthorized('Your current password is not correct.');
+    throw unauthorized('Dein aktuelles Passwort stimmt nicht.');
   }
 
   db.prepare(`UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?`).run(
@@ -214,7 +218,7 @@ export function deleteAccount(userId: string): void {
 /** GDPR Art. 15/20 export: everything held about the member, in one document. */
 export function exportUserData(userId: string): Record<string, unknown> {
   const user = findUserById(userId);
-  if (!user) throw notFound('Account not found.');
+  if (!user) throw notFound('Konto nicht gefunden.');
 
   const query = <T>(sql: string): T[] => db.prepare(sql).all(userId) as T[];
 
@@ -317,7 +321,7 @@ export function setUserStatus(userId: string, status: 'ACTIVE' | 'BANNED'): void
   const result = db
     .prepare(`UPDATE users SET status = ?, updated_at = datetime('now') WHERE id = ?`)
     .run(status, userId);
-  if (result.changes === 0) throw notFound('Account not found.');
+  if (result.changes === 0) throw notFound('Konto nicht gefunden.');
   // A ban takes effect immediately, not when the access token happens to expire.
   if (status === 'BANNED') revokeAllRefreshTokens(userId);
 }

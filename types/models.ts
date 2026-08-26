@@ -9,6 +9,8 @@ export type User = {
   role: UserRole;
   status: UserStatus;
   createdAt: string;
+  /** Null until the member follows the link in the confirmation email. */
+  emailVerifiedAt: string | null;
 };
 
 export type UserProfile = {

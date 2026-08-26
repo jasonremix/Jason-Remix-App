@@ -32,7 +32,7 @@ export const notificationsService = {
   async enable(): Promise<PushPermission> {
     if (!Device.isDevice) {
       // Simulators cannot receive push; say so instead of registering a useless token.
-      throw new AppError('BAD_REQUEST', 'Push notifications need a physical device.');
+      throw new AppError('BAD_REQUEST', 'Push-Benachrichtigungen brauchen ein echtes Gerät.');
     }
 
     const existing = await Notifications.getPermissionsAsync();
@@ -49,7 +49,7 @@ export const notificationsService = {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Jason Remix',
         importance: Notifications.AndroidImportance.DEFAULT,
-        lightColor: '#E4E7EB',
+        lightColor: '#001EC8',
         sound: null,
       });
     }
@@ -65,9 +65,12 @@ export const notificationsService = {
       await getBackend().setPushEnabled(true);
       return 'granted';
     } catch {
-      // A missing EAS project id is the usual cause during development.
+      // Meist fehlt schlicht die EAS-Projekt-ID — ohne sie gibt es kein Push-Token.
       logger.warn('push token registration failed');
-      throw new AppError('SERVER_ERROR', 'Notifications could not be enabled right now.');
+      throw new AppError(
+        'SERVER_ERROR',
+        'Benachrichtigungen lassen sich gerade nicht einschalten.',
+      );
     }
   },
 

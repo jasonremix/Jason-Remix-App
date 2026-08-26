@@ -32,7 +32,7 @@ cp server/.env.example server/.env
 node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
 node -e "console.log('TOKEN_ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex'))"
 
-npm run server:seed          # creates the schema and reference data
+npm run server:seed          # creates the schema and German reference data
 npm run server                # http://localhost:4000
 ```
 
@@ -42,6 +42,62 @@ your machine's LAN address, not `localhost`.
 Create the first administrator by setting `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`
 before running the seed. There is deliberately **no API route that grants the admin
 role** — promotion is a database operation.
+
+### On a phone, with Expo Go
+
+```bash
+npm run expo-go:write        # writes your LAN address into both .env files
+npm run server               # terminal A
+npm start                    # terminal B — scan the QR code with Expo Go
+```
+
+`expo-go` alone prints what it *would* write without touching anything. It never
+overwrites a value that already points somewhere real; pass `--force` for that.
+
+Every dependency is either an Expo SDK module or bundled with Expo Go, so **no custom
+development build is needed**.
+
+Two things that reliably trip up a first run:
+
+- **`localhost` in `.env`.** The phone resolves that to itself. Use the LAN address —
+  which is exactly what `npm run expo-go:write` puts there.
+- **A stale Metro cache.** `EXPO_PUBLIC_*` values are compiled into the bundle, so after
+  editing `.env` start with `npm run start:clear`, or the previous value is reused.
+
+If the phone cannot reach your machine at all (guest Wi-Fi, client isolation), use
+`npm run tunnel`.
+
+---
+
+## Account email
+
+Registration creates the account and sends a confirmation link; following it sends a
+welcome message. Both are German, and both are recorded in `email_deliveries` before
+anything reports them as sent.
+
+Set **either** a Resend API key **or** an SMTP host in `server/.env`:
+
+```bash
+RESEND_API_KEY=re_...                 # option A — one key, nothing to run
+SMTP_HOST=smtp.example.com            # option B — any SMTP server
+SMTP_PORT=587
+SMTP_USER=...
+SMTP_PASSWORD=...
+
+EMAIL_FROM_ADDRESS=noreply@jasonremix.de
+PUBLIC_BASE_URL=http://192.168.1.42:4000   # must be reachable from the phone
+```
+
+`PUBLIC_BASE_URL` is what goes into the link inside the email, so it has to be reachable
+from the member's device — `npm run expo-go:write` sets it alongside the app's API URL.
+
+**With neither configured, nothing is faked.** The API reports `emailVerification.sent:
+false` with a reason, the app says "no email was sent" instead of pointing at an empty
+inbox, and the delivery is logged as `SKIPPED`. An admin can check what actually went out
+under **Admin → E-Mail-Versand**.
+
+Tokens are stored as SHA-256 hashes — the plaintext exists only in the link in the
+member's inbox — and requesting a new link invalidates the previous one.
 
 ---
 
@@ -210,18 +266,53 @@ unnoticed.
 
 ---
 
-## Building for the stores (EAS)
+## expo.dev (EAS)
 
-`eas.json` defines three profiles: `development` (dev client, iOS simulator + Android
-APK), `preview` (internal distribution) and `production` (store-ready, auto-incrementing
-build numbers).
+Everything that does not require an Expo account is already in place: bundle identifier
+and package name, icons, `eas.json`, `expo-updates`, a `runtimeVersion` policy, an
+`.easignore` that keeps the API server out of the upload, and two GitHub Actions.
+
+The project id is committed, so `npm run eas:check` passes with no blockers:
 
 ```bash
-npm i -g eas-cli
-eas login
-eas init            # writes extra.eas.projectId into app.json
-eas build --profile preview --platform all
+npm run eas:check      # what is still missing, before a build burns 20 minutes
+npm run eas:build      # preview APK for Android
+npm run eas:update     # ship a JS-only change, openable in Expo Go
 ```
+
+`eas:check` separately lists what should be done before a *store* release (Impressum
+details, the real discography) without treating those as build failures.
+
+> If `eas` reports that the config slug does not match the project, the slug on
+> expo.dev differs from `expo.slug` in `app.json`. The project id decides which project
+> is meant; align the slug to it and the message goes away.
+
+### Builds versus updates
+
+`eas.json` defines three build profiles: `development` (dev client, iOS simulator +
+Android APK), `preview` (internal distribution) and `production` (store-ready,
+auto-incrementing build numbers).
+
+Once a build is installed, `eas update` ships JavaScript-only changes to it without a
+new binary. `runtimeVersion.policy: appVersion` draws the line: a change to native code,
+a permission or an SDK version needs `version` bumped in `app.json` and a fresh build,
+and the policy stops an incompatible update from reaching an older binary.
+
+`runtimeVersion` is not fixed in `app.json` — it comes from `app.config.js`, because
+the right value differs by audience:
+
+| | policy | resolves to | opens in |
+| --- | --- | --- | --- |
+| default (`preview`) | `sdkVersion` | `exposdk:57.0.0` | **Expo Go** |
+| `production` | `appVersion` | `1.0.0` | builds from `eas build --profile production` |
+
+`eas.json` sets `EAS_RUNTIME_POLICY=appVersion` on the production profile; everything
+else falls through to the default. So an update pushed to the `preview` branch appears
+under the project in Expo Go and opens there, with nothing installed locally — while a
+production update can only ever reach a binary with matching native code.
+
+Hardcoding either one would be wrong half the time, and the mistake would only show up
+as an update that silently never arrives.
 
 ### Configuration per environment
 
@@ -238,6 +329,24 @@ internal build before the API is deployed.
 
 > The Spotify **client secret** is never part of a build. It belongs only in the API
 > server's environment.
+
+### Seeing it on a phone without installing anything
+
+Once the project id is committed and `EXPO_TOKEN` is a repository secret, the **EAS
+Update** workflow publishes to the `preview` branch. The branch then appears under the
+project in Expo Go, and opens there — no clone, no `npm install`, no dev server.
+
+### Building from GitHub
+
+`.github/workflows/eas-build.yml` and `eas-update.yml` both run on demand, so a build
+never starts by accident and never spends EAS minutes on a push. Both need one
+repository secret:
+
+**Settings → Secrets and variables → Actions → `EXPO_TOKEN`**, from
+<https://expo.dev/settings/access-tokens>.
+
+A workflow only appears in the Actions tab once its file is on the **default branch** —
+until this branch is merged, the two buttons will not be there.
 
 ### CI
 
@@ -258,6 +367,13 @@ or a message.
 | Command | Purpose |
 | --- | --- |
 | `npm start` | Expo dev server |
+| `npm run start:clear` | Expo dev server with a cleared Metro cache (after editing `.env`) |
+| `npm run expo-go` / `expo-go:write` | Show / write your LAN address into both `.env` files |
+| `npm run tunnel` | Expo dev server over a tunnel, when the LAN is not usable |
+| `npm run eas:check` | Preflight: what would stop a build, and what to do before a store release |
+| `npm run eas:setup` | `eas init` + `eas update:configure` (needs `eas login` first) |
+| `npm run eas:build` | Preview APK for Android |
+| `npm run eas:update` | Ship a JS-only change to installed builds |
 | `npm run android` / `ios` / `web` | Start on a platform |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
@@ -272,15 +388,20 @@ or a message.
 ## Tests
 
 ```bash
-npm test              # 67 client tests
-npm run server:test   # 94 API tests
+npm test              # 72 client tests
+npm run server:test   # 110 API tests
 ```
 
-The API suite covers registration, login, credit balance and ledger integrity, mission
-completion and cooldowns, reward redemption and stock races, giveaway entry and draws,
-Spotify connect and disconnect, token expiration and refresh rotation, unauthorised
-admin access, account deletion, and rate limiting. Spotify is stubbed at the `fetch`
-boundary — no test makes a network call.
+The API suite covers registration, login, email confirmation, credit balance and ledger
+integrity, mission completion and cooldowns, reward redemption and stock races, giveaway
+entry and draws, Spotify connect and disconnect, token expiration and refresh rotation,
+unauthorised admin access, account deletion, and rate limiting. Spotify and the mail
+transport are stubbed at their boundaries — no test makes a network call.
+
+The email tests assert the properties that matter rather than the wording: the token is
+stored only as a hash, a delivery row exists for every claimed send, a failed or skipped
+send is reported as such instead of being swallowed, and requesting a new link
+invalidates the old one.
 
 ---
 

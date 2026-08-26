@@ -1,8 +1,7 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
-import { alpha, gradients, palette } from '@/constants/theme';
+import { palette } from '@/constants/theme';
 
 import { Text } from './Text';
 
@@ -19,7 +18,7 @@ export function Avatar({
   name?: string | null;
   size?: number;
 }) {
-  const initial = (name ?? '').trim().charAt(0).toLocaleUpperCase('en-US') || '—';
+  const initial = (name ?? '').trim().charAt(0).toLocaleUpperCase('de-DE') || '—';
 
   return (
     <View
@@ -37,22 +36,13 @@ export function Avatar({
           accessibilityIgnoresInvertColors
         />
       ) : (
-        <>
-          <LinearGradient
-            colors={[...gradients.gunmetal.colors]}
-            locations={[...gradients.gunmetal.locations]}
-            start={gradients.gunmetal.start}
-            end={gradients.gunmetal.end}
-            style={StyleSheet.absoluteFill}
-          />
-          <Text
-            variant="heading"
-            tone="tertiary"
-            style={{ fontSize: size * 0.34, letterSpacing: 1 }}
-          >
-            {initial}
-          </Text>
-        </>
+        <Text
+          variant="title"
+          tone="accent"
+          style={{ fontSize: size * 0.4, lineHeight: size * 0.46 }}
+        >
+          {initial}
+        </Text>
       )}
     </View>
   );
@@ -63,8 +53,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: palette.graphite,
+    backgroundColor: palette.accentWash,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: alpha.edge,
+    borderColor: palette.rule,
   },
 });

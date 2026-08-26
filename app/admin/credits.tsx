@@ -15,10 +15,11 @@ import type { AdminAdjustCreditsInput } from '@/services/backend.types';
 const TYPES: AdminAdjustCreditsInput['type'][] = ['ADMIN_ADJUSTMENT', 'BONUS', 'REFUND'];
 
 /**
- * Manual credit adjustments.
+ * Manuelle Korrekturen am Guthaben.
  *
- * The most consequential screen in the admin area, so it is also the most deliberate:
- * a confirmation step that restates the exact movement, and an audit entry either way.
+ * Der folgenreichste Bildschirm im Admin-Bereich und deshalb auch der umständlichste:
+ * eine Rückfrage, die die genaue Bewegung noch einmal nennt, und in jedem Fall ein
+ * Eintrag im Prüfprotokoll.
  */
 export default function AdminCredits() {
   const [pending, setPending] = useState<AdminAdjustCreditsInput | null>(null);
@@ -27,7 +28,7 @@ export default function AdminCredits() {
 
   const stage = useCallback(async (values: Record<string, string | boolean>) => {
     const amount = toNumber(values.amount);
-    if (!amount) throw new Error('Enter a non-zero amount.');
+    if (!amount) throw new Error('Gib einen Betrag ungleich null ein.');
 
     const raw = String(values.type ?? '').trim().toUpperCase();
     const type = (TYPES as string[]).includes(raw)
@@ -47,7 +48,7 @@ export default function AdminCredits() {
     setApplying(true);
     try {
       await adminService.adjustCredits(pending);
-      setLastResult(`${formatSignedCredits(pending.amount)} applied to ${pending.userId}`);
+      setLastResult(`${formatSignedCredits(pending.amount)} auf ${pending.userId} gebucht`);
     } finally {
       setApplying(false);
       setPending(null);
@@ -56,23 +57,40 @@ export default function AdminCredits() {
 
   return (
     <Screen header={<ScreenHeader title="CREDITS" />} contentStyle={styles.content}>
+      {/* Die Rückfrage unten ist der eigentliche Schutz — das Formular stellt nur scharf. */}
       <AdminForm
-        title="ADJUST A BALANCE"
-        description="Use a positive amount to grant credits and a negative amount to take them back. A negative adjustment can never push a balance below zero."
-        submitLabel="REVIEW ADJUSTMENT"
+        title="GUTHABEN KORRIGIEREN"
+        description="Ein positiver Betrag schreibt Credits gut, ein negativer nimmt sie zurück. Eine negative Korrektur kann ein Guthaben nie unter null drücken."
+        submitLabel="KORREKTUR PRÜFEN"
         onSubmit={stage}
         fields={[
-          { name: 'userId', label: 'MEMBER ID', required: true, placeholder: 'Copy from Members' },
-          { name: 'amount', label: 'AMOUNT', type: 'number', required: true, placeholder: '1000 or -1000' },
-          { name: 'description', label: 'REASON', required: true, placeholder: 'Goodwill correction after support ticket #128' },
-          { name: 'type', label: 'TYPE', initialValue: 'ADMIN_ADJUSTMENT', hint: TYPES.join(' · ') },
+          {
+            name: 'userId',
+            label: 'MITGLIEDS-ID',
+            required: true,
+            placeholder: 'Aus „Mitglieder“ kopieren',
+          },
+          {
+            name: 'amount',
+            label: 'BETRAG',
+            type: 'number',
+            required: true,
+            placeholder: '1000 oder -1000',
+          },
+          {
+            name: 'description',
+            label: 'GRUND',
+            required: true,
+            placeholder: 'Kulanzkorrektur nach Support-Anfrage #128',
+          },
+          { name: 'type', label: 'TYP', initialValue: 'ADMIN_ADJUSTMENT', hint: TYPES.join(' · ') },
         ]}
       />
 
       {lastResult && (
-        <Surface elevation="inset" style={styles.result}>
+        <Surface elevation="sunk" style={styles.result}>
           <Text variant="labelWide" tone="muted" uppercase>
-            LAST ADJUSTMENT
+            LETZTE KORREKTUR
           </Text>
           <Text variant="bodySmall" tone="secondary">
             {lastResult}
@@ -81,17 +99,18 @@ export default function AdminCredits() {
       )}
 
       <Text variant="caption" tone="muted">
-        Every adjustment writes a ledger entry visible to the member and an audit entry
-        naming you. There is no way to alter a balance without both.
+        Jede Korrektur schreibt einen für das Mitglied sichtbaren Eintrag ins Kontobuch und
+        einen Eintrag im Prüfprotokoll mit deinem Namen. Ein Guthaben lässt sich nicht
+        ohne beides ändern.
       </Text>
 
       <ConfirmDialog
         visible={pending !== null}
-        eyebrow="CONFIRM ADJUSTMENT"
-        title={pending ? `${formatSignedCredits(pending.amount)} credits` : ''}
+        eyebrow="KORREKTUR BESTÄTIGEN"
+        title={pending ? `${formatSignedCredits(pending.amount)} Credits` : ''}
         message={pending?.description ?? ''}
-        detail={pending ? `Member ${pending.userId} · recorded as ${pending.type}` : undefined}
-        confirmLabel="APPLY"
+        detail={pending ? `Mitglied ${pending.userId} · erfasst als ${pending.type}` : undefined}
+        confirmLabel="BUCHEN"
         destructive={Boolean(pending && pending.amount < 0)}
         loading={applying}
         onConfirm={() => void apply()}

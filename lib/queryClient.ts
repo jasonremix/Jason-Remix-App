@@ -5,6 +5,7 @@ import { AppError } from './errors';
 /** Query keys are declared once so invalidation can never miss a cache. */
 export const queryKeys = {
   me: ['me'] as const,
+  verification: ['auth', 'verification'] as const,
   catalog: ['catalog'] as const,
   track: (id: string) => ['catalog', 'track', id] as const,
   credits: ['credits'] as const,

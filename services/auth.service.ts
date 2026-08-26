@@ -7,31 +7,31 @@ import type { UserProfile } from '@/types/models';
 import { getBackend } from './backend';
 import type { LoginInput, RegisterInput, UpdateProfileInput } from './backend.types';
 
-/** Account lifecycle. All validation that matters is repeated on the server. */
+/** Konto-Lebenszyklus. Jede relevante Prüfung wird auf dem Server wiederholt. */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const USERNAME_PATTERN = /^[a-z0-9_.]{3,20}$/i;
 export const MIN_PASSWORD_LENGTH = 10;
 
 export function validateEmail(email: string): string | null {
-  if (!email.trim()) return 'Enter your email address.';
-  if (!EMAIL_PATTERN.test(email.trim())) return 'That email address does not look right.';
+  if (!email.trim()) return 'Bitte gib deine E-Mail-Adresse ein.';
+  if (!EMAIL_PATTERN.test(email.trim())) return 'Diese E-Mail-Adresse sieht nicht richtig aus.';
   return null;
 }
 
 export function validatePassword(password: string): string | null {
   if (password.length < MIN_PASSWORD_LENGTH) {
-    return `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
+    return `Mindestens ${MIN_PASSWORD_LENGTH} Zeichen.`;
   }
   if (!/[a-z]/i.test(password) || !/[0-9]/.test(password)) {
-    return 'Include at least one letter and one number.';
+    return 'Mindestens ein Buchstabe und eine Zahl.';
   }
   return null;
 }
 
 export function validateUsername(username: string): string | null {
   if (!USERNAME_PATTERN.test(username.trim())) {
-    return 'Use 3–20 letters, numbers, dots or underscores.';
+    return '3–20 Buchstaben, Zahlen, Punkte oder Unterstriche.';
   }
   return null;
 }
@@ -49,7 +49,7 @@ export const authService = {
       throw new AppError('BAD_REQUEST', usernameError, { details: { username: usernameError } });
     }
     if (!input.acceptedTerms) {
-      throw new AppError('BAD_REQUEST', 'Please accept the terms to continue.');
+      throw new AppError('BAD_REQUEST', 'Bitte akzeptiere die Bedingungen, um fortzufahren.');
     }
 
     return getBackend().register({
@@ -63,7 +63,7 @@ export const authService = {
     const emailError = validateEmail(input.email);
     if (emailError) throw new AppError('BAD_REQUEST', emailError, { details: { email: emailError } });
     if (!input.password) {
-      throw new AppError('BAD_REQUEST', 'Enter your password.', { details: { password: 'Required' } });
+      throw new AppError('BAD_REQUEST', 'Bitte gib dein Passwort ein.', { details: { password: 'Pflichtfeld' } });
     }
     return getBackend().login({ ...input, email: input.email.trim().toLowerCase() });
   },

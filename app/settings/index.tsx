@@ -14,45 +14,54 @@ import { spacing } from '@/constants/theme';
 import { useMe } from '@/hooks/useMe';
 import { useAuthStore, useIsAdmin } from '@/store/authStore';
 
+/** Der Einstiegspunkt in alles, was ein Mitglied an sich selbst ändern kann. */
 export default function Settings() {
   const me = useMe();
   const isAdmin = useIsAdmin();
   const signOut = useAuthStore((state) => state.signOut);
 
   return (
-    <Screen header={<ScreenHeader title="SETTINGS" />} contentStyle={styles.content}>
+    <Screen header={<ScreenHeader title="EINSTELLUNGEN" />} contentStyle={styles.content}>
       <DemoBanner />
 
       <View style={styles.section}>
-        <SectionHeader title="ACCOUNT" />
+        <SectionHeader title="KONTO" />
         <View>
-          <Row title="EMAIL" value={me.data?.user.email} showChevron={false} />
+          <Row title="E-MAIL" value={me.data?.user.email} showChevron={false} />
           <Hairline />
-          <Row title="USERNAME" value={me.data?.profile?.username ?? '—'} showChevron={false} />
+          <Row
+            title="BENUTZERNAME"
+            value={me.data?.profile?.username ?? '—'}
+            showChevron={false}
+          />
           <Hairline />
-          <Row title="MANAGE ACCOUNT" icon="user" onPress={() => router.push('/settings/account')} />
+          <Row
+            title="KONTO VERWALTEN"
+            icon="user"
+            onPress={() => router.push('/settings/account')}
+          />
         </View>
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="CONNECTIONS" />
+        <SectionHeader title="VERBINDUNGEN" />
         <View>
           <Row
             title="SPOTIFY"
             value={
               !config.isSpotifyConfigured
-                ? 'NOT CONFIGURED'
+                ? 'NICHT EINGERICHTET'
                 : me.data?.spotify.connected
-                  ? 'CONNECTED'
-                  : 'NOT CONNECTED'
+                  ? 'VERBUNDEN'
+                  : 'NICHT VERBUNDEN'
             }
             icon="spotify"
             onPress={() => router.push('/settings/spotify')}
           />
           <Hairline />
           <Row
-            title="NOTIFICATIONS"
-            value={me.data?.profile?.pushEnabled ? 'ON' : 'OFF'}
+            title="BENACHRICHTIGUNGEN"
+            value={me.data?.profile?.pushEnabled ? 'AN' : 'AUS'}
             icon="bell"
             onPress={() => router.push('/settings/notifications')}
           />
@@ -60,30 +69,46 @@ export default function Settings() {
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="LEGAL" />
+        <SectionHeader title="RECHTLICHES" />
         <View>
-          <Row title="PRIVACY POLICY" icon="shield" onPress={() => router.push('/legal/privacy')} />
+          <Row
+            title="DATENSCHUTZERKLÄRUNG"
+            icon="shield"
+            onPress={() => router.push('/legal/privacy')}
+          />
           <Hairline />
-          <Row title="TERMS OF USE" icon="document" onPress={() => router.push('/legal/terms')} />
+          <Row
+            title="NUTZUNGSBEDINGUNGEN"
+            icon="document"
+            onPress={() => router.push('/legal/terms')}
+          />
           <Hairline />
-          <Row title="GIVEAWAY CONDITIONS" icon="ticket" onPress={() => router.push('/legal/giveaway-terms')} />
+          <Row
+            title="TEILNAHMEBEDINGUNGEN"
+            icon="ticket"
+            onPress={() => router.push('/legal/giveaway-terms')}
+          />
           <Hairline />
-          <Row title="SPOTIFY NOTICE" icon="info" onPress={() => router.push('/legal/spotify-notice')} />
+          <Row
+            title="SPOTIFY-HINWEIS"
+            icon="info"
+            onPress={() => router.push('/legal/spotify-notice')}
+          />
           <Hairline />
-          <Row title="IMPRINT" icon="document" onPress={() => router.push('/legal/imprint')} />
+          <Row title="IMPRESSUM" icon="document" onPress={() => router.push('/legal/imprint')} />
         </View>
       </View>
 
       {isAdmin && (
         <View style={styles.section}>
-          <SectionHeader title="ADMINISTRATION" />
-          <Row title="ADMIN DASHBOARD" icon="lock" onPress={() => router.push('/admin')} />
+          <SectionHeader title="VERWALTUNG" />
+          <Row title="ADMIN-BEREICH" icon="lock" onPress={() => router.push('/admin')} />
         </View>
       )}
 
       <View style={styles.section}>
         <Row
-          title="SIGN OUT"
+          title="ABMELDEN"
           icon="logout"
           showChevron={false}
           onPress={async () => {
@@ -98,7 +123,9 @@ export default function Settings() {
           {brand.name} · Version {config.appVersion}
         </Text>
         <Text variant="caption" tone="muted" align="center">
-          {config.isDemoMode ? 'Demo mode — no server connected' : 'Connected to the Jason Remix API'}
+          {config.isDemoMode
+            ? 'Demo-Modus — kein Server verbunden'
+            : 'Mit der Jason-Remix-API verbunden'}
         </Text>
       </View>
     </Screen>

@@ -86,19 +86,19 @@ export async function connectSpotify(): Promise<SpotifyConnectResult> {
     if (result.type === 'cancel' || result.type === 'dismiss') return { outcome: 'cancelled' };
     if (result.type !== 'success') {
       logger.warn('spotify authorization did not complete', { type: result.type });
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const returnedState = result.params.state;
     const storedState = await secureStorage.get(SecureKeys.spotifyState);
     if (!storedState || typeof returnedState !== 'string' || !safeEquals(storedState, returnedState)) {
       // A mismatched state means the response did not come from the request we made.
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const code = result.params.code;
     if (typeof code !== 'string' || code.length === 0) {
-      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify could not be connected.');
+      throw new AppError('SPOTIFY_AUTH_FAILED', 'Spotify konnte nicht verbunden werden.');
     }
 
     const response = await getBackend().exchangeSpotifyCode({
@@ -123,11 +123,11 @@ export async function connectSpotify(): Promise<SpotifyConnectResult> {
  * the member is sent to Spotify.
  */
 export const SCOPE_DESCRIPTIONS: Record<string, string> = {
-  'user-read-email': 'Your Spotify email address',
-  'user-read-private': 'Your Spotify profile and subscription type',
-  'user-read-currently-playing': 'The track you are playing right now',
-  'user-read-recently-played': 'Your recently played tracks',
-  'user-top-read': 'Your top tracks',
+  'user-read-email': 'Deine bei Spotify hinterlegte E-Mail-Adresse',
+  'user-read-private': 'Dein Spotify-Profil und deine Abo-Art',
+  'user-read-currently-playing': 'Der Titel, den du gerade hörst',
+  'user-read-recently-played': 'Deine zuletzt gehörten Titel',
+  'user-top-read': 'Deine meistgehörten Titel',
 };
 
 export function describeRequestedScopes(): { scope: string; description: string }[] {

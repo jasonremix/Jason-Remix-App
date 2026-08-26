@@ -14,6 +14,12 @@ import { layout, palette, spacing } from '@/constants/theme';
 import { toAppError } from '@/lib/errors';
 import { useAuthStore } from '@/store/authStore';
 
+/**
+ * Anmeldung.
+ *
+ * E-Mail und Passwort, sonst nichts. Die Anbieter-Schaltflächen sind sichtbar
+ * deaktiviert statt so zu tun, als würden sie schon funktionieren.
+ */
 export default function Login() {
   const insets = useSafeAreaInsets();
   const signIn = useAuthStore((state) => state.signIn);
@@ -66,23 +72,23 @@ export default function Login() {
 
         <View style={styles.form}>
           <Text variant="labelWide" tone="muted" uppercase>
-            SIGN IN
+            ANMELDEN
           </Text>
 
           <Input
-            label="EMAIL"
+            label="E-MAIL"
             value={email}
             onChangeText={setEmail}
             error={fieldErrors.email}
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="du@beispiel.de"
             returnKeyType="next"
           />
 
           <Input
-            label="PASSWORD"
+            label="PASSWORT"
             value={password}
             onChangeText={setPassword}
             error={fieldErrors.password}
@@ -101,7 +107,7 @@ export default function Login() {
           )}
 
           <Button
-            label="SIGN IN"
+            label="ANMELDEN"
             variant="primary"
             fullWidth
             loading={submitting}
@@ -110,8 +116,8 @@ export default function Login() {
 
           {config.isDemoMode && (
             <Text variant="caption" tone="muted">
-              Demo mode accepts any credentials. Sign in as admin@jasonremix.de to review the
-              admin area.
+              Im Demo-Modus wird jede Eingabe akzeptiert. Melde dich als admin@jasonremix.de
+              an, um den Admin-Bereich anzusehen.
             </Text>
           )}
         </View>
@@ -119,33 +125,46 @@ export default function Login() {
         <View style={styles.providers}>
           <View style={styles.rule} />
           <Text variant="labelWide" tone="muted" uppercase>
-            OR
+            ODER
           </Text>
           <View style={styles.rule} />
         </View>
 
         {/*
-          Apple and Google sign-in are part of the plan but not wired to a provider yet.
-          They are shown disabled and labelled rather than presented as working.
+          Anmeldung über Apple und Google ist geplant, aber noch an keinen Anbieter
+          angebunden. Deshalb stehen die Schaltflächen sichtbar deaktiviert da, statt so
+          zu tun, als würden sie funktionieren.
         */}
         <View style={styles.form}>
           <View style={styles.providerRow}>
-            <Button label="CONTINUE WITH APPLE" variant="secondary" fullWidth disabled style={styles.grow} />
-            <Chip label="SOON" tone="muted" />
+            <Button
+              label="WEITER MIT APPLE"
+              variant="secondary"
+              fullWidth
+              disabled
+              style={styles.grow}
+            />
+            <Chip label="BALD" tone="muted" />
           </View>
           <View style={styles.providerRow}>
-            <Button label="CONTINUE WITH GOOGLE" variant="secondary" fullWidth disabled style={styles.grow} />
-            <Chip label="SOON" tone="muted" />
+            <Button
+              label="WEITER MIT GOOGLE"
+              variant="secondary"
+              fullWidth
+              disabled
+              style={styles.grow}
+            />
+            <Chip label="BALD" tone="muted" />
           </View>
         </View>
 
         <View style={styles.footer}>
           <Text variant="bodySmall" tone="muted">
-            No account yet?
+            Noch kein Konto?
           </Text>
           <Link href="/(auth)/register" asChild>
-            <Text variant="bodySmall" tone="chrome" accessibilityRole="link">
-              CREATE ONE
+            <Text variant="bodySmall" tone="accent" accessibilityRole="link">
+              JETZT ANLEGEN
             </Text>
           </Link>
         </View>
@@ -155,12 +174,12 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.black },
+  root: { flex: 1, backgroundColor: palette.paper },
   content: { paddingHorizontal: layout.gutter, gap: spacing.xxl },
   notices: { gap: spacing.md },
   form: { gap: spacing.lg },
   providers: { flexDirection: 'row', alignItems: 'center', gap: spacing.base },
-  rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.08)' },
+  rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: palette.rule },
   providerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   grow: { flex: 1 },
   footer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center' },

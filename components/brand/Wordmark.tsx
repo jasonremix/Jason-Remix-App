@@ -7,29 +7,32 @@ import { Text } from '../ui/Text';
 
 export type WordmarkSize = 'sm' | 'md' | 'lg' | 'hero';
 
-const SIZES: Record<WordmarkSize, { fontSize: number; tracking: number; lineHeight: number }> = {
-  sm: { fontSize: 15, tracking: 5, lineHeight: 20 },
-  md: { fontSize: 20, tracking: 7, lineHeight: 26 },
-  lg: { fontSize: 27, tracking: 9, lineHeight: 34 },
-  hero: { fontSize: 34, tracking: 11, lineHeight: 42 },
+const SIZES: Record<WordmarkSize, { fontSize: number; lineHeight: number; tracking: number }> = {
+  sm: { fontSize: 17, lineHeight: 20, tracking: -0.5 },
+  md: { fontSize: 24, lineHeight: 26, tracking: -0.9 },
+  lg: { fontSize: 36, lineHeight: 37, tracking: -1.5 },
+  hero: { fontSize: 52, lineHeight: 50, tracking: -2.4 },
 };
 
 /**
- * `JASON REMIX`, set in wide-tracked light display type.
+ * `JASON REMIX`, set heavy and tight in Syne.
  *
- * Deliberately flat chrome rather than gradient-filled: at this weight a gradient reads
- * as a novelty effect, while flat metal on black reads as an engraved plate.
+ * The opposite of the wide-tracked light setting this replaced: at extra-bold with
+ * negative tracking the two words lock into a block, which is what makes it read as a
+ * printed mark rather than as a page heading.
  */
 export function Wordmark({
   size = 'md',
   tagline,
   align = 'flex-start',
+  tone = 'primary',
   style,
 }: {
   size?: WordmarkSize;
-  /** Shows `THE OFFICIAL EXPERIENCE` (or an override) beneath the name. */
+  /** Shows `DIE OFFIZIELLE APP` (or an override) beneath the name. */
   tagline?: boolean | string;
   align?: ViewStyle['alignItems'];
+  tone?: 'primary' | 'inverse' | 'accent';
   style?: StyleProp<ViewStyle>;
 }) {
   const metrics = SIZES[size];
@@ -38,14 +41,12 @@ export function Wordmark({
   return (
     <View style={[{ alignItems: align }, style]} accessibilityRole="header">
       <Text
-        variant="display"
-        tone="primary"
+        variant="hero"
+        tone={tone}
         style={{
           fontSize: metrics.fontSize,
           lineHeight: metrics.lineHeight,
-          // The tracking adds a trailing gap; a matching negative margin re-centres it.
           letterSpacing: metrics.tracking,
-          marginRight: -metrics.tracking,
         }}
         maxFontSizeMultiplier={1.2}
       >
@@ -55,8 +56,8 @@ export function Wordmark({
       {tagline && (
         <Text
           variant="labelWide"
-          tone="muted"
-          style={[styles.tagline, { marginRight: -3.2 }]}
+          tone={tone === 'inverse' ? 'inverse' : 'tertiary'}
+          style={styles.tagline}
           maxFontSizeMultiplier={1.2}
         >
           {taglineText}
