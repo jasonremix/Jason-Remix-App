@@ -204,6 +204,49 @@ details are marked in-app and must be completed before release.**
 
 ---
 
+## Building for the stores (EAS)
+
+`eas.json` defines three profiles: `development` (dev client, iOS simulator + Android
+APK), `preview` (internal distribution) and `production` (store-ready, auto-incrementing
+build numbers).
+
+```bash
+npm i -g eas-cli
+eas login
+eas init            # writes extra.eas.projectId into app.json
+eas build --profile preview --platform all
+```
+
+### Configuration per environment
+
+`EXPO_PUBLIC_*` values are compiled into the bundle, so they are set per build
+environment rather than committed:
+
+```bash
+eas env:create --environment production --name EXPO_PUBLIC_API_BASE_URL       --value https://api.jasonremix.de
+eas env:create --environment production --name EXPO_PUBLIC_SPOTIFY_CLIENT_ID  --value <client id>
+```
+
+A build with neither set produces a working app in demo mode — useful for a first
+internal build before the API is deployed.
+
+> The Spotify **client secret** is never part of a build. It belongs only in the API
+> server's environment.
+
+### CI
+
+`.github/workflows/ci.yml` runs typecheck, lint and both test suites on every push. It
+needs no secrets.
+
+`.github/workflows/eas-build.yml` starts a build on manual dispatch and is the only
+workflow that needs credentials: an **Expo access token** stored as the repository
+secret `EXPO_TOKEN` (Settings → Secrets and variables → Actions). Create the token at
+<https://expo.dev/settings/access-tokens>. Treat it like a password — it authenticates
+as your Expo account, so it belongs in the secret store and never in a file, a commit,
+or a message.
+
+---
+
 ## Scripts
 
 | Command | Purpose |

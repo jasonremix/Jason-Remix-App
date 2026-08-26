@@ -1,0 +1,43 @@
+name: EAS Build
+
+# Builds are started by hand rather than on every push: they consume EAS build
+# minutes and produce artefacts that need a person to decide about.
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Build profile
+        type: choice
+        options: [development, preview, production]
+        default: preview
+      platform:
+        description: Target platform
+        type: choice
+        options: [all, android, ios]
+        default: all
+
+jobs:
+  build:
+    name: ${{ inputs.profile }} · ${{ inputs.platform }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          # Stored as a repository secret — never in the repository itself.
+          # Settings → Secrets and variables → Actions → EXPO_TOKEN
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build
+        run: eas build --non-interactive --no-wait
+             --profile ${{ inputs.profile }}
+             --platform ${{ inputs.platform }}
